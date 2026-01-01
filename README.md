@@ -1,6 +1,6 @@
 [![GitHub All Releases](https://img.shields.io/github/downloads/zarzet/SpotiFLAC-Android/total?style=for-the-badge)](https://github.com/zarzet/SpotiFLAC-Android/releases)
 
-![SpotiFLAC](icon.png)
+![Image](icon.png)
 
 <div align="center">
 
@@ -13,24 +13,14 @@ Get Spotify tracks in true FLAC from Tidal, Qobuz & Amazon Music — no account 
 
 ### [Download](https://github.com/zarzet/SpotiFLAC-Android/releases)
 
-## Features
-
-- 🔍 Search Spotify tracks, albums, and playlists
-- 📥 Download in FLAC quality from multiple sources
-- 🔄 Automatic fallback to available services
-- 🎵 Embedded metadata and cover art
-- 📝 Lyrics support (synced and plain)
-- 🎨 Material 3 Expressive UI with dynamic colors
-
 ## Screenshot
 
-<!-- Add your screenshot here -->
-<!-- ![Screenshot](screenshot.png) -->
+<!-- ![Image](screenshot.png) -->
 
-## Related Project
+## Other project
 
 ### [SpotiFLAC (Desktop)](https://github.com/afkarxyz/SpotiFLAC)
-The original desktop version for Windows, macOS, and Linux.
+Get Spotify tracks in true FLAC from Tidal, Qobuz & Amazon Music for Windows, macOS & Linux
 
 ## Disclaimer
 
