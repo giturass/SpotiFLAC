@@ -1,0 +1,179 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:spotiflac_android/providers/track_provider.dart';
+import 'package:spotiflac_android/providers/download_queue_provider.dart';
+import 'package:spotiflac_android/providers/settings_provider.dart';
+
+class SearchScreen extends ConsumerStatefulWidget {
+  final String query;
+
+  const SearchScreen({super.key, required this.query});
+
+  @override
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
+}
+
+class _SearchScreenState extends ConsumerState<SearchScreen> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.query);
+    if (widget.query.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(trackProvider.notifier).search(widget.query);
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _search() {
+    final query = _searchController.text.trim();
+    if (query.isNotEmpty) {
+      ref.read(trackProvider.notifier).search(query);
+    }
+  }
+
+  void _downloadTrack(int index) {
+    final trackState = ref.read(trackProvider);
+    if (index >= 0 && index < trackState.tracks.length) {
+      final track = trackState.tracks[index];
+      final settings = ref.read(settingsProvider);
+      ref.read(downloadQueueProvider.notifier).addToQueue(track, settings.defaultService);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Added "${track.name}" to queue')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final trackState = ref.watch(trackProvider);
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: TextField(
+          controller: _searchController,
+          style: TextStyle(color: colorScheme.onSurface),
+          decoration: InputDecoration(
+            hintText: 'Search tracks...',
+            hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+          ),
+          onSubmitted: (_) => _search(),
+          autofocus: widget.query.isEmpty,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: _search,
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          if (trackState.isLoading)
+            LinearProgressIndicator(color: colorScheme.primary),
+          if (trackState.error != null)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                trackState.error!, 
+                style: TextStyle(color: colorScheme.error),
+              ),
+            ),
+          Expanded(
+            child: trackState.tracks.isEmpty
+                ? _buildEmptyState(colorScheme)
+                : ListView.builder(
+                    itemCount: trackState.tracks.length,
+                    itemBuilder: (context, index) => _buildTrackTile(index, colorScheme),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ColorScheme colorScheme) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search, 
+            size: 64, 
+            color: colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Search for tracks',
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrackTile(int index, ColorScheme colorScheme) {
+    final track = ref.watch(trackProvider).tracks[index];
+    return ListTile(
+      leading: track.coverUrl != null
+          ? ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: track.coverUrl!,
+                width: 48,
+                height: 48,
+                fit: BoxFit.cover,
+              ),
+            )
+          : Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.music_note, color: colorScheme.onSurfaceVariant),
+            ),
+      title: Text(track.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            track.artistName, 
+            maxLines: 1, 
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(color: colorScheme.onSurfaceVariant),
+          ),
+          Text(
+            track.albumName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ),
+      trailing: IconButton(
+        icon: Icon(Icons.download, color: colorScheme.primary),
+        onPressed: () => _downloadTrack(index),
+      ),
+      onTap: () => _downloadTrack(index),
+    );
+  }
+}
