@@ -87,10 +87,43 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
         PermissionStatus status;
         
         if (_androidSdkVersion >= 33) {
+          // Android 13+: Use audio permission
           status = await Permission.audio.request();
         } else if (_androidSdkVersion >= 30) {
-          status = await Permission.manageExternalStorage.request();
+          // Android 11-12: Need MANAGE_EXTERNAL_STORAGE
+          // This opens system settings, not a dialog
+          status = await Permission.manageExternalStorage.status;
+          if (!status.isGranted) {
+            // Show explanation dialog first
+            if (mounted) {
+              final shouldOpen = await showDialog<bool>(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Storage Access Required'),
+                  content: const Text(
+                    'Android 11+ requires "All files access" permission to save music files.\n\n'
+                    'Please enable "Allow access to manage all files" in the next screen.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Cancel'),
+                    ),
+                    FilledButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Open Settings'),
+                    ),
+                  ],
+                ),
+              );
+              
+              if (shouldOpen == true) {
+                status = await Permission.manageExternalStorage.request();
+              }
+            }
+          }
         } else {
+          // Android 10 and below: Use legacy storage permission
           status = await Permission.storage.request();
         }
         
