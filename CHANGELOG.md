@@ -16,7 +16,7 @@
 - **Metadata Case-Sensitivity**: Fixed FLAC metadata not being properly overwritten when downloaded file has lowercase tags
   - Now uses case-insensitive comparison when replacing existing Vorbis comments
   - Fixes issue where Amazon downloads could have duplicate metadata tags
-- **Settings Navigation Freeze**: Fixed app freezing when navigating back from settings sub-menus on some devices (e.g., OnePlus Nord 2T 5G)
+- **Settings Navigation Freeze**: Fixed app freezing when navigating back from settings sub-menus on some devices
   - Added proper PopScope handling for predictive back gesture on Android 14+
 
 ## [2.0.5] - 2026-01-05
