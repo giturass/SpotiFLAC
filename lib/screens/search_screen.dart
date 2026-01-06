@@ -23,7 +23,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _searchController = TextEditingController(text: widget.query);
     if (widget.query.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(trackProvider.notifier).search(widget.query);
+        final settings = ref.read(settingsProvider);
+        ref.read(trackProvider.notifier).search(widget.query, metadataSource: settings.metadataSource);
       });
     }
   }
@@ -37,7 +38,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   void _search() {
     final query = _searchController.text.trim();
     if (query.isNotEmpty) {
-      ref.read(trackProvider.notifier).search(query);
+      final settings = ref.read(settingsProvider);
+      ref.read(trackProvider.notifier).search(query, metadataSource: settings.metadataSource);
     }
   }
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.1.5-preview] - 2026-01-07
+
+### Added
+- **Deezer as Alternative Metadata Source**: Choose between Deezer or Spotify for search
+  - Configure in Settings > Options > Spotify API > Search Source
+  - Default is Deezer for better reliability
+  - Spotify URLs are always supported regardless of this setting
+- **Automatic Deezer Fallback for Spotify URLs**: When Spotify API is rate limited (429), automatically falls back to Deezer
+  - Uses SongLink/Odesli API to convert Spotify track/album ID to Deezer ID
+  - Fetches metadata from Deezer instead
+  - Works for tracks and albums (playlists are user-specific, artists require Spotify API)
+- **Debug Logging for Search Source**: Console logs now show which metadata source is being used
+  - `[Search] Using metadata source: deezer/spotify for query: "..."`
+  - `[FetchURL] Fetching track with Deezer fallback enabled...`
+
+### Technical
+- New settings field: `metadataSource` in `lib/models/settings.dart`
+- New UI: Search Source selector in Options Settings page
+
 ## [2.1.0] - 2026-01-06
 
 ### Added

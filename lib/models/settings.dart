@@ -22,6 +22,7 @@ class AppSettings {
   final String spotifyClientId; // Custom Spotify client ID (empty = use default)
   final String spotifyClientSecret; // Custom Spotify client secret (empty = use default)
   final bool useCustomSpotifyCredentials; // Whether to use custom credentials (if set)
+  final String metadataSource; // spotify, deezer - source for search and metadata
 
   const AppSettings({
     this.defaultService = 'tidal',
@@ -42,6 +43,7 @@ class AppSettings {
     this.spotifyClientId = '', // Default: use built-in credentials
     this.spotifyClientSecret = '', // Default: use built-in credentials
     this.useCustomSpotifyCredentials = true, // Default: use custom if set
+    this.metadataSource = 'deezer', // Default: Deezer (no rate limit)
   });
 
   AppSettings copyWith({
@@ -63,6 +65,7 @@ class AppSettings {
     String? spotifyClientId,
     String? spotifyClientSecret,
     bool? useCustomSpotifyCredentials,
+    String? metadataSource,
   }) {
     return AppSettings(
       defaultService: defaultService ?? this.defaultService,
@@ -83,6 +86,7 @@ class AppSettings {
       spotifyClientId: spotifyClientId ?? this.spotifyClientId,
       spotifyClientSecret: spotifyClientSecret ?? this.spotifyClientSecret,
       useCustomSpotifyCredentials: useCustomSpotifyCredentials ?? this.useCustomSpotifyCredentials,
+      metadataSource: metadataSource ?? this.metadataSource,
     );
   }
 

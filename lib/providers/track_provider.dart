@@ -114,7 +114,7 @@ class TrackNotifier extends Notifier<TrackState> {
   /// Check if request is still valid (not cancelled by newer request)
   bool _isRequestValid(int requestId) => requestId == _currentRequestId;
 
-  Future<void> fetchFromUrl(String url) async {
+  Future<void> fetchFromUrl(String url, {bool useDeezerFallback = true}) async {
     // Increment request ID to cancel any pending requests
     final requestId = ++_currentRequestId;
 
@@ -127,7 +127,22 @@ class TrackNotifier extends Notifier<TrackState> {
       
       final type = parsed['type'] as String;
 
-      final metadata = await PlatformBridge.getSpotifyMetadata(url);
+      // Use the new fallback-enabled method
+      Map<String, dynamic> metadata;
+      
+      try {
+        // ignore: avoid_print
+        print('[FetchURL] Fetching $type with Deezer fallback enabled...');
+        metadata = await PlatformBridge.getSpotifyMetadataWithFallback(url);
+        // ignore: avoid_print
+        print('[FetchURL] Metadata fetch success');
+      } catch (e) {
+        // If fallback also fails, show error
+        // ignore: avoid_print
+        print('[FetchURL] Metadata fetch failed: $e');
+        rethrow;
+      }
+      
       if (!_isRequestValid(requestId)) return; // Request cancelled
 
       if (type == 'track') {
@@ -184,7 +199,7 @@ class TrackNotifier extends Notifier<TrackState> {
     }
   }
 
-  Future<void> search(String query) async {
+  Future<void> search(String query, {String? metadataSource}) async {
     // Increment request ID to cancel any pending requests
     final requestId = ++_currentRequestId;
 
@@ -192,7 +207,24 @@ class TrackNotifier extends Notifier<TrackState> {
     state = TrackState(isLoading: true, hasSearchText: state.hasSearchText);
 
     try {
-      final results = await PlatformBridge.searchSpotifyAll(query, trackLimit: 20, artistLimit: 5);
+      // Use Deezer or Spotify based on settings
+      final source = metadataSource ?? 'deezer';
+      
+      // Debug log to show which source is being used
+      // ignore: avoid_print
+      print('[Search] Using metadata source: $source for query: "$query"');
+      
+      Map<String, dynamic> results;
+      if (source == 'deezer') {
+        results = await PlatformBridge.searchDeezerAll(query, trackLimit: 20, artistLimit: 5);
+        // ignore: avoid_print
+        print('[Search] Deezer returned ${(results['tracks'] as List?)?.length ?? 0} tracks');
+      } else {
+        results = await PlatformBridge.searchSpotifyAll(query, trackLimit: 20, artistLimit: 5);
+        // ignore: avoid_print
+        print('[Search] Spotify returned ${(results['tracks'] as List?)?.length ?? 0} tracks');
+      }
+      
       if (!_isRequestValid(requestId)) return; // Request cancelled
       
       final trackList = results['tracks'] as List<dynamic>? ?? [];

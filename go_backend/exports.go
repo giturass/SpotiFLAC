@@ -566,6 +566,203 @@ func ClearTrackIDCache() {
 	ClearTrackCache()
 }
 
+// ==================== DEEZER API ====================
+
+// SearchDeezerAll searches for tracks and artists on Deezer (no API key required)
+// Returns JSON with tracks and artists arrays
+func SearchDeezerAll(query string, trackLimit, artistLimit int) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	
+	client := GetDeezerClient()
+	results, err := client.SearchAll(ctx, query, trackLimit, artistLimit)
+	if err != nil {
+		return "", err
+	}
+	
+	jsonBytes, err := json.Marshal(results)
+	if err != nil {
+		return "", err
+	}
+	
+	return string(jsonBytes), nil
+}
+
+// GetDeezerMetadata fetches metadata from Deezer URL or ID
+// resourceType: track, album, artist, playlist
+// resourceID: Deezer ID
+func GetDeezerMetadata(resourceType, resourceID string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	
+	client := GetDeezerClient()
+	var data interface{}
+	var err error
+	
+	switch resourceType {
+	case "track":
+		data, err = client.GetTrack(ctx, resourceID)
+	case "album":
+		data, err = client.GetAlbum(ctx, resourceID)
+	case "artist":
+		data, err = client.GetArtist(ctx, resourceID)
+	case "playlist":
+		data, err = client.GetPlaylist(ctx, resourceID)
+	default:
+		return "", fmt.Errorf("unsupported Deezer resource type: %s", resourceType)
+	}
+	
+	if err != nil {
+		return "", err
+	}
+	
+	jsonBytes, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	
+	return string(jsonBytes), nil
+}
+
+// ParseDeezerURLExport parses a Deezer URL and returns type and ID
+func ParseDeezerURLExport(url string) (string, error) {
+	resourceType, resourceID, err := parseDeezerURL(url)
+	if err != nil {
+		return "", err
+	}
+	
+	result := map[string]string{
+		"type": resourceType,
+		"id":   resourceID,
+	}
+	
+	jsonBytes, err := json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+	
+	return string(jsonBytes), nil
+}
+
+// SearchDeezerByISRC searches for a track by ISRC on Deezer
+func SearchDeezerByISRC(isrc string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	
+	client := GetDeezerClient()
+	track, err := client.SearchByISRC(ctx, isrc)
+	if err != nil {
+		return "", err
+	}
+	
+	jsonBytes, err := json.Marshal(track)
+	if err != nil {
+		return "", err
+	}
+	
+	return string(jsonBytes), nil
+}
+
+// ConvertSpotifyToDeezer converts a Spotify track/album ID to Deezer and fetches metadata
+// This uses SongLink API to find the Deezer equivalent, then fetches from Deezer
+// Useful when Spotify API is rate limited
+func ConvertSpotifyToDeezer(resourceType, spotifyID string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	
+	songlink := NewSongLinkClient()
+	deezerClient := GetDeezerClient()
+	
+	// For tracks, we can use SongLink to get Deezer ID
+	if resourceType == "track" {
+		deezerID, err := songlink.GetDeezerIDFromSpotify(spotifyID)
+		if err != nil {
+			return "", fmt.Errorf("could not find Deezer equivalent: %w", err)
+		}
+		
+		// Fetch metadata from Deezer
+		trackResp, err := deezerClient.GetTrack(ctx, deezerID)
+		if err != nil {
+			return "", fmt.Errorf("failed to fetch Deezer metadata: %w", err)
+		}
+		
+		jsonBytes, err := json.Marshal(trackResp)
+		if err != nil {
+			return "", err
+		}
+		
+		return string(jsonBytes), nil
+	}
+	
+	// For albums, SongLink also provides mapping
+	if resourceType == "album" {
+		deezerID, err := songlink.GetDeezerAlbumIDFromSpotify(spotifyID)
+		if err != nil {
+			return "", fmt.Errorf("could not find Deezer album: %w", err)
+		}
+		
+		// Fetch album metadata from Deezer
+		albumResp, err := deezerClient.GetAlbum(ctx, deezerID)
+		if err != nil {
+			return "", fmt.Errorf("failed to fetch Deezer album metadata: %w", err)
+		}
+		
+		jsonBytes, err := json.Marshal(albumResp)
+		if err != nil {
+			return "", err
+		}
+		
+		return string(jsonBytes), nil
+	}
+	
+	// For artists/playlists, SongLink doesn't provide direct mapping
+	return "", fmt.Errorf("Spotify to Deezer conversion only supported for tracks and albums. Please search by name for %s", resourceType)
+}
+
+// GetSpotifyMetadataWithDeezerFallback tries Spotify first, falls back to Deezer on rate limit
+func GetSpotifyMetadataWithDeezerFallback(spotifyURL string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	
+	// Try Spotify first
+	client := NewSpotifyMetadataClient()
+	data, err := client.GetFilteredData(ctx, spotifyURL, false, 0)
+	if err == nil {
+		jsonBytes, err := json.Marshal(data)
+		if err != nil {
+			return "", err
+		}
+		return string(jsonBytes), nil
+	}
+	
+	// Check if it's a rate limit error
+	errStr := strings.ToLower(err.Error())
+	if !strings.Contains(errStr, "429") && !strings.Contains(errStr, "rate") && !strings.Contains(errStr, "limit") {
+		// Not a rate limit error, return original error
+		return "", err
+	}
+	
+	// Rate limited - try Deezer fallback for tracks and albums
+	parsed, parseErr := parseSpotifyURI(spotifyURL)
+	if parseErr != nil {
+		return "", fmt.Errorf("spotify rate limited and failed to parse URL: %w", parseErr)
+	}
+	
+	fmt.Printf("[Fallback] Spotify rate limited for %s, trying Deezer...\n", parsed.Type)
+	
+	if parsed.Type == "track" || parsed.Type == "album" {
+		// Convert to Deezer
+		return ConvertSpotifyToDeezer(parsed.Type, parsed.ID)
+	}
+	
+	// Artist and playlist not supported for fallback
+	if parsed.Type == "artist" {
+		return "", fmt.Errorf("spotify rate limited. Artist pages require Spotify API - please try again later")
+	}
+	
+	return "", fmt.Errorf("spotify rate limited. Playlists are user-specific and require Spotify API")
+}
+
 func errorResponse(msg string) (string, error) {
 	resp := DownloadResponse{
 		Success: false,

@@ -81,7 +81,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     if (_lastSearchQuery == query) return;
     _lastSearchQuery = query;
     
-    await ref.read(trackProvider.notifier).search(query);
+    final settings = ref.read(settingsProvider);
+    await ref.read(trackProvider.notifier).search(query, metadataSource: settings.metadataSource);
     ref.read(settingsProvider.notifier).setHasSearchedBefore();
   }
 
@@ -112,7 +113,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
       await ref.read(trackProvider.notifier).fetchFromUrl(url);
       _navigateToDetailIfNeeded();
     } else {
-      await ref.read(trackProvider.notifier).search(url);
+      final settings = ref.read(settingsProvider);
+      await ref.read(trackProvider.notifier).search(url, metadataSource: settings.metadataSource);
     }
     ref.read(settingsProvider.notifier).setHasSearchedBefore();
   }

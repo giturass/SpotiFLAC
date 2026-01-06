@@ -119,29 +119,35 @@ class OptionsSettingsPage extends ConsumerWidget {
           SliverToBoxAdapter(
             child: SettingsGroup(
               children: [
-                SettingsItem(
-                  icon: Icons.key,
-                  title: 'Custom Credentials',
-                  subtitle: settings.spotifyClientId.isNotEmpty 
-                      ? 'Client ID: ${settings.spotifyClientId.length > 8 ? '${settings.spotifyClientId.substring(0, 8)}...' : settings.spotifyClientId}' 
-                      : 'Not configured',
-                  onTap: () => _showSpotifyCredentialsDialog(context, ref, settings),
-                  trailing: settings.spotifyClientId.isNotEmpty
-                      ? Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20)
-                      : Icon(Icons.add, color: Theme.of(context).colorScheme.primary, size: 20),
-                  showDivider: settings.spotifyClientId.isNotEmpty,
+                _MetadataSourceSelector(
+                  currentSource: settings.metadataSource,
+                  onChanged: (v) => ref.read(settingsProvider.notifier).setMetadataSource(v),
                 ),
-                if (settings.spotifyClientId.isNotEmpty)
-                  SettingsSwitchItem(
-                    icon: Icons.toggle_on,
-                    title: 'Use Custom Credentials',
-                    subtitle: settings.useCustomSpotifyCredentials 
-                        ? 'Using your credentials' 
-                        : 'Using default credentials',
-                    value: settings.useCustomSpotifyCredentials,
-                    onChanged: (v) => ref.read(settingsProvider.notifier).setUseCustomSpotifyCredentials(v),
-                    showDivider: false,
+                if (settings.metadataSource == 'spotify') ...[
+                  SettingsItem(
+                    icon: Icons.key,
+                    title: 'Custom Credentials',
+                    subtitle: settings.spotifyClientId.isNotEmpty 
+                        ? 'Client ID: ${settings.spotifyClientId.length > 8 ? '${settings.spotifyClientId.substring(0, 8)}...' : settings.spotifyClientId}' 
+                        : 'Not configured',
+                    onTap: () => _showSpotifyCredentialsDialog(context, ref, settings),
+                    trailing: settings.spotifyClientId.isNotEmpty
+                        ? Icon(Icons.edit, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20)
+                        : Icon(Icons.add, color: Theme.of(context).colorScheme.primary, size: 20),
+                    showDivider: settings.spotifyClientId.isNotEmpty,
                   ),
+                  if (settings.spotifyClientId.isNotEmpty)
+                    SettingsSwitchItem(
+                      icon: Icons.toggle_on,
+                      title: 'Use Custom Credentials',
+                      subtitle: settings.useCustomSpotifyCredentials 
+                          ? 'Using your credentials' 
+                          : 'Using default credentials',
+                      value: settings.useCustomSpotifyCredentials,
+                      onChanged: (v) => ref.read(settingsProvider.notifier).setUseCustomSpotifyCredentials(v),
+                      showDivider: false,
+                    ),
+                ],
               ],
             ),
           ),
@@ -441,6 +447,79 @@ class _ChannelChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
   const _ChannelChip({required this.label, required this.isSelected, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    final unselectedColor = isDark 
+        ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), colorScheme.surface)
+        : colorScheme.surfaceContainerHigh;
+    
+    return Expanded(
+      child: Material(
+        color: isSelected ? colorScheme.primaryContainer : unselectedColor,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Center(child: Text(label, style: TextStyle(
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+              color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant))),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MetadataSourceSelector extends StatelessWidget {
+  final String currentSource;
+  final ValueChanged<String> onChanged;
+  const _MetadataSourceSelector({required this.currentSource, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Icon(Icons.search, color: colorScheme.onSurfaceVariant, size: 24),
+          const SizedBox(width: 16),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('Search Source', style: Theme.of(context).textTheme.bodyLarge),
+            const SizedBox(height: 2),
+            Text(currentSource == 'deezer' ? 'Deezer (no need developer account)' : 'Spotify (may hit rate limit)',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
+          ])),
+        ]),
+        const SizedBox(height: 16),
+        Row(children: [
+          _SourceChip(label: 'Deezer', isSelected: currentSource == 'deezer', onTap: () => onChanged('deezer')),
+          const SizedBox(width: 8),
+          _SourceChip(label: 'Spotify', isSelected: currentSource == 'spotify', onTap: () => onChanged('spotify')),
+        ]),
+        const SizedBox(height: 12),
+        Row(children: [
+          Icon(Icons.info_outline, size: 16, color: colorScheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(child: Text('Spotify URLs are always supported regardless of this setting',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant))),
+        ]),
+      ]),
+    );
+  }
+}
+
+class _SourceChip extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+  const _SourceChip({required this.label, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

@@ -26,6 +26,7 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   spotifyClientSecret: json['spotifyClientSecret'] as String? ?? '',
   useCustomSpotifyCredentials:
       json['useCustomSpotifyCredentials'] as bool? ?? true,
+  metadataSource: json['metadataSource'] as String? ?? 'deezer',
 );
 
 Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
@@ -48,4 +49,5 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'spotifyClientId': instance.spotifyClientId,
       'spotifyClientSecret': instance.spotifyClientSecret,
       'useCustomSpotifyCredentials': instance.useCustomSpotifyCredentials,
+      'metadataSource': instance.metadataSource,
     };

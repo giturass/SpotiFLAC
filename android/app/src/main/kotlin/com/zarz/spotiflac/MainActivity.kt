@@ -230,6 +230,53 @@ class MainActivity: FlutterActivity() {
                             }
                             result.success(null)
                         }
+                        // Deezer API methods
+                        "searchDeezerAll" -> {
+                            val query = call.argument<String>("query") ?: ""
+                            val trackLimit = call.argument<Int>("track_limit") ?: 15
+                            val artistLimit = call.argument<Int>("artist_limit") ?: 3
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.searchDeezerAll(query, trackLimit.toLong(), artistLimit.toLong())
+                            }
+                            result.success(response)
+                        }
+                        "getDeezerMetadata" -> {
+                            val resourceType = call.argument<String>("resource_type") ?: ""
+                            val resourceId = call.argument<String>("resource_id") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.getDeezerMetadata(resourceType, resourceId)
+                            }
+                            result.success(response)
+                        }
+                        "parseDeezerUrl" -> {
+                            val url = call.argument<String>("url") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.parseDeezerURLExport(url)
+                            }
+                            result.success(response)
+                        }
+                        "searchDeezerByISRC" -> {
+                            val isrc = call.argument<String>("isrc") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.searchDeezerByISRC(isrc)
+                            }
+                            result.success(response)
+                        }
+                        "convertSpotifyToDeezer" -> {
+                            val resourceType = call.argument<String>("resource_type") ?: ""
+                            val spotifyId = call.argument<String>("spotify_id") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.convertSpotifyToDeezer(resourceType, spotifyId)
+                            }
+                            result.success(response)
+                        }
+                        "getSpotifyMetadataWithFallback" -> {
+                            val url = call.argument<String>("url") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.getSpotifyMetadataWithDeezerFallback(url)
+                            }
+                            result.success(response)
+                        }
                         else -> result.notImplemented()
                     }
                 } catch (e: Exception) {

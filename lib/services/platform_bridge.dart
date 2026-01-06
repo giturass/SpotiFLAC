@@ -316,4 +316,52 @@ class PlatformBridge {
   static Future<void> clearTrackCache() async {
     await _channel.invokeMethod('clearTrackCache');
   }
+
+  // ==================== DEEZER API ====================
+
+  /// Search Deezer for tracks and artists (no API key required)
+  static Future<Map<String, dynamic>> searchDeezerAll(String query, {int trackLimit = 15, int artistLimit = 3}) async {
+    final result = await _channel.invokeMethod('searchDeezerAll', {
+      'query': query,
+      'track_limit': trackLimit,
+      'artist_limit': artistLimit,
+    });
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
+  /// Get Deezer metadata by type and ID
+  static Future<Map<String, dynamic>> getDeezerMetadata(String resourceType, String resourceId) async {
+    final result = await _channel.invokeMethod('getDeezerMetadata', {
+      'resource_type': resourceType,
+      'resource_id': resourceId,
+    });
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
+  /// Parse Deezer URL and return type and ID
+  static Future<Map<String, dynamic>> parseDeezerUrl(String url) async {
+    final result = await _channel.invokeMethod('parseDeezerUrl', {'url': url});
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
+  /// Search Deezer by ISRC
+  static Future<Map<String, dynamic>> searchDeezerByISRC(String isrc) async {
+    final result = await _channel.invokeMethod('searchDeezerByISRC', {'isrc': isrc});
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
+  /// Convert Spotify track to Deezer and get metadata (for rate limit fallback)
+  static Future<Map<String, dynamic>> convertSpotifyToDeezer(String resourceType, String spotifyId) async {
+    final result = await _channel.invokeMethod('convertSpotifyToDeezer', {
+      'resource_type': resourceType,
+      'spotify_id': spotifyId,
+    });
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
+  /// Get Spotify metadata with automatic Deezer fallback on rate limit
+  static Future<Map<String, dynamic>> getSpotifyMetadataWithFallback(String url) async {
+    final result = await _channel.invokeMethod('getSpotifyMetadataWithFallback', {'url': url});
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
 }

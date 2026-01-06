@@ -156,6 +156,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
     _saveSettings();
     _applySpotifyCredentials();
   }
+
+  void setMetadataSource(String source) {
+    state = state.copyWith(metadataSource: source);
+    _saveSettings();
+  }
 }
 
 final settingsProvider = NotifierProvider<SettingsNotifier, AppSettings>(

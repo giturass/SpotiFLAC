@@ -38,7 +38,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (url.startsWith('http') || url.startsWith('spotify:')) {
       await ref.read(trackProvider.notifier).fetchFromUrl(url);
     } else {
-      await ref.read(trackProvider.notifier).search(url);
+      final settings = ref.read(settingsProvider);
+      await ref.read(trackProvider.notifier).search(url, metadataSource: settings.metadataSource);
     }
   }
 
