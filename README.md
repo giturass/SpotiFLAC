@@ -32,6 +32,13 @@ SpotiFLAC supports two metadata sources for searching tracks:
 | **Deezer** (Default) | No developer account needed, rate limit per user IP | Slightly less comprehensive catalog |
 | **Spotify** | More comprehensive catalog, better search results | Requires developer API credentials to avoid rate limiting |
 
+### Using Spotify
+To use Spotify as your search source without hitting rate limits:
+1. Create a Spotify Developer account at [developer.spotify.com](https://developer.spotify.com)
+2. Create an app to get your Client ID and Client Secret
+3. Go to **Settings > Options > Spotify API > Custom Credentials**
+4. Enter your Client ID and Secret
+5. Change **Search Source** to Spotify
 
 ## Other project
 
