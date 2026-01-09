@@ -111,7 +111,7 @@ class PlatformBridge {
     int discNumber = 1,
     int totalTracks = 1,
     String? releaseDate,
-    String preferredService = 'qobuz',
+    String preferredService = 'tidal',
     String? itemId,
     int durationMs = 0,
   }) async {
@@ -248,6 +248,16 @@ class PlatformBridge {
     await _channel.invokeMethod('cleanupConnections');
   }
 
+  /// Read metadata directly from a FLAC file
+  /// Returns all embedded metadata (title, artist, album, track number, etc.)
+  /// This reads from the actual file, not from cached/database data
+  static Future<Map<String, dynamic>> readFileMetadata(String filePath) async {
+    final result = await _channel.invokeMethod('readFileMetadata', {
+      'file_path': filePath,
+    });
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
   /// Start foreground download service to keep downloads running in background
   static Future<void> startDownloadService({
     String trackName = '',
@@ -335,6 +345,9 @@ class PlatformBridge {
       'resource_type': resourceType,
       'resource_id': resourceId,
     });
+    if (result == null) {
+      throw Exception('getDeezerMetadata returned null for $resourceType:$resourceId');
+    }
     return jsonDecode(result as String) as Map<String, dynamic>;
   }
 

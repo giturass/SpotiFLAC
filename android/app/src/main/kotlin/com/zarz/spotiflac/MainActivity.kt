@@ -180,6 +180,13 @@ class MainActivity: FlutterActivity() {
                             }
                             result.success(null)
                         }
+                        "readFileMetadata" -> {
+                            val filePath = call.argument<String>("file_path") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.readFileMetadata(filePath)
+                            }
+                            result.success(response)
+                        }
                         "startDownloadService" -> {
                             val trackName = call.argument<String>("track_name") ?: ""
                             val artistName = call.argument<String>("artist_name") ?: ""

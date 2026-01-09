@@ -382,20 +382,17 @@ jobs:
           ### Downloads
 
           #### Android
-          ![Android arm64 Downloads](https://img.shields.io/github/downloads/${REPO_OWNER}/${REPO_NAME}/${VERSION}/SpotiFLAC-${VERSION}-arm64.apk?style=for-the-badge&logo=android&label=arm64&color=3DDC84)
-          ![Android arm32 Downloads](https://img.shields.io/github/downloads/${REPO_OWNER}/${REPO_NAME}/${VERSION}/SpotiFLAC-${VERSION}-arm32.apk?style=for-the-badge&logo=android&label=arm32&color=3DDC84)
-
           - **arm64**: \`SpotiFLAC-${VERSION}-arm64.apk\` (recommended for modern devices)
           - **arm32**: \`SpotiFLAC-${VERSION}-arm32.apk\` (older devices)
 
           #### iOS
-          ![iOS Downloads](https://img.shields.io/github/downloads/${REPO_OWNER}/${REPO_NAME}/${VERSION}/SpotiFLAC-${VERSION}-ios-unsigned.ipa?style=for-the-badge&logo=apple&label=iOS&color=0078D6)
-
           - **iOS**: \`SpotiFLAC-${VERSION}-ios-unsigned.ipa\` (sideload required)
 
           ### Installation
           **Android**: Enable "Install from unknown sources" and install the APK
           **iOS**: Use AltStore, Sideloadly, or similar tools to sideload the IPA
+
+          ![arm64](https://img.shields.io/github/downloads/${REPO_OWNER}/${REPO_NAME}/${VERSION}/SpotiFLAC-${VERSION}-arm64.apk?style=flat-square&logo=android&label=arm64&color=3DDC84) ![arm32](https://img.shields.io/github/downloads/${REPO_OWNER}/${REPO_NAME}/${VERSION}/SpotiFLAC-${VERSION}-arm32.apk?style=flat-square&logo=android&label=arm32&color=3DDC84) ![iOS](https://img.shields.io/github/downloads/${REPO_OWNER}/${REPO_NAME}/${VERSION}/SpotiFLAC-${VERSION}-ios-unsigned.ipa?style=flat-square&logo=apple&label=iOS&color=0078D6)
           FOOTER
 
           echo "Release body:"

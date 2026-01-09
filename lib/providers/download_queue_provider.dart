@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +36,9 @@ class DownloadHistoryItem {
   final int? duration;
   final String? releaseDate;
   final String? quality;
+  // Audio quality info (from file after download)
+  final int? bitDepth;
+  final int? sampleRate;
 
   const DownloadHistoryItem({
     required this.id,
@@ -53,6 +57,8 @@ class DownloadHistoryItem {
     this.duration,
     this.releaseDate,
     this.quality,
+    this.bitDepth,
+    this.sampleRate,
   });
 
   Map<String, dynamic> toJson() => {
@@ -72,6 +78,8 @@ class DownloadHistoryItem {
     'duration': duration,
     'releaseDate': releaseDate,
     'quality': quality,
+    'bitDepth': bitDepth,
+    'sampleRate': sampleRate,
   };
 
   factory DownloadHistoryItem.fromJson(Map<String, dynamic> json) => DownloadHistoryItem(
@@ -91,6 +99,8 @@ class DownloadHistoryItem {
     duration: json['duration'] as int?,
     releaseDate: json['releaseDate'] as String?,
     quality: json['quality'] as String?,
+    bitDepth: json['bitDepth'] as int?,
+    sampleRate: json['sampleRate'] as int?,
   );
 }
 
@@ -763,7 +773,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     if (track.coverUrl != null && track.coverUrl!.isNotEmpty) {
       try {
         final tempDir = await getTemporaryDirectory();
-        final uniqueId = DateTime.now().millisecondsSinceEpoch;
+        final uniqueId = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(10000)}';
         coverPath = '${tempDir.path}/cover_$uniqueId.jpg';
         
         // Download cover using HTTP
@@ -821,6 +831,8 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       if (track.isrc != null) {
         metadata['ISRC'] = track.isrc!;
       }
+      
+      _log.d('Metadata map content: $metadata');
 
       // Fetch Lyrics (Critical for M4A->FLAC conversion parity)
       // Since we are in the Flutter context, we can call the bridge to get lyrics
@@ -1094,40 +1106,55 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       // If track number is missing/0 (common from Search results), fetch full metadata
       // This ensures the downloaded file has correct tags (Track, Disc, Year)
       Track trackToDownload = item.track;
-      if (trackToDownload.trackNumber == null || trackToDownload.trackNumber == 0) {
+      // Enrich metadata if ISRC or track number is missing (common from Search results)
+      // ISRC is critical for accurate track matching on streaming services
+      final needsEnrichment = trackToDownload.id.startsWith('deezer:') && 
+          (trackToDownload.isrc == null || trackToDownload.isrc!.isEmpty ||
+           trackToDownload.trackNumber == null || trackToDownload.trackNumber == 0);
+      
+      if (needsEnrichment) {
         try {
-          if (trackToDownload.id.startsWith('deezer:')) {
-            _log.d('Enriching incomplete metadata for Deezer track: ${trackToDownload.name}');
-            final rawId = trackToDownload.id.split(':')[1];
-            final fullData = await PlatformBridge.getDeezerMetadata('track', rawId);
-            
-            if (fullData.containsKey('track')) {
-               final fullTrack = Track.fromJson(fullData['track'] as Map<String, dynamic>);
-               // Merge with existing (keep override quality/service if any, but update metadata)
+          _log.d('Enriching incomplete metadata for Deezer track: ${trackToDownload.name}');
+          _log.d('Current ISRC: ${trackToDownload.isrc}, TrackNumber: ${trackToDownload.trackNumber}');
+          final rawId = trackToDownload.id.split(':')[1];
+          _log.d('Fetching full metadata for Deezer ID: $rawId');
+          final fullData = await PlatformBridge.getDeezerMetadata('track', rawId);
+          _log.d('Got response keys: ${fullData.keys.toList()}');
+          
+          if (fullData.containsKey('track')) {
+             // Parse Go backend response (snake_case) to Track
+             final trackData = fullData['track'];
+             _log.d('Track data type: ${trackData.runtimeType}');
+             if (trackData is Map<String, dynamic>) {
+               final data = trackData;
+               _log.d('Track data keys: ${data.keys.toList()}');
+               _log.d('ISRC from API: ${data['isrc']}');
                trackToDownload = Track(
-                 id: fullTrack.id.isNotEmpty ? fullTrack.id : trackToDownload.id,
-                 name: fullTrack.name,
-                 artistName: fullTrack.artistName,
-                 albumName: fullTrack.albumName,
-                 albumArtist: fullTrack.albumArtist,
-                 coverUrl: fullTrack.coverUrl,
-                 duration: fullTrack.duration,
-                 isrc: fullTrack.isrc ?? trackToDownload.isrc,
-                 trackNumber: fullTrack.trackNumber,
-                 discNumber: fullTrack.discNumber,
-                 releaseDate: fullTrack.releaseDate,
-                 deezerId: fullTrack.deezerId,
+                 id: (data['spotify_id'] as String?) ?? trackToDownload.id,
+                 name: (data['name'] as String?) ?? trackToDownload.name,
+                 artistName: (data['artists'] as String?) ?? trackToDownload.artistName,
+                 albumName: (data['album_name'] as String?) ?? trackToDownload.albumName,
+                 albumArtist: data['album_artist'] as String?,
+                 coverUrl: data['images'] as String?,
+                 // duration_ms from Go is in milliseconds, Track.duration is in seconds
+                 duration: ((data['duration_ms'] as int?) ?? (trackToDownload.duration * 1000)) ~/ 1000,
+                 isrc: (data['isrc'] as String?) ?? trackToDownload.isrc,
+                 trackNumber: data['track_number'] as int?,
+                 discNumber: data['disc_number'] as int?,
+                 releaseDate: data['release_date'] as String?,
+                 deezerId: rawId,
                  availability: trackToDownload.availability,
                );
-               _log.d('Metadata enriched: Track ${trackToDownload.trackNumber}, Disc ${trackToDownload.discNumber}, Year ${trackToDownload.releaseDate}');
-               
-               // Update item in state with enriched track
-               // This is important so the UI (and history) reflects the enriched data
-               // We don't perform a full `updateItemStatus` here to avoid UI flicker, just local var
-            }
+               _log.d('Metadata enriched: Track ${trackToDownload.trackNumber}, Disc ${trackToDownload.discNumber}, ISRC ${trackToDownload.isrc}');
+             } else {
+               _log.w('Unexpected track data type: ${trackData.runtimeType}');
+             }
+          } else {
+            _log.w('Response does not contain track key');
           }
-        } catch (e) {
+        } catch (e, stack) {
           _log.w('Failed to enrich metadata: $e');
+          _log.w('Stack trace: $stack');
         }
       }
       
@@ -1257,7 +1284,14 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
                        final backendYear = result['release_date'] as String?;
                        final backendAlbum = result['album'] as String?;
                        
-                       // Create updated track object
+                       _log.d('Backend metadata - Track: $backendTrackNum, Disc: $backendDiscNum, Year: $backendYear');
+                       
+                       // Create updated track object with safety check for 0/null
+                       final newTrackNumber = (backendTrackNum != null && backendTrackNum > 0) ? backendTrackNum : trackToDownload.trackNumber;
+                       final newDiscNumber = (backendDiscNum != null && backendDiscNum > 0) ? backendDiscNum : trackToDownload.discNumber;
+                       
+                       _log.d('Final metadata for embedding - Track: $newTrackNumber, Disc: $newDiscNumber');
+
                        finalTrack = Track(
                          id: trackToDownload.id,
                          name: trackToDownload.name,
@@ -1267,8 +1301,8 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
                          coverUrl: trackToDownload.coverUrl,
                          duration: trackToDownload.duration,
                          isrc: trackToDownload.isrc,
-                         trackNumber: (backendTrackNum != null && backendTrackNum > 0) ? backendTrackNum : trackToDownload.trackNumber,
-                         discNumber: (backendDiscNum != null && backendDiscNum > 0) ? backendDiscNum : trackToDownload.discNumber,
+                         trackNumber: newTrackNumber,
+                         discNumber: newDiscNumber,
                          releaseDate: backendYear ?? trackToDownload.releaseDate,
                          deezerId: trackToDownload.deezerId,
                          availability: trackToDownload.availability,
@@ -1337,6 +1371,9 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           final backendYear = result['release_date'] as String?;
           final backendTrackNum = result['track_number'] as int?;
           final backendDiscNum = result['disc_number'] as int?;
+          final backendBitDepth = result['actual_bit_depth'] as int?;
+          final backendSampleRate = result['actual_sample_rate'] as int?;
+          final backendISRC = result['isrc'] as String?;
 
           ref.read(downloadHistoryProvider.notifier).addToHistory(
             DownloadHistoryItem(
@@ -1350,13 +1387,15 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
               service: result['service'] as String? ?? item.service,
               downloadedAt: DateTime.now(),
               // Additional metadata
-              isrc: item.track.isrc,
+              isrc: (backendISRC != null && backendISRC.isNotEmpty) ? backendISRC : item.track.isrc,
               spotifyId: item.track.id,
               trackNumber: (backendTrackNum != null && backendTrackNum > 0) ? backendTrackNum : item.track.trackNumber,
               discNumber: (backendDiscNum != null && backendDiscNum > 0) ? backendDiscNum : item.track.discNumber,
               duration: item.track.duration,
               releaseDate: (backendYear != null && backendYear.isNotEmpty) ? backendYear : item.track.releaseDate,
               quality: actualQuality,
+              bitDepth: backendBitDepth,
+              sampleRate: backendSampleRate,
             ),
           );
           

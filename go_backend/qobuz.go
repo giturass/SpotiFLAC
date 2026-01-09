@@ -52,37 +52,37 @@ type QobuzTrack struct {
 func qobuzArtistsMatch(expectedArtist, foundArtist string) bool {
 	normExpected := strings.ToLower(strings.TrimSpace(expectedArtist))
 	normFound := strings.ToLower(strings.TrimSpace(foundArtist))
-	
+
 	// Exact match
 	if normExpected == normFound {
 		return true
 	}
-	
+
 	// Check if one contains the other
 	if strings.Contains(normExpected, normFound) || strings.Contains(normFound, normExpected) {
 		return true
 	}
-	
+
 	// Check first artist (before comma or feat)
 	expectedFirst := strings.Split(normExpected, ",")[0]
 	expectedFirst = strings.Split(expectedFirst, " feat")[0]
 	expectedFirst = strings.Split(expectedFirst, " ft.")[0]
 	expectedFirst = strings.TrimSpace(expectedFirst)
-	
+
 	foundFirst := strings.Split(normFound, ",")[0]
 	foundFirst = strings.Split(foundFirst, " feat")[0]
 	foundFirst = strings.Split(foundFirst, " ft.")[0]
 	foundFirst = strings.TrimSpace(foundFirst)
-	
+
 	if expectedFirst == foundFirst {
 		return true
 	}
-	
+
 	// Check if first artist is contained in the other
 	if strings.Contains(expectedFirst, foundFirst) || strings.Contains(foundFirst, expectedFirst) {
 		return true
 	}
-	
+
 	// If scripts are different (one is ASCII, one is non-ASCII like Japanese/Chinese/Korean),
 	// assume they're the same artist with different transliteration
 	expectedASCII := qobuzIsASCIIString(expectedArtist)
@@ -91,7 +91,7 @@ func qobuzArtistsMatch(expectedArtist, foundArtist string) bool {
 		fmt.Printf("[Qobuz] Artist names in different scripts, assuming match: '%s' vs '%s'\n", expectedArtist, foundArtist)
 		return true
 	}
-	
+
 	return false
 }
 
@@ -132,8 +132,8 @@ func (q *QobuzDownloader) GetAvailableAPIs() []string {
 	// Same APIs as PC version (referensi/backend/qobuz.go)
 	// Primary: dab.yeet.su, Fallback: dabmusic.xyz
 	encodedAPIs := []string{
-		"ZGFiLnllZXQuc3UvYXBpL3N0cmVhbT90cmFja0lkPQ==",     // dab.yeet.su/api/stream?trackId= (PRIMARY - same as PC)
-		"ZGFibXVzaWMueHl6L2FwaS9zdHJlYW0/dHJhY2tJZD0=",     // dabmusic.xyz/api/stream?trackId= (FALLBACK - same as PC)
+		"ZGFiLnllZXQuc3UvYXBpL3N0cmVhbT90cmFja0lkPQ==", // dab.yeet.su/api/stream?trackId= (PRIMARY - same as PC)
+		"ZGFibXVzaWMueHl6L2FwaS9zdHJlYW0/dHJhY2tJZD0=", // dabmusic.xyz/api/stream?trackId= (FALLBACK - same as PC)
 	}
 
 	var apis []string
@@ -194,6 +194,8 @@ func (q *QobuzDownloader) SearchTrackByISRC(isrc string) (*QobuzTrack, error) {
 // SearchTrackByISRCWithTitle searches for a track by ISRC with duration verification
 // expectedDurationSec is the expected duration in seconds (0 to skip verification)
 func (q *QobuzDownloader) SearchTrackByISRCWithDuration(isrc string, expectedDurationSec int) (*QobuzTrack, error) {
+	fmt.Printf("[Qobuz] Searching by ISRC: %s\n", isrc)
+	
 	apiBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly93d3cucW9idXouY29tL2FwaS5qc29uLzAuMi90cmFjay9zZWFyY2g/cXVlcnk9")
 	searchURL := fmt.Sprintf("%s%s&limit=50&app_id=%s", string(apiBase), url.QueryEscape(isrc), q.appID)
 
@@ -221,6 +223,8 @@ func (q *QobuzDownloader) SearchTrackByISRCWithDuration(isrc string, expectedDur
 		return nil, err
 	}
 
+	fmt.Printf("[Qobuz] ISRC search returned %d results\n", len(result.Tracks.Items))
+
 	// Find ISRC matches
 	var isrcMatches []*QobuzTrack
 	for i := range result.Tracks.Items {
@@ -228,6 +232,8 @@ func (q *QobuzDownloader) SearchTrackByISRCWithDuration(isrc string, expectedDur
 			isrcMatches = append(isrcMatches, &result.Tracks.Items[i])
 		}
 	}
+
+	fmt.Printf("[Qobuz] Found %d exact ISRC matches\n", len(isrcMatches))
 
 	if len(isrcMatches) > 0 {
 		// Verify duration if provided
@@ -238,25 +244,25 @@ func (q *QobuzDownloader) SearchTrackByISRCWithDuration(isrc string, expectedDur
 				if durationDiff < 0 {
 					durationDiff = -durationDiff
 				}
-				// Allow 30 seconds tolerance
-				if durationDiff <= 30 {
+				// Allow 10 seconds tolerance
+				if durationDiff <= 10 {
 					durationVerifiedMatches = append(durationVerifiedMatches, track)
 				}
 			}
-			
+
 			if len(durationVerifiedMatches) > 0 {
-				fmt.Printf("[Qobuz] ISRC match with duration verification: '%s' (expected %ds, found %ds)\n", 
+				fmt.Printf("[Qobuz] ISRC match with duration verification: '%s' (expected %ds, found %ds)\n",
 					durationVerifiedMatches[0].Title, expectedDurationSec, durationVerifiedMatches[0].Duration)
 				return durationVerifiedMatches[0], nil
 			}
-			
+
 			// ISRC matches but duration doesn't
-			fmt.Printf("[Qobuz] WARNING: ISRC %s found but duration mismatch. Expected=%ds, Found=%ds. Rejecting.\n", 
+			fmt.Printf("[Qobuz] WARNING: ISRC %s found but duration mismatch. Expected=%ds, Found=%ds. Rejecting.\n",
 				isrc, expectedDurationSec, isrcMatches[0].Duration)
-			return nil, fmt.Errorf("ISRC found but duration mismatch: expected %ds, found %ds (likely different version)", 
+			return nil, fmt.Errorf("ISRC found but duration mismatch: expected %ds, found %ds (likely different version)",
 				expectedDurationSec, isrcMatches[0].Duration)
 		}
-		
+
 		// No duration to verify, return first match
 		fmt.Printf("[Qobuz] ISRC match (no duration verification): '%s'\n", isrcMatches[0].Title)
 		return isrcMatches[0], nil
@@ -392,7 +398,7 @@ func (q *QobuzDownloader) SearchTrackByMetadataWithDuration(trackName, artistNam
 			if durationDiff < 0 {
 				durationDiff = -durationDiff
 			}
-			if durationDiff <= 30 {
+			if durationDiff <= 10 {
 				durationMatches = append(durationMatches, track)
 			}
 		}
@@ -592,6 +598,7 @@ type QobuzDownloadResult struct {
 	ReleaseDate string
 	TrackNumber int
 	DiscNumber  int
+	ISRC        string
 }
 
 // downloadFromQobuz downloads a track using the request parameters
@@ -624,10 +631,11 @@ func downloadFromQobuz(req DownloadRequest) (QobuzDownloadResult, error) {
 
 	// Strategy 1: Search by ISRC with duration verification
 	if track == nil && req.ISRC != "" {
+		fmt.Printf("[Qobuz] Trying ISRC search: %s\n", req.ISRC)
 		track, err = downloader.SearchTrackByISRCWithDuration(req.ISRC, expectedDurationSec)
 		// Verify artist
 		if track != nil && !qobuzArtistsMatch(req.ArtistName, track.Performer.Name) {
-			fmt.Printf("[Qobuz] Artist mismatch from ISRC search: expected '%s', got '%s'. Rejecting.\n", 
+			fmt.Printf("[Qobuz] Artist mismatch from ISRC search: expected '%s', got '%s'. Rejecting.\n",
 				req.ArtistName, track.Performer.Name)
 			track = nil
 		}
@@ -638,7 +646,7 @@ func downloadFromQobuz(req DownloadRequest) (QobuzDownloadResult, error) {
 		track, err = downloader.SearchTrackByMetadataWithDuration(req.TrackName, req.ArtistName, expectedDurationSec)
 		// Verify artist
 		if track != nil && !qobuzArtistsMatch(req.ArtistName, track.Performer.Name) {
-			fmt.Printf("[Qobuz] Artist mismatch from metadata search: expected '%s', got '%s'. Rejecting.\n", 
+			fmt.Printf("[Qobuz] Artist mismatch from metadata search: expected '%s', got '%s'. Rejecting.\n",
 				req.ArtistName, track.Performer.Name)
 			track = nil
 		}
@@ -731,11 +739,17 @@ func downloadFromQobuz(req DownloadRequest) (QobuzDownloadResult, error) {
 	}
 
 	// Embed metadata using parallel-fetched cover data
-	// Use metadata from the actual Qobuz track found (more accurate than request)
+	// Use metadata from the actual Qobuz track found (more accurate than request) but prefer
+	// requested Album Name to avoid ISRC version mismatches (e.g. Compilations vs Original)
+	albumName := track.Album.Title
+	if req.AlbumName != "" {
+		albumName = req.AlbumName
+	}
+
 	metadata := Metadata{
 		Title:       track.Title,
 		Artist:      track.Performer.Name,
-		Album:       track.Album.Title,
+		Album:       albumName,
 		AlbumArtist: req.AlbumArtist, // Qobuz track struct might not have this handy, keep req or check album struct
 		Date:        track.Album.ReleaseDate,
 		TrackNumber: track.TrackNumber,
@@ -780,5 +794,6 @@ func downloadFromQobuz(req DownloadRequest) (QobuzDownloadResult, error) {
 		ReleaseDate: track.Album.ReleaseDate,
 		TrackNumber: track.TrackNumber,
 		DiscNumber:  req.DiscNumber, // Qobuz track struct limitations
+		ISRC:        track.ISRC,
 	}, nil
 }

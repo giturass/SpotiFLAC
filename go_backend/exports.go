@@ -17,17 +17,17 @@ func ParseSpotifyURL(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	result := map[string]string{
 		"type": parsed.Type,
 		"id":   parsed.ID,
 	}
-	
+
 	jsonBytes, err := json.Marshal(result)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -42,18 +42,18 @@ func SetSpotifyAPICredentials(clientID, clientSecret string) {
 func GetSpotifyMetadata(spotifyURL string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	
+
 	client := NewSpotifyMetadataClient()
 	data, err := client.GetFilteredData(ctx, spotifyURL, false, 0)
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(data)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -62,18 +62,18 @@ func GetSpotifyMetadata(spotifyURL string) (string, error) {
 func SearchSpotify(query string, limit int) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	
+
 	client := NewSpotifyMetadataClient()
 	results, err := client.SearchTracks(ctx, query, limit)
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(results)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -82,18 +82,18 @@ func SearchSpotify(query string, limit int) (string, error) {
 func SearchSpotifyAll(query string, trackLimit, artistLimit int) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	
+
 	client := NewSpotifyMetadataClient()
 	results, err := client.SearchAll(ctx, query, trackLimit, artistLimit)
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(results)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -105,12 +105,12 @@ func CheckAvailability(spotifyID, isrc string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(availability)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -133,7 +133,7 @@ type DownloadRequest struct {
 	DiscNumber           int    `json:"disc_number"`
 	TotalTracks          int    `json:"total_tracks"`
 	ReleaseDate          string `json:"release_date"`
-	ItemID               string `json:"item_id"`    // Unique ID for progress tracking
+	ItemID               string `json:"item_id"`     // Unique ID for progress tracking
 	DurationMS           int    `json:"duration_ms"` // Expected duration in milliseconds (for verification)
 }
 
@@ -155,6 +155,7 @@ type DownloadResponse struct {
 	ReleaseDate      string `json:"release_date,omitempty"`
 	TrackNumber      int    `json:"track_number,omitempty"`
 	DiscNumber       int    `json:"disc_number,omitempty"`
+	ISRC             string `json:"isrc,omitempty"`
 }
 
 // DownloadResult is a generic result type for all downloaders
@@ -169,6 +170,7 @@ type DownloadResult struct {
 	ReleaseDate string
 	TrackNumber int
 	DiscNumber  int
+	ISRC        string
 }
 
 // DownloadTrack downloads a track from the specified service
@@ -179,17 +181,17 @@ func DownloadTrack(requestJSON string) (string, error) {
 	if err := json.Unmarshal([]byte(requestJSON), &req); err != nil {
 		return errorResponse("Invalid request: " + err.Error())
 	}
-	
+
 	// Trim whitespace from string fields to prevent filename/path issues
 	req.TrackName = strings.TrimSpace(req.TrackName)
 	req.ArtistName = strings.TrimSpace(req.ArtistName)
 	req.AlbumName = strings.TrimSpace(req.AlbumName)
 	req.AlbumArtist = strings.TrimSpace(req.AlbumArtist)
 	req.OutputDir = strings.TrimSpace(req.OutputDir)
-	
+
 	var result DownloadResult
 	var err error
-	
+
 	switch req.Service {
 	case "tidal":
 		tidalResult, tidalErr := downloadFromTidal(req)
@@ -204,6 +206,7 @@ func DownloadTrack(requestJSON string) (string, error) {
 				ReleaseDate: tidalResult.ReleaseDate,
 				TrackNumber: tidalResult.TrackNumber,
 				DiscNumber:  tidalResult.DiscNumber,
+				ISRC:        tidalResult.ISRC,
 			}
 		}
 		err = tidalErr
@@ -220,6 +223,7 @@ func DownloadTrack(requestJSON string) (string, error) {
 				ReleaseDate: qobuzResult.ReleaseDate,
 				TrackNumber: qobuzResult.TrackNumber,
 				DiscNumber:  qobuzResult.DiscNumber,
+				ISRC:        qobuzResult.ISRC,
 			}
 		}
 		err = qobuzErr
@@ -236,17 +240,18 @@ func DownloadTrack(requestJSON string) (string, error) {
 				ReleaseDate: amazonResult.ReleaseDate,
 				TrackNumber: amazonResult.TrackNumber,
 				DiscNumber:  amazonResult.DiscNumber,
+				ISRC:        amazonResult.ISRC,
 			}
 		}
 		err = amazonErr
 	default:
 		return errorResponse("Unknown service: " + req.Service)
 	}
-	
+
 	if err != nil {
 		return errorResponse(err.Error())
 	}
-	
+
 	// Check if file already exists
 	if len(result.FilePath) > 7 && result.FilePath[:7] == "EXISTS:" {
 		actualPath := result.FilePath[7:]
@@ -264,11 +269,18 @@ func DownloadTrack(requestJSON string) (string, error) {
 			ActualBitDepth:   result.BitDepth,
 			ActualSampleRate: result.SampleRate,
 			Service:          req.Service,
+			Title:            result.Title,
+			Artist:           result.Artist,
+			Album:            result.Album,
+			ReleaseDate:      result.ReleaseDate,
+			TrackNumber:      result.TrackNumber,
+			DiscNumber:       result.DiscNumber,
+			ISRC:             result.ISRC,
 		}
 		jsonBytes, _ := json.Marshal(resp)
 		return string(jsonBytes), nil
 	}
-	
+
 	// Read actual quality from downloaded file (more accurate than API)
 	quality, qErr := GetAudioQuality(result.FilePath)
 	if qErr == nil {
@@ -278,7 +290,7 @@ func DownloadTrack(requestJSON string) (string, error) {
 	} else {
 		fmt.Printf("[Download] Could not read quality from file: %v\n", qErr)
 	}
-	
+
 	resp := DownloadResponse{
 		Success:          true,
 		Message:          "Download complete",
@@ -292,8 +304,9 @@ func DownloadTrack(requestJSON string) (string, error) {
 		ReleaseDate:      result.ReleaseDate,
 		TrackNumber:      result.TrackNumber,
 		DiscNumber:       result.DiscNumber,
+		ISRC:             result.ISRC,
 	}
-	
+
 	jsonBytes, _ := json.Marshal(resp)
 	return string(jsonBytes), nil
 }
@@ -305,23 +318,23 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 	if err := json.Unmarshal([]byte(requestJSON), &req); err != nil {
 		return errorResponse("Invalid request: " + err.Error())
 	}
-	
+
 	// Trim whitespace from string fields to prevent filename/path issues
 	req.TrackName = strings.TrimSpace(req.TrackName)
 	req.ArtistName = strings.TrimSpace(req.ArtistName)
 	req.AlbumName = strings.TrimSpace(req.AlbumName)
 	req.AlbumArtist = strings.TrimSpace(req.AlbumArtist)
 	req.OutputDir = strings.TrimSpace(req.OutputDir)
-	
+
 	// Build service order starting with preferred service
-	allServices := []string{"qobuz", "tidal", "amazon"}
+	allServices := []string{"tidal", "qobuz", "amazon"}
 	preferredService := req.Service
 	if preferredService == "" {
 		preferredService = "tidal"
 	}
-	
+
 	fmt.Printf("[DownloadWithFallback] Preferred service from request: '%s'\n", req.Service)
-	
+
 	// Create ordered list: preferred first, then others
 	services := []string{preferredService}
 	for _, s := range allServices {
@@ -329,18 +342,18 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 			services = append(services, s)
 		}
 	}
-	
+
 	fmt.Printf("[DownloadWithFallback] Service order: %v\n", services)
-	
+
 	var lastErr error
-	
+
 	for _, service := range services {
 		fmt.Printf("[DownloadWithFallback] Trying service: %s\n", service)
 		req.Service = service
-		
+
 		var result DownloadResult
 		var err error
-		
+
 		switch service {
 		case "tidal":
 			tidalResult, tidalErr := downloadFromTidal(req)
@@ -355,6 +368,7 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 					ReleaseDate: tidalResult.ReleaseDate,
 					TrackNumber: tidalResult.TrackNumber,
 					DiscNumber:  tidalResult.DiscNumber,
+					ISRC:        tidalResult.ISRC,
 				}
 			} else {
 				fmt.Printf("[DownloadWithFallback] Tidal error: %v\n", tidalErr)
@@ -364,9 +378,16 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 			qobuzResult, qobuzErr := downloadFromQobuz(req)
 			if qobuzErr == nil {
 				result = DownloadResult{
-					FilePath:   qobuzResult.FilePath,
-					BitDepth:   qobuzResult.BitDepth,
-					SampleRate: qobuzResult.SampleRate,
+					FilePath:    qobuzResult.FilePath,
+					BitDepth:    qobuzResult.BitDepth,
+					SampleRate:  qobuzResult.SampleRate,
+					Title:       qobuzResult.Title,
+					Artist:      qobuzResult.Artist,
+					Album:       qobuzResult.Album,
+					ReleaseDate: qobuzResult.ReleaseDate,
+					TrackNumber: qobuzResult.TrackNumber,
+					DiscNumber:  qobuzResult.DiscNumber,
+					ISRC:        qobuzResult.ISRC,
 				}
 			} else {
 				fmt.Printf("[DownloadWithFallback] Qobuz error: %v\n", qobuzErr)
@@ -385,13 +406,14 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 					ReleaseDate: amazonResult.ReleaseDate,
 					TrackNumber: amazonResult.TrackNumber,
 					DiscNumber:  amazonResult.DiscNumber,
+					ISRC:        amazonResult.ISRC,
 				}
 			} else {
 				fmt.Printf("[DownloadWithFallback] Amazon error: %v\n", amazonErr)
 			}
 			err = amazonErr
 		}
-		
+
 		if err == nil {
 			// Check if file already exists
 			if len(result.FilePath) > 7 && result.FilePath[:7] == "EXISTS:" {
@@ -410,11 +432,18 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 					ActualBitDepth:   result.BitDepth,
 					ActualSampleRate: result.SampleRate,
 					Service:          service,
+					Title:            result.Title,
+					Artist:           result.Artist,
+					Album:            result.Album,
+					ReleaseDate:      result.ReleaseDate,
+					TrackNumber:      result.TrackNumber,
+					DiscNumber:       result.DiscNumber,
+					ISRC:             result.ISRC,
 				}
 				jsonBytes, _ := json.Marshal(resp)
 				return string(jsonBytes), nil
 			}
-			
+
 			// Read actual quality from downloaded file (more accurate than API)
 			quality, qErr := GetAudioQuality(result.FilePath)
 			if qErr == nil {
@@ -424,7 +453,7 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 			} else {
 				fmt.Printf("[Download] Could not read quality from file: %v\n", qErr)
 			}
-			
+
 			resp := DownloadResponse{
 				Success:          true,
 				Message:          "Downloaded from " + service,
@@ -432,14 +461,21 @@ func DownloadWithFallback(requestJSON string) (string, error) {
 				ActualBitDepth:   result.BitDepth,
 				ActualSampleRate: result.SampleRate,
 				Service:          service,
+				Title:            result.Title,
+				Artist:           result.Artist,
+				Album:            result.Album,
+				ReleaseDate:      result.ReleaseDate,
+				TrackNumber:      result.TrackNumber,
+				DiscNumber:       result.DiscNumber,
+				ISRC:             result.ISRC,
 			}
 			jsonBytes, _ := json.Marshal(resp)
 			return string(jsonBytes), nil
 		}
-		
+
 		lastErr = err
 	}
-	
+
 	return errorResponse("All services failed. Last error: " + lastErr.Error())
 }
 
@@ -477,6 +513,44 @@ func CleanupConnections() {
 	CloseIdleConnections()
 }
 
+// ReadFileMetadata reads metadata directly from a FLAC file
+// Returns JSON with all embedded metadata (title, artist, album, track number, etc.)
+// This is useful for displaying accurate metadata in the UI without relying on cached data
+func ReadFileMetadata(filePath string) (string, error) {
+	metadata, err := ReadMetadata(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read metadata: %w", err)
+	}
+
+	// Also get audio quality info
+	quality, qualityErr := GetAudioQuality(filePath)
+
+	result := map[string]interface{}{
+		"title":        metadata.Title,
+		"artist":       metadata.Artist,
+		"album":        metadata.Album,
+		"album_artist": metadata.AlbumArtist,
+		"date":         metadata.Date,
+		"track_number": metadata.TrackNumber,
+		"disc_number":  metadata.DiscNumber,
+		"isrc":         metadata.ISRC,
+		"lyrics":       metadata.Lyrics,
+	}
+
+	// Add quality info if available
+	if qualityErr == nil {
+		result["bit_depth"] = quality.BitDepth
+		result["sample_rate"] = quality.SampleRate
+	}
+
+	jsonBytes, err := json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
 // SetDownloadDirectory sets the default download directory
 func SetDownloadDirectory(path string) error {
 	return setDownloadDir(path)
@@ -485,17 +559,17 @@ func SetDownloadDirectory(path string) error {
 // CheckDuplicate checks if a file with the given ISRC exists
 func CheckDuplicate(outputDir, isrc string) (string, error) {
 	existingFile, exists := CheckISRCExists(outputDir, isrc)
-	
+
 	result := map[string]interface{}{
 		"exists":   exists,
 		"filepath": existingFile,
 	}
-	
+
 	jsonBytes, err := json.Marshal(result)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -525,7 +599,7 @@ func BuildFilename(template string, metadataJSON string) (string, error) {
 	if err := json.Unmarshal([]byte(metadataJSON), &metadata); err != nil {
 		return "", err
 	}
-	
+
 	filename := buildFilenameFromTemplate(template, metadata)
 	return filename, nil
 }
@@ -655,18 +729,18 @@ func ClearTrackIDCache() {
 func SearchDeezerAll(query string, trackLimit, artistLimit int) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
-	
+
 	client := GetDeezerClient()
 	results, err := client.SearchAll(ctx, query, trackLimit, artistLimit)
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(results)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -676,11 +750,11 @@ func SearchDeezerAll(query string, trackLimit, artistLimit int) (string, error) 
 func GetDeezerMetadata(resourceType, resourceID string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	
+
 	client := GetDeezerClient()
 	var data interface{}
 	var err error
-	
+
 	switch resourceType {
 	case "track":
 		data, err = client.GetTrack(ctx, resourceID)
@@ -693,16 +767,16 @@ func GetDeezerMetadata(resourceType, resourceID string) (string, error) {
 	default:
 		return "", fmt.Errorf("unsupported Deezer resource type: %s", resourceType)
 	}
-	
+
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(data)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -712,17 +786,17 @@ func ParseDeezerURLExport(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	result := map[string]string{
 		"type": resourceType,
 		"id":   resourceID,
 	}
-	
+
 	jsonBytes, err := json.Marshal(result)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -730,18 +804,18 @@ func ParseDeezerURLExport(url string) (string, error) {
 func SearchDeezerByISRC(isrc string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	
+
 	client := GetDeezerClient()
 	track, err := client.SearchByISRC(ctx, isrc)
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(track)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -751,52 +825,52 @@ func SearchDeezerByISRC(isrc string) (string, error) {
 func ConvertSpotifyToDeezer(resourceType, spotifyID string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	
+
 	songlink := NewSongLinkClient()
 	deezerClient := GetDeezerClient()
-	
+
 	// For tracks, we can use SongLink to get Deezer ID
 	if resourceType == "track" {
 		deezerID, err := songlink.GetDeezerIDFromSpotify(spotifyID)
 		if err != nil {
 			return "", fmt.Errorf("could not find Deezer equivalent: %w", err)
 		}
-		
+
 		// Fetch metadata from Deezer
 		trackResp, err := deezerClient.GetTrack(ctx, deezerID)
 		if err != nil {
 			return "", fmt.Errorf("failed to fetch Deezer metadata: %w", err)
 		}
-		
+
 		jsonBytes, err := json.Marshal(trackResp)
 		if err != nil {
 			return "", err
 		}
-		
+
 		return string(jsonBytes), nil
 	}
-	
+
 	// For albums, SongLink also provides mapping
 	if resourceType == "album" {
 		deezerID, err := songlink.GetDeezerAlbumIDFromSpotify(spotifyID)
 		if err != nil {
 			return "", fmt.Errorf("could not find Deezer album: %w", err)
 		}
-		
+
 		// Fetch album metadata from Deezer
 		albumResp, err := deezerClient.GetAlbum(ctx, deezerID)
 		if err != nil {
 			return "", fmt.Errorf("failed to fetch Deezer album metadata: %w", err)
 		}
-		
+
 		jsonBytes, err := json.Marshal(albumResp)
 		if err != nil {
 			return "", err
 		}
-		
+
 		return string(jsonBytes), nil
 	}
-	
+
 	// For artists/playlists, SongLink doesn't provide direct mapping
 	return "", fmt.Errorf("Spotify to Deezer conversion only supported for tracks and albums. Please search by name for %s", resourceType)
 }
@@ -805,7 +879,7 @@ func ConvertSpotifyToDeezer(resourceType, spotifyID string) (string, error) {
 func GetSpotifyMetadataWithDeezerFallback(spotifyURL string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
-	
+
 	// Try Spotify first
 	client := NewSpotifyMetadataClient()
 	data, err := client.GetFilteredData(ctx, spotifyURL, false, 0)
@@ -816,32 +890,32 @@ func GetSpotifyMetadataWithDeezerFallback(spotifyURL string) (string, error) {
 		}
 		return string(jsonBytes), nil
 	}
-	
+
 	// Check if it's a rate limit error
 	errStr := strings.ToLower(err.Error())
 	if !strings.Contains(errStr, "429") && !strings.Contains(errStr, "rate") && !strings.Contains(errStr, "limit") {
 		// Not a rate limit error, return original error
 		return "", err
 	}
-	
+
 	// Rate limited - try Deezer fallback for tracks and albums
 	parsed, parseErr := parseSpotifyURI(spotifyURL)
 	if parseErr != nil {
 		return "", fmt.Errorf("spotify rate limited and failed to parse URL: %w", parseErr)
 	}
-	
+
 	fmt.Printf("[Fallback] Spotify rate limited for %s, trying Deezer...\n", parsed.Type)
-	
+
 	if parsed.Type == "track" || parsed.Type == "album" {
 		// Convert to Deezer
 		return ConvertSpotifyToDeezer(parsed.Type, parsed.ID)
 	}
-	
+
 	// Artist and playlist not supported for fallback
 	if parsed.Type == "artist" {
 		return "", fmt.Errorf("spotify rate limited. Artist pages require Spotify API - please try again later")
 	}
-	
+
 	return "", fmt.Errorf("spotify rate limited. Playlists are user-specific and require Spotify API")
 }
 
@@ -855,12 +929,12 @@ func CheckAvailabilityFromDeezerID(deezerTrackID string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(availability)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -874,12 +948,12 @@ func CheckAvailabilityByPlatformID(platform, entityType, entityID string) (strin
 	if err != nil {
 		return "", err
 	}
-	
+
 	jsonBytes, err := json.Marshal(availability)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(jsonBytes), nil
 }
 
@@ -905,24 +979,24 @@ func errorResponse(msg string) (string, error) {
 	// Determine error type based on message
 	errorType := "unknown"
 	lowerMsg := strings.ToLower(msg)
-	
-	if strings.Contains(lowerMsg, "not found") || 
-	   strings.Contains(lowerMsg, "not available") ||
-	   strings.Contains(lowerMsg, "no results") ||
-	   strings.Contains(lowerMsg, "track not found") ||
-	   strings.Contains(lowerMsg, "all services failed") {
+
+	if strings.Contains(lowerMsg, "not found") ||
+		strings.Contains(lowerMsg, "not available") ||
+		strings.Contains(lowerMsg, "no results") ||
+		strings.Contains(lowerMsg, "track not found") ||
+		strings.Contains(lowerMsg, "all services failed") {
 		errorType = "not_found"
-	} else if strings.Contains(lowerMsg, "rate limit") || 
-	          strings.Contains(lowerMsg, "429") ||
-	          strings.Contains(lowerMsg, "too many requests") {
+	} else if strings.Contains(lowerMsg, "rate limit") ||
+		strings.Contains(lowerMsg, "429") ||
+		strings.Contains(lowerMsg, "too many requests") {
 		errorType = "rate_limit"
-	} else if strings.Contains(lowerMsg, "network") || 
-	          strings.Contains(lowerMsg, "connection") ||
-	          strings.Contains(lowerMsg, "timeout") ||
-	          strings.Contains(lowerMsg, "dial") {
+	} else if strings.Contains(lowerMsg, "network") ||
+		strings.Contains(lowerMsg, "connection") ||
+		strings.Contains(lowerMsg, "timeout") ||
+		strings.Contains(lowerMsg, "dial") {
 		errorType = "network"
 	}
-	
+
 	resp := DownloadResponse{
 		Success:   false,
 		Error:     msg,

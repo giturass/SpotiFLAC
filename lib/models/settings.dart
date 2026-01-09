@@ -25,7 +25,7 @@ class AppSettings {
   final String metadataSource; // spotify, deezer - source for search and metadata
 
   const AppSettings({
-    this.defaultService = 'qobuz',
+    this.defaultService = 'tidal',
     this.audioQuality = 'LOSSLESS',
     this.filenameFormat = '{title} - {artist}',
     this.downloadDirectory = '',

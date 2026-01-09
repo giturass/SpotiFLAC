@@ -257,10 +257,29 @@ func ReadMetadata(filePath string) (*Metadata, error) {
 			if trackNum != "" {
 				fmt.Sscanf(trackNum, "%d", &metadata.TrackNumber)
 			}
+			// Also try lowercase variant (some encoders use lowercase)
+			if metadata.TrackNumber == 0 {
+				trackNum = getComment(cmt, "TRACK")
+				if trackNum != "" {
+					fmt.Sscanf(trackNum, "%d", &metadata.TrackNumber)
+				}
+			}
 
 			discNum := getComment(cmt, "DISCNUMBER")
 			if discNum != "" {
 				fmt.Sscanf(discNum, "%d", &metadata.DiscNumber)
+			}
+			// Also try DISC variant
+			if metadata.DiscNumber == 0 {
+				discNum = getComment(cmt, "DISC")
+				if discNum != "" {
+					fmt.Sscanf(discNum, "%d", &metadata.DiscNumber)
+				}
+			}
+			
+			// Try DATE variants
+			if metadata.Date == "" {
+				metadata.Date = getComment(cmt, "YEAR")
 			}
 
 			break
@@ -291,9 +310,14 @@ func setComment(cmt *flacvorbis.MetaDataBlockVorbisComment, key, value string) {
 }
 
 func getComment(cmt *flacvorbis.MetaDataBlockVorbisComment, key string) string {
+	keyUpper := strings.ToUpper(key) + "="
 	for _, comment := range cmt.Comments {
-		if len(comment) > len(key)+1 && comment[:len(key)+1] == key+"=" {
-			return comment[len(key)+1:]
+		if len(comment) > len(key) {
+			// Case-insensitive comparison for Vorbis comments
+			commentUpper := strings.ToUpper(comment[:len(key)+1])
+			if commentUpper == keyUpper {
+				return comment[len(key)+1:]
+			}
 		}
 	}
 	return ""

@@ -181,6 +181,13 @@ import Gobackend  // Import Go framework
             GobackendCleanupConnections()
             return nil
             
+        case "readFileMetadata":
+            let args = call.arguments as! [String: Any]
+            let filePath = args["file_path"] as! String
+            let response = GobackendReadFileMetadata(filePath, &error)
+            if let error = error { throw error }
+            return response
+            
         case "searchDeezerAll":
             let args = call.arguments as! [String: Any]
             let query = args["query"] as! String

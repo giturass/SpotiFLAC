@@ -1,5 +1,63 @@
 # Changelog
 
+## [2.2.0] - 2026-01-10
+
+### Fixed
+
+- **ISRC Metadata Missing:** Fixed an issue where ISRC codes were not being saved to the download history or embedded in file metadata for certain downloads. The backend now correctly propagates the ISRC found from streaming services (Tidal, Qobuz, Amazon) back to the application.
+- **Tidal Track/Disc Numbers:** Fixed missing Track Number and Disc Number in Tidal downloads. The downloader now prioritizes the actual metadata returned by Tidal over the potentially incomplete metadata from the initial search request.
+- **Concurrent Download Race Condition:** Fixed a potential race condition where temporary cover art files could overwrite each other during rapid concurrent downloads by adding randomization to temporary filenames.
+- **Qobuz Search Accuracy:** Reduced the duration tolerance for Qobuz search matches from 30s to 10s to prevent matching with incorrect versions/remixes.
+- **Metadata Enrichment Null Safety**: Fixed `type 'Null' is not a subtype of type 'String'` error
+  - Added proper null checks when parsing Go backend response
+  - Added type checking for track data before parsing
+- **Duration Calculation in Enrichment**: Fixed duration conversion bug
+  - Go backend returns `duration_ms` (milliseconds)
+  - Now properly converts to seconds for Track model
+
+### Changed
+
+- **Default Service Priority:** Updated the default download fallback order to **Tidal → Qobuz → Amazon**.
+  - Tidal is now the default download service (was Qobuz)
+  - Tidal has faster and more reliable ISRC matching
+  - Existing users need to change setting manually or clear app data
+- **Metadata Enrichment:** Improved metadata handling for Deezer tracks. If critical metadata (ISRC, Track Number) is missing from the initial search, the app now automatically fetches full details from the Deezer API before finding a source.
+
+### Added
+
+- **ISRC in History:** The Download History now reliably displays the ISRC code for downloaded tracks.
+- **Tidal Search Optimization:** Optimized Tidal search logic to immediately check for ISRC matches within search results, improving match speed and accuracy.
+  - Returns as soon as ISRC match is found in first query results
+  - Significantly faster for tracks with valid ISRC
+- **ISRC Enrichment for Search Results**: Tracks from Home search now fetch ISRC before download
+  - Search results don't include ISRC (for performance)
+  - ISRC is now fetched via metadata enrichment when download starts
+  - Ensures accurate track matching on all streaming services
+- **Deezer-to-Tidal Fallback:** Added native support for converting Deezer IDs to Tidal links via SongLink when using the fallback mechanism.
+- **Better Logging for Qobuz ISRC Search**: Added detailed logs for debugging
+  - Shows when ISRC search is attempted
+  - Shows number of results and exact ISRC matches found
+
+### Technical
+
+- Updated `go_backend/tidal.go`:
+  - Early exit optimization in `SearchTrackByMetadataWithISRC()`
+  - Deezer ID support in SongLink lookup
+- Updated `go_backend/qobuz.go`:
+  - Added logging for ISRC search flow
+  - Duration tolerance reduced from 30s to 10s
+- Updated `go_backend/exports.go`:
+  - Default service order changed to `[tidal, qobuz, amazon]`
+- Updated `lib/providers/download_queue_provider.dart`:
+  - ISRC-based enrichment condition
+  - Null-safe parsing of Go backend response
+- Updated `lib/services/platform_bridge.dart`:
+  - Null check for `getDeezerMetadata` result
+- Updated `lib/models/settings.dart`:
+  - Default service changed to `tidal`
+
+---
+
 ## [2.1.7] - 2026-01-09
 
 ### Added

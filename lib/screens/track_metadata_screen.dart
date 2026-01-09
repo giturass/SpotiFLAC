@@ -37,11 +37,13 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
     final file = File(widget.item.filePath);
     final exists = await file.exists();
     int? size;
+    
     if (exists) {
       try {
         size = await file.length();
       } catch (_) {}
     }
+    
     if (mounted) {
       setState(() {
         _fileExists = exists;
@@ -55,7 +57,18 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
     }
   }
 
+  // Use data directly from history item (cached from download)
   DownloadHistoryItem get item => widget.item;
+  String get trackName => item.trackName;
+  String get artistName => item.artistName;
+  String get albumName => item.albumName;
+  String? get albumArtist => item.albumArtist;
+  int? get trackNumber => item.trackNumber;
+  int? get discNumber => item.discNumber;
+  String? get releaseDate => item.releaseDate;
+  String? get isrc => item.isrc;
+  int? get bitDepth => item.bitDepth;
+  int? get sampleRate => item.sampleRate;
 
   @override
   Widget build(BuildContext context) {
@@ -233,9 +246,9 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Track name
+            // Track name (from file metadata)
             Text(
-              item.trackName,
+              trackName,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: colorScheme.onSurface,
@@ -243,16 +256,16 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
             ),
             const SizedBox(height: 4),
             
-            // Artist name
+            // Artist name (from file metadata)
             Text(
-              item.artistName,
+              artistName,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: colorScheme.primary,
               ),
             ),
             const SizedBox(height: 8),
             
-            // Album name
+            // Album name (from file metadata)
             Row(
               children: [
                 Icon(
@@ -263,7 +276,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    item.albumName,
+                    albumName,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurfaceVariant,
                     ),
@@ -401,28 +414,33 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
   }
 
   Widget _buildMetadataGrid(BuildContext context, ColorScheme colorScheme) {
+    // Build audio quality string from file metadata
+    String? audioQualityStr;
+    if (bitDepth != null && sampleRate != null) {
+      final sampleRateKHz = (sampleRate! / 1000).toStringAsFixed(1);
+      audioQualityStr = '$bitDepth-bit/${sampleRateKHz}kHz';
+    }
+    
     final items = <_MetadataItem>[
-      _MetadataItem('Track name', item.trackName),
-      _MetadataItem('Artist', item.artistName),
-      if (item.albumArtist != null && item.albumArtist != item.artistName)
-        _MetadataItem('Album artist', item.albumArtist!),
-      _MetadataItem('Album', item.albumName),
-      if (item.trackNumber != null)
-        _MetadataItem('Track number', item.trackNumber.toString()),
-      if (item.discNumber != null && item.discNumber! > 1)
-        _MetadataItem('Disc number', item.discNumber.toString()),
+      _MetadataItem('Track name', trackName),
+      _MetadataItem('Artist', artistName),
+      if (albumArtist != null && albumArtist != artistName)
+        _MetadataItem('Album artist', albumArtist!),
+      _MetadataItem('Album', albumName),
+      if (trackNumber != null && trackNumber! > 0)
+        _MetadataItem('Track number', trackNumber.toString()),
+      if (discNumber != null && discNumber! > 1)
+        _MetadataItem('Disc number', discNumber.toString()),
       if (item.duration != null)
         _MetadataItem('Duration', _formatDuration(item.duration!)),
-      if (item.quality != null && item.quality!.contains('bit'))
-        _MetadataItem('Audio quality', item.quality!),
-      if (item.releaseDate != null && item.releaseDate!.isNotEmpty)
-        _MetadataItem('Release date', item.releaseDate!),
-      if (item.isrc != null && item.isrc!.isNotEmpty)
-        _MetadataItem('ISRC', item.isrc!),
+      if (audioQualityStr != null)
+        _MetadataItem('Audio quality', audioQualityStr),
+      if (releaseDate != null && releaseDate!.isNotEmpty)
+        _MetadataItem('Release date', releaseDate!),
+      if (isrc != null && isrc!.isNotEmpty)
+        _MetadataItem('ISRC', isrc!),
       if (item.spotifyId != null && item.spotifyId!.isNotEmpty)
         _MetadataItem('Spotify ID', item.spotifyId!),
-      if (item.quality != null && item.quality!.isNotEmpty)
-        _MetadataItem('Quality', _formatQuality(item.quality!)),
       _MetadataItem('Service', item.service.toUpperCase()),
       _MetadataItem('Downloaded', _formatFullDate(item.downloadedAt)),
     ];
@@ -474,32 +492,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
     return '$minutes:${secs.toString().padLeft(2, '0')}';
-  }
-
-  String _formatQuality(String quality) {
-    switch (quality) {
-      case 'LOSSLESS':
-        return 'Lossless (16-bit)';
-      case 'HI_RES':
-        return 'Hi-Res (24-bit)';
-      case 'HI_RES_LOSSLESS':
-        return 'Hi-Res Lossless (24-bit)';
-      default:
-        return quality;
-    }
-  }
-
-  String _formatQualityShort(String quality) {
-    switch (quality) {
-      case 'LOSSLESS':
-        return '16-bit';
-      case 'HI_RES':
-        return '24-bit';
-      case 'HI_RES_LOSSLESS':
-        return 'Hi-Res';
-      default:
-        return quality;
-    }
   }
 
   Widget _buildFileInfoCard(BuildContext context, ColorScheme colorScheme, bool fileExists, int? fileSize) {
@@ -570,7 +562,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
                       ),
                     ),
                   ),
-                if (item.quality != null)
+                if (bitDepth != null && sampleRate != null)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
@@ -578,7 +570,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _formatQualityShort(item.quality!),
+                      '$bitDepth-bit/${(sampleRate! / 1000).toStringAsFixed(1)}kHz',
                       style: TextStyle(
                         color: colorScheme.onTertiaryContainer,
                         fontWeight: FontWeight.w600,
@@ -891,7 +883,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
             ),
             ListTile(
               leading: Icon(Icons.delete, color: colorScheme.error),
-              title: Text('Remove from history', style: TextStyle(color: colorScheme.error)),
+              title: Text('Remove from device', style: TextStyle(color: colorScheme.error)),
               onTap: () {
                 Navigator.pop(context);
                 _confirmDelete(context, ref, colorScheme);
@@ -908,10 +900,9 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove from history?'),
+        title: const Text('Remove from device?'),
         content: const Text(
-          'This will remove the track from your download history. '
-          'The downloaded file will not be deleted.',
+          'This will permanently delete the downloaded file and remove it from your history.',
         ),
         actions: [
           TextButton(
@@ -919,12 +910,26 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              // Delete the file first
+              try {
+                final file = File(item.filePath);
+                if (await file.exists()) {
+                  await file.delete();
+                }
+              } catch (e) {
+                debugPrint('Failed to delete file: $e');
+              }
+              
+              // Remove from history
               ref.read(downloadHistoryProvider.notifier).removeFromHistory(item.id);
-              Navigator.pop(context); // Close dialog
-              Navigator.pop(context); // Go back to history
+              
+              if (context.mounted) {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Go back to history
+              }
             },
-            child: Text('Remove', style: TextStyle(color: colorScheme.error)),
+            child: Text('Delete', style: TextStyle(color: colorScheme.error)),
           ),
         ],
       ),

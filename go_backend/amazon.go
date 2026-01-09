@@ -18,7 +18,7 @@ import (
 // AmazonDownloader handles Amazon Music downloads using DoubleDouble service (same as PC)
 type AmazonDownloader struct {
 	client           *http.Client
-	regions          []string // us, eu regions for DoubleDouble service
+	regions          []string  // us, eu regions for DoubleDouble service
 	lastAPICallTime  time.Time // Rate limiting: track last API call
 	apiCallCount     int       // Rate limiting: counter per minute
 	apiCallResetTime time.Time // Rate limiting: reset time
@@ -52,37 +52,37 @@ type DoubleDoubleStatusResponse struct {
 func amazonArtistsMatch(expectedArtist, foundArtist string) bool {
 	normExpected := strings.ToLower(strings.TrimSpace(expectedArtist))
 	normFound := strings.ToLower(strings.TrimSpace(foundArtist))
-	
+
 	// Exact match
 	if normExpected == normFound {
 		return true
 	}
-	
+
 	// Check if one contains the other
 	if strings.Contains(normExpected, normFound) || strings.Contains(normFound, normExpected) {
 		return true
 	}
-	
+
 	// Check first artist (before comma or feat)
 	expectedFirst := strings.Split(normExpected, ",")[0]
 	expectedFirst = strings.Split(expectedFirst, " feat")[0]
 	expectedFirst = strings.Split(expectedFirst, " ft.")[0]
 	expectedFirst = strings.TrimSpace(expectedFirst)
-	
+
 	foundFirst := strings.Split(normFound, ",")[0]
 	foundFirst = strings.Split(foundFirst, " feat")[0]
 	foundFirst = strings.Split(foundFirst, " ft.")[0]
 	foundFirst = strings.TrimSpace(foundFirst)
-	
+
 	if expectedFirst == foundFirst {
 		return true
 	}
-	
+
 	// Check if first artist is contained in the other
 	if strings.Contains(expectedFirst, foundFirst) || strings.Contains(foundFirst, expectedFirst) {
 		return true
 	}
-	
+
 	// If scripts are different (one is ASCII, one is non-ASCII like Japanese/Chinese/Korean),
 	// assume they're the same artist with different transliteration
 	expectedASCII := amazonIsASCIIString(expectedArtist)
@@ -91,7 +91,7 @@ func amazonArtistsMatch(expectedArtist, foundArtist string) bool {
 		fmt.Printf("[Amazon] Artist names in different scripts, assuming match: '%s' vs '%s'\n", expectedArtist, foundArtist)
 		return true
 	}
-	
+
 	return false
 }
 
@@ -124,7 +124,7 @@ func (a *AmazonDownloader) waitForRateLimit() {
 	defer amazonRateLimitMu.Unlock()
 
 	now := time.Now()
-	
+
 	// Reset counter every minute
 	if now.Sub(a.apiCallResetTime) >= time.Minute {
 		a.apiCallCount = 0
@@ -170,7 +170,6 @@ func (a *AmazonDownloader) GetAvailableAPIs() []string {
 	return apis
 }
 
-
 // downloadFromDoubleDoubleService downloads a track using DoubleDouble service (same as PC)
 // This uses submit → poll → download mechanism
 // Internal function - not exported to gomobile
@@ -182,7 +181,7 @@ func (a *AmazonDownloader) downloadFromDoubleDoubleService(amazonURL, outputDir 
 
 		// Build base URL for DoubleDouble service
 		// Decode base64 service URL (same as PC)
-		serviceBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly8=")         // https://
+		serviceBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly8=")               // https://
 		serviceDomain, _ := base64.StdEncoding.DecodeString("LmRvdWJsZWRvdWJsZS50b3A=") // .doubledouble.top
 		baseURL := fmt.Sprintf("%s%s%s", string(serviceBase), region, string(serviceDomain))
 
@@ -202,7 +201,7 @@ func (a *AmazonDownloader) downloadFromDoubleDoubleService(amazonURL, outputDir 
 		req.Header.Set("User-Agent", getRandomUserAgent())
 
 		fmt.Println("[Amazon] Submitting download request...")
-		
+
 		// Retry logic for 429 errors (like PC version: 3 retries with 15s wait)
 		var resp *http.Response
 		maxRetries := 3
@@ -345,7 +344,6 @@ func (a *AmazonDownloader) downloadFromDoubleDoubleService(amazonURL, outputDir 
 	return "", "", "", fmt.Errorf("all regions failed. Last error: %v", lastError)
 }
 
-
 // DownloadFile downloads a file from URL with User-Agent and progress tracking
 func (a *AmazonDownloader) DownloadFile(downloadURL, outputPath, itemID string) error {
 	// Initialize item progress (required for all downloads)
@@ -434,6 +432,7 @@ type AmazonDownloadResult struct {
 	ReleaseDate string
 	TrackNumber int
 	DiscNumber  int
+	ISRC        string
 }
 
 // downloadFromAmazon downloads a track using the request parameters
@@ -450,7 +449,7 @@ func downloadFromAmazon(req DownloadRequest) (AmazonDownloadResult, error) {
 	songlink := NewSongLinkClient()
 	var availability *TrackAvailability
 	var err error
-	
+
 	// Check if SpotifyID is actually a Deezer ID (format: "deezer:xxxxx")
 	if strings.HasPrefix(req.SpotifyID, "deezer:") {
 		// Extract Deezer ID and use Deezer-based lookup
@@ -463,7 +462,7 @@ func downloadFromAmazon(req DownloadRequest) (AmazonDownloadResult, error) {
 	} else {
 		return AmazonDownloadResult{}, fmt.Errorf("no valid Spotify or Deezer ID provided for Amazon lookup")
 	}
-	
+
 	if err != nil {
 		return AmazonDownloadResult{}, fmt.Errorf("failed to check Amazon availability via SongLink: %w", err)
 	}
@@ -546,16 +545,35 @@ func downloadFromAmazon(req DownloadRequest) (AmazonDownloadResult, error) {
 		fmt.Printf("[Amazon] DoubleDouble returned: %s - %s\n", artistName, trackName)
 	}
 
+	// Read existing metadata from downloaded file BEFORE embedding
+	// Amazon/DoubleDouble files often have correct track/disc numbers that we should preserve
+	existingMeta, metaErr := ReadMetadata(outputPath)
+	actualTrackNum := req.TrackNumber
+	actualDiscNum := req.DiscNumber
+
+	if metaErr == nil && existingMeta != nil {
+		// Use file metadata if it has valid track/disc numbers and request doesn't have them
+		if existingMeta.TrackNumber > 0 && (req.TrackNumber == 0 || req.TrackNumber == 1) {
+			actualTrackNum = existingMeta.TrackNumber
+			fmt.Printf("[Amazon] Using track number from file: %d (request had: %d)\n", actualTrackNum, req.TrackNumber)
+		}
+		if existingMeta.DiscNumber > 0 && (req.DiscNumber == 0 || req.DiscNumber == 1) {
+			actualDiscNum = existingMeta.DiscNumber
+			fmt.Printf("[Amazon] Using disc number from file: %d (request had: %d)\n", actualDiscNum, req.DiscNumber)
+		}
+	}
+
 	// Embed metadata using Spotify data (more accurate than DoubleDouble)
+	// But preserve track/disc numbers from file if they were better
 	metadata := Metadata{
 		Title:       req.TrackName,
 		Artist:      req.ArtistName,
 		Album:       req.AlbumName,
 		AlbumArtist: req.AlbumArtist,
 		Date:        req.ReleaseDate,
-		TrackNumber: req.TrackNumber,
+		TrackNumber: actualTrackNum,
 		TotalTracks: req.TotalTracks,
-		DiscNumber:  req.DiscNumber,
+		DiscNumber:  actualDiscNum,
 		ISRC:        req.ISRC,
 	}
 
@@ -583,36 +601,50 @@ func downloadFromAmazon(req DownloadRequest) (AmazonDownloadResult, error) {
 	}
 
 	fmt.Println("[Amazon] ✓ Downloaded successfully from Amazon Music")
-	
+
 	// Read actual quality from the downloaded FLAC file
 	// Amazon API doesn't provide quality info, but we can read it from the file itself
 	quality, err := GetAudioQuality(outputPath)
 	if err != nil {
 		fmt.Printf("[Amazon] Warning: couldn't read quality from file: %v\n", err)
-		// Add to ISRC index for fast duplicate checking
-		AddToISRCIndex(req.OutputDir, req.ISRC, outputPath)
-		// Return 0 to indicate unknown quality
-		return AmazonDownloadResult{
-			FilePath:   outputPath,
-			BitDepth:   0,
-			SampleRate: 0,
-		}, nil
+	} else {
+		fmt.Printf("[Amazon] Actual quality: %d-bit/%dHz\n", quality.BitDepth, quality.SampleRate)
 	}
-	
-	fmt.Printf("[Amazon] Actual quality: %d-bit/%dHz\n", quality.BitDepth, quality.SampleRate)
+
+	// Read metadata from file AFTER embedding to get accurate values
+	// This ensures we return what's actually in the file
+	finalMeta, metaReadErr := ReadMetadata(outputPath)
+	if metaReadErr == nil && finalMeta != nil {
+		fmt.Printf("[Amazon] Final metadata from file - Track: %d, Disc: %d, Date: %s\n",
+			finalMeta.TrackNumber, finalMeta.DiscNumber, finalMeta.Date)
+		actualTrackNum = finalMeta.TrackNumber
+		actualDiscNum = finalMeta.DiscNumber
+		if finalMeta.Date != "" {
+			// Use date from file if available
+			req.ReleaseDate = finalMeta.Date
+		}
+	}
 
 	// Add to ISRC index for fast duplicate checking
 	AddToISRCIndex(req.OutputDir, req.ISRC, outputPath)
 
+	bitDepth := 0
+	sampleRate := 0
+	if err == nil {
+		bitDepth = quality.BitDepth
+		sampleRate = quality.SampleRate
+	}
+
 	return AmazonDownloadResult{
 		FilePath:    outputPath,
-		BitDepth:    quality.BitDepth,
-		SampleRate:  quality.SampleRate,
+		BitDepth:    bitDepth,
+		SampleRate:  sampleRate,
 		Title:       req.TrackName,
 		Artist:      req.ArtistName,
 		Album:       req.AlbumName,
 		ReleaseDate: req.ReleaseDate,
-		TrackNumber: req.TrackNumber,
-		DiscNumber:  req.DiscNumber,
+		TrackNumber: actualTrackNum,
+		DiscNumber:  actualDiscNum,
+		ISRC:        req.ISRC,
 	}, nil
 }
