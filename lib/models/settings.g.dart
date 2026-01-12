@@ -32,6 +32,7 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   useExtensionProviders: json['useExtensionProviders'] as bool? ?? true,
   searchProvider: json['searchProvider'] as String?,
   separateSingles: json['separateSingles'] as bool? ?? false,
+  showExtensionStore: json['showExtensionStore'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
@@ -60,4 +61,5 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'useExtensionProviders': instance.useExtensionProviders,
       'searchProvider': instance.searchProvider,
       'separateSingles': instance.separateSingles,
+      'showExtensionStore': instance.showExtensionStore,
     };

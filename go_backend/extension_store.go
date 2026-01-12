@@ -24,17 +24,57 @@ const (
 type StoreExtension struct {
 	ID            string   `json:"id"`
 	Name          string   `json:"name"`
-	DisplayName   string   `json:"display_name"`
+	DisplayName   string   `json:"display_name,omitempty"`
 	Version       string   `json:"version"`
 	Author        string   `json:"author"`
 	Description   string   `json:"description"`
-	DownloadURL   string   `json:"download_url"`
+	DownloadURL   string   `json:"download_url,omitempty"`
 	IconURL       string   `json:"icon_url,omitempty"`
 	Category      string   `json:"category"`
 	Tags          []string `json:"tags,omitempty"`
 	Downloads     int      `json:"downloads"`
 	UpdatedAt     string   `json:"updated_at"`
 	MinAppVersion string   `json:"min_app_version,omitempty"`
+	// Alternative camelCase fields (for flexibility)
+	DisplayNameAlt   string `json:"displayName,omitempty"`
+	DownloadURLAlt   string `json:"downloadUrl,omitempty"`
+	IconURLAlt       string `json:"iconUrl,omitempty"`
+	MinAppVersionAlt string `json:"minAppVersion,omitempty"`
+}
+
+// getDisplayName returns display name, falling back to name (private to avoid gomobile conflict)
+func (e *StoreExtension) getDisplayName() string {
+	if e.DisplayName != "" {
+		return e.DisplayName
+	}
+	if e.DisplayNameAlt != "" {
+		return e.DisplayNameAlt
+	}
+	return e.Name
+}
+
+// getDownloadURL returns download URL from either field (private to avoid gomobile conflict)
+func (e *StoreExtension) getDownloadURL() string {
+	if e.DownloadURL != "" {
+		return e.DownloadURL
+	}
+	return e.DownloadURLAlt
+}
+
+// getIconURL returns icon URL from either field (private to avoid gomobile conflict)
+func (e *StoreExtension) getIconURL() string {
+	if e.IconURL != "" {
+		return e.IconURL
+	}
+	return e.IconURLAlt
+}
+
+// getMinAppVersion returns min app version from either field (private to avoid gomobile conflict)
+func (e *StoreExtension) getMinAppVersion() string {
+	if e.MinAppVersion != "" {
+		return e.MinAppVersion
+	}
+	return e.MinAppVersionAlt
 }
 
 // StoreRegistry represents the extension registry
@@ -44,12 +84,43 @@ type StoreRegistry struct {
 	Extensions []StoreExtension `json:"extensions"`
 }
 
-// StoreExtensionWithStatus adds installation status to StoreExtension
-type StoreExtensionWithStatus struct {
-	StoreExtension
-	IsInstalled      bool   `json:"is_installed"`
-	InstalledVersion string `json:"installed_version,omitempty"`
-	HasUpdate        bool   `json:"has_update"`
+// StoreExtensionResponse is the normalized response sent to Flutter
+type StoreExtensionResponse struct {
+	ID               string   `json:"id"`
+	Name             string   `json:"name"`
+	DisplayName      string   `json:"display_name"`
+	Version          string   `json:"version"`
+	Author           string   `json:"author"`
+	Description      string   `json:"description"`
+	DownloadURL      string   `json:"download_url"`
+	IconURL          string   `json:"icon_url,omitempty"`
+	Category         string   `json:"category"`
+	Tags             []string `json:"tags,omitempty"`
+	Downloads        int      `json:"downloads"`
+	UpdatedAt        string   `json:"updated_at"`
+	MinAppVersion    string   `json:"min_app_version,omitempty"`
+	IsInstalled      bool     `json:"is_installed"`
+	InstalledVersion string   `json:"installed_version,omitempty"`
+	HasUpdate        bool     `json:"has_update"`
+}
+
+// ToResponse converts StoreExtension to normalized response
+func (e *StoreExtension) ToResponse() StoreExtensionResponse {
+	return StoreExtensionResponse{
+		ID:            e.ID,
+		Name:          e.Name,
+		DisplayName:   e.getDisplayName(),
+		Version:       e.Version,
+		Author:        e.Author,
+		Description:   e.Description,
+		DownloadURL:   e.getDownloadURL(),
+		IconURL:       e.getIconURL(),
+		Category:      e.Category,
+		Tags:          e.Tags,
+		Downloads:     e.Downloads,
+		UpdatedAt:     e.UpdatedAt,
+		MinAppVersion: e.getMinAppVersion(),
+	}
 }
 
 // ExtensionStore manages the extension store
@@ -198,7 +269,7 @@ func (s *ExtensionStore) FetchRegistry(forceRefresh bool) (*StoreRegistry, error
 }
 
 // GetExtensionsWithStatus returns extensions with installation status
-func (s *ExtensionStore) GetExtensionsWithStatus() ([]StoreExtensionWithStatus, error) {
+func (s *ExtensionStore) GetExtensionsWithStatus() ([]StoreExtensionResponse, error) {
 	registry, err := s.FetchRegistry(false)
 	if err != nil {
 		return nil, err
@@ -213,19 +284,17 @@ func (s *ExtensionStore) GetExtensionsWithStatus() ([]StoreExtensionWithStatus, 
 		}
 	}
 
-	result := make([]StoreExtensionWithStatus, len(registry.Extensions))
+	result := make([]StoreExtensionResponse, len(registry.Extensions))
 	for i, ext := range registry.Extensions {
-		status := StoreExtensionWithStatus{
-			StoreExtension: ext,
-		}
+		resp := ext.ToResponse()
 
 		if installedVersion, ok := installed[ext.ID]; ok {
-			status.IsInstalled = true
-			status.InstalledVersion = installedVersion
-			status.HasUpdate = compareVersions(ext.Version, installedVersion) > 0
+			resp.IsInstalled = true
+			resp.InstalledVersion = installedVersion
+			resp.HasUpdate = compareVersions(ext.Version, installedVersion) > 0
 		}
 
-		result[i] = status
+		result[i] = resp
 	}
 
 	return result, nil
@@ -250,10 +319,10 @@ func (s *ExtensionStore) DownloadExtension(extensionID string, destPath string) 
 		return fmt.Errorf("extension %s not found in store", extensionID)
 	}
 
-	LogInfo("ExtensionStore", "Downloading %s from %s", ext.DisplayName, ext.DownloadURL)
+	LogInfo("ExtensionStore", "Downloading %s from %s", ext.getDisplayName(), ext.getDownloadURL())
 
 	client := &http.Client{Timeout: 5 * time.Minute}
-	resp, err := client.Get(ext.DownloadURL)
+	resp, err := client.Get(ext.getDownloadURL())
 	if err != nil {
 		return fmt.Errorf("failed to download: %w", err)
 	}
@@ -276,7 +345,7 @@ func (s *ExtensionStore) DownloadExtension(extensionID string, destPath string) 
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	LogInfo("ExtensionStore", "Downloaded %s to %s", ext.DisplayName, destPath)
+	LogInfo("ExtensionStore", "Downloaded %s to %s", ext.getDisplayName(), destPath)
 	return nil
 }
 
@@ -292,7 +361,7 @@ func (s *ExtensionStore) GetCategories() []string {
 }
 
 // SearchExtensions searches extensions by query
-func (s *ExtensionStore) SearchExtensions(query string, category string) ([]StoreExtensionWithStatus, error) {
+func (s *ExtensionStore) SearchExtensions(query string, category string) ([]StoreExtensionResponse, error) {
 	extensions, err := s.GetExtensionsWithStatus()
 	if err != nil {
 		return nil, err
@@ -302,7 +371,7 @@ func (s *ExtensionStore) SearchExtensions(query string, category string) ([]Stor
 		return extensions, nil
 	}
 
-	var result []StoreExtensionWithStatus
+	var result []StoreExtensionResponse
 	queryLower := toLower(query)
 
 	for _, ext := range extensions {

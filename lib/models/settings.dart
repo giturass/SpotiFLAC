@@ -28,6 +28,7 @@ class AppSettings {
   final bool useExtensionProviders; // Use extension providers for downloads when available
   final String? searchProvider; // null/empty = default (Deezer/Spotify), otherwise extension ID
   final bool separateSingles; // Separate singles/EPs into their own folder
+  final bool showExtensionStore; // Show Extension Store tab in navigation
 
   const AppSettings({
     this.defaultService = 'tidal',
@@ -54,6 +55,7 @@ class AppSettings {
     this.useExtensionProviders = true, // Default: use extensions when available
     this.searchProvider, // Default: null (use Deezer/Spotify)
     this.separateSingles = false, // Default: disabled
+    this.showExtensionStore = true, // Default: show store
   });
 
   AppSettings copyWith({
@@ -81,6 +83,7 @@ class AppSettings {
     bool? useExtensionProviders,
     String? searchProvider,
     bool? separateSingles,
+    bool? showExtensionStore,
   }) {
     return AppSettings(
       defaultService: defaultService ?? this.defaultService,
@@ -107,6 +110,7 @@ class AppSettings {
       useExtensionProviders: useExtensionProviders ?? this.useExtensionProviders,
       searchProvider: searchProvider ?? this.searchProvider,
       separateSingles: separateSingles ?? this.separateSingles,
+      showExtensionStore: showExtensionStore ?? this.showExtensionStore,
     );
   }
 

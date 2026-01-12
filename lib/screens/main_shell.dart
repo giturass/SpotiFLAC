@@ -173,6 +173,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   Widget build(BuildContext context) {
     final queueState = ref.watch(downloadQueueProvider.select((s) => s.queuedCount));
     final trackState = ref.watch(trackProvider);
+    final showStore = ref.watch(settingsProvider.select((s) => s.showExtensionStore));
     
     // Check if keyboard is visible (bottom inset > 0 means keyboard is showing)
     final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
@@ -185,6 +186,57 @@ class _MainShellState extends ConsumerState<MainShell> {
                    !trackState.hasContent && 
                    !trackState.isLoading &&
                    !isKeyboardVisible;
+
+    // Build tabs and destinations based on settings
+    final tabs = <Widget>[
+      const HomeTab(),
+      const QueueTab(),
+      if (showStore) const StoreTab(),
+      const SettingsTab(),
+    ];
+
+    final destinations = <NavigationDestination>[
+      const NavigationDestination(
+        icon: Icon(Icons.home_outlined),
+        selectedIcon: Icon(Icons.home),
+        label: 'Home',
+      ),
+      NavigationDestination(
+        icon: Badge(
+          isLabelVisible: queueState > 0,
+          label: Text('$queueState'),
+          child: const Icon(Icons.history_outlined),
+        ),
+        selectedIcon: Badge(
+          isLabelVisible: queueState > 0,
+          label: Text('$queueState'),
+          child: const Icon(Icons.history),
+        ),
+        label: 'History',
+      ),
+      if (showStore)
+        const NavigationDestination(
+          icon: Icon(Icons.store_outlined),
+          selectedIcon: Icon(Icons.store),
+          label: 'Store',
+        ),
+      const NavigationDestination(
+        icon: Icon(Icons.settings_outlined),
+        selectedIcon: Icon(Icons.settings),
+        label: 'Settings',
+      ),
+    ];
+
+    // Clamp current index if tabs changed
+    final maxIndex = tabs.length - 1;
+    if (_currentIndex > maxIndex) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() => _currentIndex = maxIndex);
+          _pageController.jumpToPage(maxIndex);
+        }
+      });
+    }
 
     return PopScope(
       canPop: canPop,
@@ -203,50 +255,16 @@ class _MainShellState extends ConsumerState<MainShell> {
           controller: _pageController,
           onPageChanged: _onPageChanged,
           physics: const BouncingScrollPhysics(),
-          children: const [
-            HomeTab(),
-            StoreTab(),
-            QueueTab(),
-            SettingsTab(),
-          ],
+          children: tabs,
         ),
         bottomNavigationBar: NavigationBar(
-          selectedIndex: _currentIndex,
+          selectedIndex: _currentIndex.clamp(0, maxIndex),
           onDestinationSelected: _onNavTap,
           animationDuration: const Duration(milliseconds: 200),
           backgroundColor: Theme.of(context).brightness == Brightness.dark
               ? Color.alphaBlend(Colors.white.withValues(alpha: 0.05), Theme.of(context).colorScheme.surface)
               : Color.alphaBlend(Colors.black.withValues(alpha: 0.03), Theme.of(context).colorScheme.surface),
-          destinations: [
-            const NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.store_outlined),
-              selectedIcon: Icon(Icons.store),
-              label: 'Store',
-            ),
-            NavigationDestination(
-              icon: Badge(
-                isLabelVisible: queueState > 0,
-                label: Text('$queueState'),
-                child: const Icon(Icons.history_outlined),
-              ),
-              selectedIcon: Badge(
-                isLabelVisible: queueState > 0,
-                label: Text('$queueState'),
-                child: const Icon(Icons.history),
-              ),
-              label: 'History',
-            ),
-            const NavigationDestination(
-              icon: Icon(Icons.settings_outlined),
-              selectedIcon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
+          destinations: destinations,
         ),
       ),
     );

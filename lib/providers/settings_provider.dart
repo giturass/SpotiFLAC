@@ -216,6 +216,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
     state = state.copyWith(separateSingles: enabled);
     _saveSettings();
   }
+
+  void setShowExtensionStore(bool enabled) {
+    state = state.copyWith(showExtensionStore: enabled);
+    _saveSettings();
+  }
 }
 
 final settingsProvider = NotifierProvider<SettingsNotifier, AppSettings>(

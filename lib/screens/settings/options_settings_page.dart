@@ -203,6 +203,15 @@ class OptionsSettingsPage extends ConsumerWidget {
               child: SettingsGroup(
                 children: [
                   SettingsSwitchItem(
+                    icon: Icons.store,
+                    title: 'Extension Store',
+                    subtitle: 'Show Store tab in navigation',
+                    value: settings.showExtensionStore,
+                    onChanged: (v) => ref
+                        .read(settingsProvider.notifier)
+                        .setShowExtensionStore(v),
+                  ),
+                  SettingsSwitchItem(
                     icon: Icons.system_update,
                     title: 'Check for Updates',
                     subtitle: 'Notify when new version is available',

@@ -231,7 +231,7 @@ func (m *ExtensionManager) LoadExtensionFromFile(filePath string) (*LoadedExtens
 	ext := &LoadedExtension{
 		ID:        manifest.Name,
 		Manifest:  manifest,
-		Enabled:   true,
+		Enabled:   false, // New extensions start disabled
 		DataDir:   extDataDir,
 		SourceDir: extDir,
 	}
@@ -459,7 +459,7 @@ func (m *ExtensionManager) loadExtensionFromDirectory(dirPath string) (*LoadedEx
 	ext := &LoadedExtension{
 		ID:        manifest.Name,
 		Manifest:  manifest,
-		Enabled:   true,
+		Enabled:   false, // Will be restored from settings store
 		DataDir:   extDataDir,
 		SourceDir: dirPath,
 	}
@@ -583,9 +583,10 @@ func (m *ExtensionManager) UpgradeExtension(filePath string) (*LoadedExtension, 
 
 	GoLog("[Extension] Upgrading %s from v%s to v%s\n", newManifest.DisplayName, existing.Manifest.Version, newManifest.Version)
 
-	// Save data directory path (we want to preserve it)
+	// Save data directory path and enabled state (we want to preserve them)
 	extDataDir := existing.DataDir
 	extDir := existing.SourceDir
+	wasEnabled := existing.Enabled
 
 	// Cleanup and unload existing extension
 	m.CleanupExtension(existing.ID)
@@ -633,11 +634,11 @@ func (m *ExtensionManager) UpgradeExtension(filePath string) (*LoadedExtension, 
 		}
 	}
 
-	// Create new loaded extension (reusing data directory)
+	// Create new loaded extension (reusing data directory, preserving enabled state)
 	ext := &LoadedExtension{
 		ID:        newManifest.Name,
 		Manifest:  newManifest,
-		Enabled:   true,
+		Enabled:   wasEnabled, // Preserve enabled state from before upgrade
 		DataDir:   extDataDir,
 		SourceDir: extDir,
 	}

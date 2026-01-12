@@ -410,7 +410,7 @@ class _ExtensionItem extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
             children: [
-              // Extension icon
+              // Extension icon - custom or category-based
               Container(
                 width: 44,
                 height: 44,
@@ -420,12 +420,42 @@ class _ExtensionItem extends StatelessWidget {
                       : colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
-                  _getCategoryIcon(extension.category),
-                  color: extension.isInstalled
-                      ? colorScheme.onPrimaryContainer
-                      : colorScheme.onSurfaceVariant,
-                ),
+                clipBehavior: Clip.antiAlias,
+                child: extension.iconUrl != null && extension.iconUrl!.isNotEmpty
+                    ? Image.network(
+                        extension.iconUrl!,
+                        width: 44,
+                        height: 44,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Icon(
+                          _getCategoryIcon(extension.category),
+                          color: extension.isInstalled
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Center(
+                            child: SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                value: loadingProgress.expectedTotalBytes != null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        loadingProgress.expectedTotalBytes!
+                                    : null,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Icon(
+                        _getCategoryIcon(extension.category),
+                        color: extension.isInstalled
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurfaceVariant,
+                      ),
               ),
               const SizedBox(width: 16),
               // Extension info

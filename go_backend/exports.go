@@ -1770,7 +1770,7 @@ func DownloadStoreExtensionJSON(extensionID, destDir string) (string, error) {
 		return "", fmt.Errorf("extension store not initialized")
 	}
 
-	destPath := fmt.Sprintf("%s/%s.spotiflac", destDir, extensionID)
+	destPath := fmt.Sprintf("%s/%s.spotiflac-ext", destDir, extensionID)
 	err := store.DownloadExtension(extensionID, destPath)
 	if err != nil {
 		return "", err
