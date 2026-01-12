@@ -4,6 +4,14 @@
 
 ### Added
 
+- **Extension Store**: Browse and install extensions directly from the app
+  - New "Store" tab in bottom navigation
+  - Browse extensions by category (Metadata, Download, Utility, Lyrics, Integration)
+  - Search extensions by name, description, or tags
+  - One-tap install and update
+  - Offline cache for browsing without internet
+  - Extensions hosted at github.com/zarzet/SpotiFLAC-Extension
+
 - **Custom URL Handler for Extensions**: Extensions can now register custom URL patterns
   - Handle URLs from YouTube Music, SoundCloud, Bandcamp, etc.
   - Manifest config: `urlHandler: { enabled: true, patterns: ["music.youtube.com"] }`

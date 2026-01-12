@@ -587,6 +587,49 @@ class MainActivity: FlutterActivity() {
                             }
                             result.success(response)
                         }
+                        // Extension Store
+                        "initExtensionStore" -> {
+                            val cacheDir = call.argument<String>("cache_dir") ?: ""
+                            withContext(Dispatchers.IO) {
+                                Gobackend.initExtensionStoreJSON(cacheDir)
+                            }
+                            result.success(null)
+                        }
+                        "getStoreExtensions" -> {
+                            val forceRefresh = call.argument<Boolean>("force_refresh") ?: false
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.getStoreExtensionsJSON(forceRefresh)
+                            }
+                            result.success(response)
+                        }
+                        "searchStoreExtensions" -> {
+                            val query = call.argument<String>("query") ?: ""
+                            val category = call.argument<String>("category") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.searchStoreExtensionsJSON(query, category)
+                            }
+                            result.success(response)
+                        }
+                        "getStoreCategories" -> {
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.getStoreCategoriesJSON()
+                            }
+                            result.success(response)
+                        }
+                        "downloadStoreExtension" -> {
+                            val extensionId = call.argument<String>("extension_id") ?: ""
+                            val destDir = call.argument<String>("dest_dir") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.downloadStoreExtensionJSON(extensionId, destDir)
+                            }
+                            result.success(response)
+                        }
+                        "clearStoreCache" -> {
+                            withContext(Dispatchers.IO) {
+                                Gobackend.clearStoreCacheJSON()
+                            }
+                            result.success(null)
+                        }
                         else -> result.notImplemented()
                     }
                 } catch (e: Exception) {

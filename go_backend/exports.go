@@ -1692,3 +1692,100 @@ func GetPostProcessingProvidersJSON() (string, error) {
 
 	return string(jsonBytes), nil
 }
+
+// ==================== EXTENSION STORE ====================
+
+// InitExtensionStoreJSON initializes the extension store with cache directory
+func InitExtensionStoreJSON(cacheDir string) error {
+	InitExtensionStore(cacheDir)
+	return nil
+}
+
+// GetStoreExtensionsJSON returns all extensions from the store with installation status
+func GetStoreExtensionsJSON(forceRefresh bool) (string, error) {
+	store := GetExtensionStore()
+	if store == nil {
+		return "", fmt.Errorf("extension store not initialized")
+	}
+
+	// Force refresh if requested
+	if forceRefresh {
+		store.FetchRegistry(true)
+	}
+
+	extensions, err := store.GetExtensionsWithStatus()
+	if err != nil {
+		return "", err
+	}
+
+	jsonBytes, err := json.Marshal(extensions)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
+// SearchStoreExtensionsJSON searches extensions in the store
+func SearchStoreExtensionsJSON(query, category string) (string, error) {
+	store := GetExtensionStore()
+	if store == nil {
+		return "", fmt.Errorf("extension store not initialized")
+	}
+
+	extensions, err := store.SearchExtensions(query, category)
+	if err != nil {
+		return "", err
+	}
+
+	jsonBytes, err := json.Marshal(extensions)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
+// GetStoreCategoriesJSON returns all available categories
+func GetStoreCategoriesJSON() (string, error) {
+	store := GetExtensionStore()
+	if store == nil {
+		return "", fmt.Errorf("extension store not initialized")
+	}
+
+	categories := store.GetCategories()
+	jsonBytes, err := json.Marshal(categories)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
+// DownloadStoreExtensionJSON downloads an extension from the store
+// Returns the path to the downloaded file
+func DownloadStoreExtensionJSON(extensionID, destDir string) (string, error) {
+	store := GetExtensionStore()
+	if store == nil {
+		return "", fmt.Errorf("extension store not initialized")
+	}
+
+	destPath := fmt.Sprintf("%s/%s.spotiflac", destDir, extensionID)
+	err := store.DownloadExtension(extensionID, destPath)
+	if err != nil {
+		return "", err
+	}
+
+	return destPath, nil
+}
+
+// ClearStoreCacheJSON clears the store cache
+func ClearStoreCacheJSON() error {
+	store := GetExtensionStore()
+	if store == nil {
+		return fmt.Errorf("extension store not initialized")
+	}
+
+	store.ClearCache()
+	return nil
+}

@@ -6,6 +6,7 @@ import 'package:spotiflac_android/providers/download_queue_provider.dart';
 import 'package:spotiflac_android/providers/settings_provider.dart';
 import 'package:spotiflac_android/providers/track_provider.dart';
 import 'package:spotiflac_android/screens/home_tab.dart';
+import 'package:spotiflac_android/screens/store_tab.dart';
 import 'package:spotiflac_android/screens/queue_tab.dart';
 import 'package:spotiflac_android/screens/settings/settings_tab.dart';
 import 'package:spotiflac_android/services/share_intent_service.dart';
@@ -204,6 +205,7 @@ class _MainShellState extends ConsumerState<MainShell> {
           physics: const BouncingScrollPhysics(),
           children: const [
             HomeTab(),
+            StoreTab(),
             QueueTab(),
             SettingsTab(),
           ],
@@ -220,6 +222,11 @@ class _MainShellState extends ConsumerState<MainShell> {
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: 'Home',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.store_outlined),
+              selectedIcon: Icon(Icons.store),
+              label: 'Store',
             ),
             NavigationDestination(
               icon: Badge(

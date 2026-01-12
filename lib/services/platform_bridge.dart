@@ -807,4 +807,56 @@ class PlatformBridge {
     final list = jsonDecode(result as String) as List<dynamic>;
     return list.map((e) => e as Map<String, dynamic>).toList();
   }
+
+  // ==================== EXTENSION STORE ====================
+
+  /// Initialize extension store
+  static Future<void> initExtensionStore(String cacheDir) async {
+    _log.d('initExtensionStore: $cacheDir');
+    await _channel.invokeMethod('initExtensionStore', {'cache_dir': cacheDir});
+  }
+
+  /// Get all extensions from store with installation status
+  static Future<List<Map<String, dynamic>>> getStoreExtensions({bool forceRefresh = false}) async {
+    _log.d('getStoreExtensions (forceRefresh: $forceRefresh)');
+    final result = await _channel.invokeMethod('getStoreExtensions', {
+      'force_refresh': forceRefresh,
+    });
+    final list = jsonDecode(result as String) as List<dynamic>;
+    return list.map((e) => e as Map<String, dynamic>).toList();
+  }
+
+  /// Search extensions in store
+  static Future<List<Map<String, dynamic>>> searchStoreExtensions(String query, {String? category}) async {
+    _log.d('searchStoreExtensions: "$query" (category: $category)');
+    final result = await _channel.invokeMethod('searchStoreExtensions', {
+      'query': query,
+      'category': category ?? '',
+    });
+    final list = jsonDecode(result as String) as List<dynamic>;
+    return list.map((e) => e as Map<String, dynamic>).toList();
+  }
+
+  /// Get store categories
+  static Future<List<String>> getStoreCategories() async {
+    final result = await _channel.invokeMethod('getStoreCategories');
+    final list = jsonDecode(result as String) as List<dynamic>;
+    return list.cast<String>();
+  }
+
+  /// Download extension from store
+  static Future<String> downloadStoreExtension(String extensionId, String destDir) async {
+    _log.i('downloadStoreExtension: $extensionId to $destDir');
+    final result = await _channel.invokeMethod('downloadStoreExtension', {
+      'extension_id': extensionId,
+      'dest_dir': destDir,
+    });
+    return result as String;
+  }
+
+  /// Clear store cache
+  static Future<void> clearStoreCache() async {
+    _log.d('clearStoreCache');
+    await _channel.invokeMethod('clearStoreCache');
+  }
 }

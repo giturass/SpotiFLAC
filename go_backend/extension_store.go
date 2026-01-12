@@ -1,0 +1,384 @@
+package gobackend
+
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+	"sync"
+	"time"
+)
+
+// Extension categories
+const (
+	CategoryMetadata    = "metadata"
+	CategoryDownload    = "download"
+	CategoryUtility     = "utility"
+	CategoryLyrics      = "lyrics"
+	CategoryIntegration = "integration"
+)
+
+// StoreExtension represents an extension in the store
+type StoreExtension struct {
+	ID            string   `json:"id"`
+	Name          string   `json:"name"`
+	DisplayName   string   `json:"display_name"`
+	Version       string   `json:"version"`
+	Author        string   `json:"author"`
+	Description   string   `json:"description"`
+	DownloadURL   string   `json:"download_url"`
+	IconURL       string   `json:"icon_url,omitempty"`
+	Category      string   `json:"category"`
+	Tags          []string `json:"tags,omitempty"`
+	Downloads     int      `json:"downloads"`
+	UpdatedAt     string   `json:"updated_at"`
+	MinAppVersion string   `json:"min_app_version,omitempty"`
+}
+
+// StoreRegistry represents the extension registry
+type StoreRegistry struct {
+	Version    int              `json:"version"`
+	UpdatedAt  string           `json:"updated_at"`
+	Extensions []StoreExtension `json:"extensions"`
+}
+
+// StoreExtensionWithStatus adds installation status to StoreExtension
+type StoreExtensionWithStatus struct {
+	StoreExtension
+	IsInstalled      bool   `json:"is_installed"`
+	InstalledVersion string `json:"installed_version,omitempty"`
+	HasUpdate        bool   `json:"has_update"`
+}
+
+// ExtensionStore manages the extension store
+type ExtensionStore struct {
+	registryURL string
+	cacheDir    string
+	cache       *StoreRegistry
+	cacheMu     sync.RWMutex
+	cacheTime   time.Time
+	cacheTTL    time.Duration
+}
+
+var (
+	extensionStore   *ExtensionStore
+	extensionStoreMu sync.Mutex
+)
+
+const (
+	defaultRegistryURL = "https://raw.githubusercontent.com/zarzet/SpotiFLAC-Extension/main/registry.json"
+	cacheTTL           = 30 * time.Minute
+	cacheFileName      = "store_cache.json"
+)
+
+// InitExtensionStore initializes the extension store
+func InitExtensionStore(cacheDir string) *ExtensionStore {
+	extensionStoreMu.Lock()
+	defer extensionStoreMu.Unlock()
+
+	if extensionStore == nil {
+		extensionStore = &ExtensionStore{
+			registryURL: defaultRegistryURL,
+			cacheDir:    cacheDir,
+			cacheTTL:    cacheTTL,
+		}
+		// Try to load from disk cache
+		extensionStore.loadDiskCache()
+	}
+	return extensionStore
+}
+
+// GetExtensionStore returns the singleton store instance
+func GetExtensionStore() *ExtensionStore {
+	extensionStoreMu.Lock()
+	defer extensionStoreMu.Unlock()
+	return extensionStore
+}
+
+// loadDiskCache loads cached registry from disk
+func (s *ExtensionStore) loadDiskCache() {
+	if s.cacheDir == "" {
+		return
+	}
+
+	cachePath := filepath.Join(s.cacheDir, cacheFileName)
+	data, err := os.ReadFile(cachePath)
+	if err != nil {
+		return
+	}
+
+	var cacheData struct {
+		Registry  StoreRegistry `json:"registry"`
+		CacheTime int64         `json:"cache_time"`
+	}
+
+	if err := json.Unmarshal(data, &cacheData); err != nil {
+		return
+	}
+
+	s.cache = &cacheData.Registry
+	s.cacheTime = time.Unix(cacheData.CacheTime, 0)
+	LogDebug("ExtensionStore", "Loaded %d extensions from disk cache", len(s.cache.Extensions))
+}
+
+// saveDiskCache saves registry to disk cache
+func (s *ExtensionStore) saveDiskCache() {
+	if s.cacheDir == "" || s.cache == nil {
+		return
+	}
+
+	cacheData := struct {
+		Registry  StoreRegistry `json:"registry"`
+		CacheTime int64         `json:"cache_time"`
+	}{
+		Registry:  *s.cache,
+		CacheTime: s.cacheTime.Unix(),
+	}
+
+	data, err := json.Marshal(cacheData)
+	if err != nil {
+		return
+	}
+
+	cachePath := filepath.Join(s.cacheDir, cacheFileName)
+	os.WriteFile(cachePath, data, 0644)
+}
+
+// FetchRegistry fetches the extension registry from GitHub
+func (s *ExtensionStore) FetchRegistry(forceRefresh bool) (*StoreRegistry, error) {
+	s.cacheMu.Lock()
+	defer s.cacheMu.Unlock()
+
+	// Return cached if valid and not forcing refresh
+	if !forceRefresh && s.cache != nil && time.Since(s.cacheTime) < s.cacheTTL {
+		LogDebug("ExtensionStore", "Using cached registry (%d extensions)", len(s.cache.Extensions))
+		return s.cache, nil
+	}
+
+	LogInfo("ExtensionStore", "Fetching registry from %s", s.registryURL)
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Get(s.registryURL)
+	if err != nil {
+		// Return cached data if available on network error
+		if s.cache != nil {
+			LogWarn("ExtensionStore", "Network error, using cached registry: %v", err)
+			return s.cache, nil
+		}
+		return nil, fmt.Errorf("failed to fetch registry: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		if s.cache != nil {
+			LogWarn("ExtensionStore", "HTTP %d, using cached registry", resp.StatusCode)
+			return s.cache, nil
+		}
+		return nil, fmt.Errorf("registry returned HTTP %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read registry: %w", err)
+	}
+
+	var registry StoreRegistry
+	if err := json.Unmarshal(body, &registry); err != nil {
+		return nil, fmt.Errorf("failed to parse registry: %w", err)
+	}
+
+	s.cache = &registry
+	s.cacheTime = time.Now()
+	s.saveDiskCache()
+
+	LogInfo("ExtensionStore", "Fetched %d extensions from registry", len(registry.Extensions))
+	return &registry, nil
+}
+
+// GetExtensionsWithStatus returns extensions with installation status
+func (s *ExtensionStore) GetExtensionsWithStatus() ([]StoreExtensionWithStatus, error) {
+	registry, err := s.FetchRegistry(false)
+	if err != nil {
+		return nil, err
+	}
+
+	manager := GetExtensionManager()
+	installed := make(map[string]string) // id -> version
+
+	if manager != nil {
+		for _, ext := range manager.GetAllExtensions() {
+			installed[ext.ID] = ext.Manifest.Version
+		}
+	}
+
+	result := make([]StoreExtensionWithStatus, len(registry.Extensions))
+	for i, ext := range registry.Extensions {
+		status := StoreExtensionWithStatus{
+			StoreExtension: ext,
+		}
+
+		if installedVersion, ok := installed[ext.ID]; ok {
+			status.IsInstalled = true
+			status.InstalledVersion = installedVersion
+			status.HasUpdate = compareVersions(ext.Version, installedVersion) > 0
+		}
+
+		result[i] = status
+	}
+
+	return result, nil
+}
+
+// DownloadExtension downloads an extension package to the specified path
+func (s *ExtensionStore) DownloadExtension(extensionID string, destPath string) error {
+	registry, err := s.FetchRegistry(false)
+	if err != nil {
+		return err
+	}
+
+	var ext *StoreExtension
+	for _, e := range registry.Extensions {
+		if e.ID == extensionID {
+			ext = &e
+			break
+		}
+	}
+
+	if ext == nil {
+		return fmt.Errorf("extension %s not found in store", extensionID)
+	}
+
+	LogInfo("ExtensionStore", "Downloading %s from %s", ext.DisplayName, ext.DownloadURL)
+
+	client := &http.Client{Timeout: 5 * time.Minute}
+	resp, err := client.Get(ext.DownloadURL)
+	if err != nil {
+		return fmt.Errorf("failed to download: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("download returned HTTP %d", resp.StatusCode)
+	}
+
+	// Create destination file
+	out, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		os.Remove(destPath)
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	LogInfo("ExtensionStore", "Downloaded %s to %s", ext.DisplayName, destPath)
+	return nil
+}
+
+// GetCategories returns all available categories
+func (s *ExtensionStore) GetCategories() []string {
+	return []string{
+		CategoryMetadata,
+		CategoryDownload,
+		CategoryUtility,
+		CategoryLyrics,
+		CategoryIntegration,
+	}
+}
+
+// SearchExtensions searches extensions by query
+func (s *ExtensionStore) SearchExtensions(query string, category string) ([]StoreExtensionWithStatus, error) {
+	extensions, err := s.GetExtensionsWithStatus()
+	if err != nil {
+		return nil, err
+	}
+
+	if query == "" && category == "" {
+		return extensions, nil
+	}
+
+	var result []StoreExtensionWithStatus
+	queryLower := toLower(query)
+
+	for _, ext := range extensions {
+		// Filter by category
+		if category != "" && ext.Category != category {
+			continue
+		}
+
+		// Filter by query
+		if query != "" {
+			if !containsIgnoreCase(ext.Name, queryLower) &&
+				!containsIgnoreCase(ext.DisplayName, queryLower) &&
+				!containsIgnoreCase(ext.Description, queryLower) &&
+				!containsIgnoreCase(ext.Author, queryLower) {
+				// Check tags
+				found := false
+				for _, tag := range ext.Tags {
+					if containsIgnoreCase(tag, queryLower) {
+						found = true
+						break
+					}
+				}
+				if !found {
+					continue
+				}
+			}
+		}
+
+		result = append(result, ext)
+	}
+
+	return result, nil
+}
+
+// ClearCache clears the in-memory and disk cache
+func (s *ExtensionStore) ClearCache() {
+	s.cacheMu.Lock()
+	defer s.cacheMu.Unlock()
+
+	s.cache = nil
+	s.cacheTime = time.Time{}
+
+	if s.cacheDir != "" {
+		cachePath := filepath.Join(s.cacheDir, cacheFileName)
+		os.Remove(cachePath)
+	}
+
+	LogInfo("ExtensionStore", "Cache cleared")
+}
+
+// Helper: case-insensitive contains
+func containsIgnoreCase(s, substr string) bool {
+	return containsStr(toLower(s), substr)
+}
+
+func toLower(s string) string {
+	result := make([]byte, len(s))
+	for i := 0; i < len(s); i++ {
+		c := s[i]
+		if c >= 'A' && c <= 'Z' {
+			c += 'a' - 'A'
+		}
+		result[i] = c
+	}
+	return string(result)
+}
+
+func containsStr(s, substr string) bool {
+	return len(substr) == 0 || (len(s) >= len(substr) && findSubstring(s, substr) >= 0)
+}
+
+func findSubstring(s, substr string) int {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return i
+		}
+	}
+	return -1
+}
