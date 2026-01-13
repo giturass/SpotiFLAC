@@ -1273,6 +1273,12 @@ func artistsMatch(spotifyArtist, tidalArtist string) bool {
 		return true
 	}
 
+	// Check if same words in different order (e.g., "Sawano Hiroyuki" vs "Hiroyuki Sawano")
+	if sameWordsUnordered(spotifyFirst, tidalFirst) {
+		GoLog("[Tidal] Artist names have same words in different order, assuming match: '%s' vs '%s'\n", spotifyArtist, tidalArtist)
+		return true
+	}
+
 	// If scripts are TRULY different (Latin vs CJK/Arabic/Cyrillic), assume match (transliteration)
 	// Don't treat Latin Extended (Polish, French, etc.) as different script
 	// This handles cases like "鈴木雅之" vs "Masayuki Suzuki"
@@ -1284,6 +1290,43 @@ func artistsMatch(spotifyArtist, tidalArtist string) bool {
 	}
 
 	return false
+}
+
+// sameWordsUnordered checks if two strings have the same words regardless of order
+// Useful for Japanese names: "Sawano Hiroyuki" vs "Hiroyuki Sawano"
+func sameWordsUnordered(a, b string) bool {
+	wordsA := strings.Fields(a)
+	wordsB := strings.Fields(b)
+
+	// Must have same number of words
+	if len(wordsA) != len(wordsB) || len(wordsA) == 0 {
+		return false
+	}
+
+	// Sort and compare
+	sortedA := make([]string, len(wordsA))
+	sortedB := make([]string, len(wordsB))
+	copy(sortedA, wordsA)
+	copy(sortedB, wordsB)
+
+	// Simple bubble sort (usually just 2-3 words)
+	for i := 0; i < len(sortedA)-1; i++ {
+		for j := i + 1; j < len(sortedA); j++ {
+			if sortedA[i] > sortedA[j] {
+				sortedA[i], sortedA[j] = sortedA[j], sortedA[i]
+			}
+			if sortedB[i] > sortedB[j] {
+				sortedB[i], sortedB[j] = sortedB[j], sortedB[i]
+			}
+		}
+	}
+
+	for i := range sortedA {
+		if sortedA[i] != sortedB[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // titlesMatch checks if track titles are similar enough

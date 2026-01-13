@@ -27,6 +27,11 @@
   - Now uses `firstArtist` + `otherArtists` instead of deprecated `artists.items`
   - Logs correctly show "Fetched track: {title} by {artist}"
 
+- **Japanese Artist Name Order**: Fixed artist mismatch for Japanese names with different order
+  - "Sawano Hiroyuki" vs "Hiroyuki Sawano" now correctly matches
+  - Added `sameWordsUnordered` check to both Tidal and Qobuz artist matching
+  - Handles Japanese name order (family name first) vs Western name order (given name first)
+
 ---
 
 ## [3.0.0-beta.1] - 2026-01-13
