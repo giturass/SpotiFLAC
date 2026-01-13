@@ -789,12 +789,10 @@ func getQobuzDownloadURLParallel(apis []string, trackID int64, quality string) (
 
 	// Collect results - return first success
 	var errors []string
-	var firstSuccess *qobuzAPIResult
 
 	for i := 0; i < len(apis); i++ {
 		result := <-resultChan
-		if result.err == nil && firstSuccess == nil {
-			firstSuccess = &result
+		if result.err == nil {
 			GoLog("[Qobuz] [Parallel] ✓ Got response from %s in %v\n", result.apiURL, result.duration)
 
 			// Drain remaining results to avoid goroutine leaks
@@ -805,14 +803,13 @@ func getQobuzDownloadURLParallel(apis []string, trackID int64, quality string) (
 			}(len(apis) - i - 1)
 
 			GoLog("[Qobuz] [Parallel] Total time: %v (first success)\n", time.Since(startTime))
-			return firstSuccess.apiURL, firstSuccess.downloadURL, nil
-		} else if result.err != nil {
-			errMsg := result.err.Error()
-			if len(errMsg) > 50 {
-				errMsg = errMsg[:50] + "..."
-			}
-			errors = append(errors, fmt.Sprintf("%s: %s", result.apiURL, errMsg))
+			return result.apiURL, result.downloadURL, nil
 		}
+		errMsg := result.err.Error()
+		if len(errMsg) > 50 {
+			errMsg = errMsg[:50] + "..."
+		}
+		errors = append(errors, fmt.Sprintf("%s: %s", result.apiURL, errMsg))
 	}
 
 	GoLog("[Qobuz] [Parallel] All %d APIs failed in %v\n", len(apis), time.Since(startTime))

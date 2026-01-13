@@ -738,13 +738,11 @@ func getDownloadURLParallel(apis []string, trackID int64, quality string) (strin
 
 	// Collect results - return first success
 	var errors []string
-	var firstSuccess *tidalAPIResult
 
 	for i := 0; i < len(apis); i++ {
 		result := <-resultChan
-		if result.err == nil && firstSuccess == nil {
+		if result.err == nil {
 			// First success - use this one
-			firstSuccess = &result
 			GoLog("[Tidal] [Parallel] ✓ Got response from %s (%d-bit/%dHz) in %v\n",
 				result.apiURL, result.info.BitDepth, result.info.SampleRate, result.duration)
 
@@ -756,14 +754,13 @@ func getDownloadURLParallel(apis []string, trackID int64, quality string) (strin
 			}(len(apis) - i - 1)
 
 			GoLog("[Tidal] [Parallel] Total time: %v (first success)\n", time.Since(startTime))
-			return firstSuccess.apiURL, firstSuccess.info, nil
-		} else if result.err != nil {
-			errMsg := result.err.Error()
-			if len(errMsg) > 50 {
-				errMsg = errMsg[:50] + "..."
-			}
-			errors = append(errors, fmt.Sprintf("%s: %s", result.apiURL, errMsg))
+			return result.apiURL, result.info, nil
 		}
+		errMsg := result.err.Error()
+		if len(errMsg) > 50 {
+			errMsg = errMsg[:50] + "..."
+		}
+		errors = append(errors, fmt.Sprintf("%s: %s", result.apiURL, errMsg))
 	}
 
 	GoLog("[Tidal] [Parallel] All %d APIs failed in %v\n", len(apis), time.Since(startTime))
