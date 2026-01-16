@@ -1456,15 +1456,6 @@ class AppLocalizationsId extends AppLocalizations {
   String get appearanceLanguageSubtitle => 'Pilih bahasa yang kamu inginkan';
 
   @override
-  String get languageSystem => 'Bawaan Sistem';
-
-  @override
-  String get languageEnglish => 'English';
-
-  @override
-  String get languageIndonesian => 'Bahasa Indonesia';
-
-  @override
   String get settingsAppearanceSubtitle => 'Tema, warna, tampilan';
 
   @override

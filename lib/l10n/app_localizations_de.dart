@@ -1446,15 +1446,6 @@ class AppLocalizationsDe extends AppLocalizations {
   String get appearanceLanguageSubtitle => 'Choose your preferred language';
 
   @override
-  String get languageSystem => 'System Default';
-
-  @override
-  String get languageEnglish => 'English';
-
-  @override
-  String get languageIndonesian => 'Bahasa Indonesia';
-
-  @override
   String get settingsAppearanceSubtitle => 'Theme, colors, display';
 
   @override

@@ -116,6 +116,7 @@ abstract class AppLocalizations {
     Locale('pt'),
     Locale('ru'),
     Locale('zh'),
+    Locale('zh', 'CN'),
     Locale('zh', 'TW'),
   ];
 
@@ -2621,41 +2622,23 @@ abstract class AppLocalizations {
   /// **'Layout'**
   String get sectionLayout;
 
-  /// Settings section header for language selection
+  /// Settings section header for language
   ///
   /// In en, this message translates to:
   /// **'Language'**
   String get sectionLanguage;
 
-  /// Setting title for language selection
+  /// Language setting title
   ///
   /// In en, this message translates to:
   /// **'App Language'**
   String get appearanceLanguage;
 
-  /// Subtitle for language setting
+  /// Language setting subtitle
   ///
   /// In en, this message translates to:
   /// **'Choose your preferred language'**
   String get appearanceLanguageSubtitle;
-
-  /// Use device system language
-  ///
-  /// In en, this message translates to:
-  /// **'System Default'**
-  String get languageSystem;
-
-  /// English language option
-  ///
-  /// In en, this message translates to:
-  /// **'English'**
-  String get languageEnglish;
-
-  /// Indonesian language option
-  ///
-  /// In en, this message translates to:
-  /// **'Bahasa Indonesia'**
-  String get languageIndonesian;
 
   /// Appearance settings description
   ///
@@ -3683,6 +3666,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
     case 'zh':
       {
         switch (locale.countryCode) {
+          case 'CN':
+            return AppLocalizationsZhCn();
           case 'TW':
             return AppLocalizationsZhTw();
         }

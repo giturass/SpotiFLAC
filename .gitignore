@@ -62,3 +62,11 @@ AGENTS.md
 
 # Temp/misc
 nul
+
+# Log files
+*.log
+hs_err_*.log
+flutter_*.log
+
+# Development tools
+tool/
