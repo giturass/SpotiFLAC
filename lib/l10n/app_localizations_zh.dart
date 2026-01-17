@@ -2509,6 +2509,14 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   }
 
   @override
+  String get artistPopular => 'Popular';
+
+  @override
+  String artistMonthlyListeners(String count) {
+    return '$count monthly listeners';
+  }
+
+  @override
   String get trackMetadataTitle => 'Track Info';
 
   @override
@@ -3962,6 +3970,28 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get utilityFunctions => 'Utility Functions';
+
+  @override
+  String get recentTypeArtist => 'Artist';
+
+  @override
+  String get recentTypeAlbum => 'Album';
+
+  @override
+  String get recentTypeSong => 'Song';
+
+  @override
+  String get recentTypePlaylist => 'Playlist';
+
+  @override
+  String recentPlaylistInfo(String name) {
+    return 'Playlist: $name';
+  }
+
+  @override
+  String errorGeneric(String message) {
+    return 'Error: $message';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4471,6 +4501,14 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       one: '1 release',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get artistPopular => 'Popular';
+
+  @override
+  String artistMonthlyListeners(String count) {
+    return '$count monthly listeners';
   }
 
   @override
@@ -5389,6 +5427,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get sectionLayout => 'Layout';
 
   @override
+  String get sectionLanguage => 'Language';
+
+  @override
+  String get appearanceLanguage => 'App Language';
+
+  @override
+  String get appearanceLanguageSubtitle => 'Choose your preferred language';
+
+  @override
   String get settingsAppearanceSubtitle => 'Theme, colors, display';
 
   @override
@@ -5918,4 +5965,26 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get utilityFunctions => 'Utility Functions';
+
+  @override
+  String get recentTypeArtist => 'Artist';
+
+  @override
+  String get recentTypeAlbum => 'Album';
+
+  @override
+  String get recentTypeSong => 'Song';
+
+  @override
+  String get recentTypePlaylist => 'Playlist';
+
+  @override
+  String recentPlaylistInfo(String name) {
+    return 'Playlist: $name';
+  }
+
+  @override
+  String errorGeneric(String message) {
+    return 'Error: $message';
+  }
 }
