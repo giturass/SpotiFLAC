@@ -739,11 +739,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
               if (uniqueItems.isNotEmpty)
                 TextButton(
                   onPressed: () {
-                    // Hide all visible download items
-                    for (final item in uniqueItems) {
-                      if (item.providerId == 'download') {
-                        ref.read(recentAccessProvider.notifier).hideDownloadFromRecents(item.id);
-                      }
+                    // Hide ALL download items (not just visible ones)
+                    for (final item in downloadItems) {
+                      ref.read(recentAccessProvider.notifier).hideDownloadFromRecents(item.id);
                     }
                     // Clear non-download recent history
                     ref.read(recentAccessProvider.notifier).clearHistory();
