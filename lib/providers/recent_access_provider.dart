@@ -218,9 +218,6 @@ class RecentAccessNotifier extends Notifier<RecentAccessState> {
   }
 
   void _recordAccess(RecentAccessItem item) {
-    // ignore: avoid_print
-    print('[RecentAccess] Recording: ${item.type.name} - ${item.name} (${item.id})');
-    
     final updatedItems = state.items
         .where((e) => e.uniqueKey != item.uniqueKey)
         .toList();
@@ -233,9 +230,6 @@ class RecentAccessNotifier extends Notifier<RecentAccessState> {
     
     state = state.copyWith(items: updatedItems);
     _saveHistory();
-    
-    // ignore: avoid_print
-    print('[RecentAccess] Total items now: ${updatedItems.length}');
   }
 
   /// Remove a specific item from history
