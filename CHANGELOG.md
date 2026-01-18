@@ -4,6 +4,8 @@
 
 ### Added
 
+- **New Languages**: Added Spanish (es) and Portuguese (pt) translations
+
 - **Quick Search Provider Switcher**: Dropdown menu in search bar for instant provider switching
   - Tap the search icon to reveal a dropdown menu with all available search providers
   - Shows default provider (Deezer/Spotify based on metadata source setting) at the top
