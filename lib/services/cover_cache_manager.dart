@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -15,14 +16,15 @@ class CoverCacheManager {
 
   static CacheManager? _instance;
   static bool _initialized = false;
+  static String? _cachePath;
 
   /// Get the singleton cache manager instance.
   /// Must call [initialize] before using this.
   static CacheManager get instance {
     if (!_initialized || _instance == null) {
-      throw StateError(
-        'CoverCacheManager not initialized. Call CoverCacheManager.initialize() first.',
-      );
+      // Fallback to default cache manager if not initialized
+      debugPrint('CoverCacheManager: Not initialized, using DefaultCacheManager');
+      return DefaultCacheManager();
     }
     return _instance!;
   }
@@ -35,24 +37,33 @@ class CoverCacheManager {
   static Future<void> initialize() async {
     if (_initialized) return;
 
-    final appDir = await getApplicationSupportDirectory();
-    final cachePath = p.join(appDir.path, 'cover_cache');
-    
-    // Ensure cache directory exists
-    await Directory(cachePath).create(recursive: true);
+    try {
+      final appDir = await getApplicationSupportDirectory();
+      _cachePath = p.join(appDir.path, 'cover_cache');
+      
+      // Ensure cache directory exists
+      await Directory(_cachePath!).create(recursive: true);
+      
+      debugPrint('CoverCacheManager: Initializing at $_cachePath');
 
-    _instance = CacheManager(
-      Config(
-        _cacheKey,
-        stalePeriod: _maxCacheAge,
-        maxNrOfCacheObjects: _maxCacheObjects,
-        repo: JsonCacheInfoRepository(databaseName: _cacheKey),
-        fileSystem: IOFileSystem(cachePath),
-        fileService: HttpFileService(),
-      ),
-    );
-    
-    _initialized = true;
+      _instance = CacheManager(
+        Config(
+          _cacheKey,
+          stalePeriod: _maxCacheAge,
+          maxNrOfCacheObjects: _maxCacheObjects,
+          // Store database in the same persistent directory
+          repo: JsonCacheInfoRepository(databaseName: _cacheKey, path: _cachePath),
+          fileSystem: IOFileSystem(_cachePath!),
+          fileService: HttpFileService(),
+        ),
+      );
+      
+      _initialized = true;
+      debugPrint('CoverCacheManager: Initialized successfully');
+    } catch (e) {
+      debugPrint('CoverCacheManager: Failed to initialize: $e');
+      // Will fallback to DefaultCacheManager
+    }
   }
 
   /// Clear all cached cover images.
@@ -64,12 +75,11 @@ class CoverCacheManager {
 
   /// Get cache statistics
   static Future<CacheStats> getStats() async {
-    if (!_initialized) {
+    if (!_initialized || _cachePath == null) {
       return const CacheStats(fileCount: 0, totalSizeBytes: 0);
     }
 
-    final appDir = await getApplicationSupportDirectory();
-    final cacheDir = Directory(p.join(appDir.path, 'cover_cache'));
+    final cacheDir = Directory(_cachePath!);
     
     if (!await cacheDir.exists()) {
       return const CacheStats(fileCount: 0, totalSizeBytes: 0);
@@ -78,11 +88,15 @@ class CoverCacheManager {
     int fileCount = 0;
     int totalSize = 0;
 
-    await for (final entity in cacheDir.list(recursive: true)) {
-      if (entity is File) {
-        fileCount++;
-        totalSize += await entity.length();
+    try {
+      await for (final entity in cacheDir.list(recursive: true)) {
+        if (entity is File) {
+          fileCount++;
+          totalSize += await entity.length();
+        }
       }
+    } catch (e) {
+      debugPrint('CoverCacheManager: Error getting stats: $e');
     }
 
     return CacheStats(fileCount: fileCount, totalSizeBytes: totalSize);
