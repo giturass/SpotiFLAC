@@ -2,6 +2,7 @@
 package gobackend
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -943,6 +944,27 @@ func DownloadWithExtensionFallback(req DownloadRequest) (*DownloadResponse, erro
 		GoLog("[DownloadWithExtensionFallback] Trying provider: %s\n", providerID)
 
 		if isBuiltInProvider(providerID) {
+			// For built-in providers, enrich with Deezer metadata if not already present
+			if (req.Genre == "" || req.Label == "") && req.ISRC != "" {
+				GoLog("[DownloadWithExtensionFallback] Enriching extended metadata from Deezer for ISRC: %s\n", req.ISRC)
+				ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+				deezerClient := GetDeezerClient()
+				extMeta, err := deezerClient.GetExtendedMetadataByISRC(ctx, req.ISRC)
+				cancel()
+				if err == nil && extMeta != nil {
+					if req.Genre == "" && extMeta.Genre != "" {
+						req.Genre = extMeta.Genre
+						GoLog("[DownloadWithExtensionFallback] Genre from Deezer: %s\n", req.Genre)
+					}
+					if req.Label == "" && extMeta.Label != "" {
+						req.Label = extMeta.Label
+						GoLog("[DownloadWithExtensionFallback] Label from Deezer: %s\n", req.Label)
+					}
+				} else if err != nil {
+					GoLog("[DownloadWithExtensionFallback] Failed to get extended metadata from Deezer: %v\n", err)
+				}
+			}
+
 			// Use built-in provider
 			result, err := tryBuiltInProvider(providerID, req)
 			if err == nil && result.Success {

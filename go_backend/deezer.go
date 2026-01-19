@@ -766,6 +766,32 @@ func (c *DeezerClient) GetExtendedMetadataByTrackID(ctx context.Context, trackID
 	return c.GetAlbumExtendedMetadata(ctx, albumID)
 }
 
+// GetExtendedMetadataByISRC searches for a track by ISRC and fetches extended metadata (genre, label)
+func (c *DeezerClient) GetExtendedMetadataByISRC(ctx context.Context, isrc string) (*AlbumExtendedMetadata, error) {
+	if isrc == "" {
+		return nil, fmt.Errorf("empty ISRC")
+	}
+
+	// First, search for track by ISRC
+	track, err := c.SearchByISRC(ctx, isrc)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find track by ISRC: %w", err)
+	}
+
+	// SpotifyID contains "deezer:123" format, extract the ID
+	deezerID := track.SpotifyID
+	if strings.HasPrefix(deezerID, "deezer:") {
+		deezerID = strings.TrimPrefix(deezerID, "deezer:")
+	}
+
+	if deezerID == "" {
+		return nil, fmt.Errorf("track found but no Deezer ID")
+	}
+
+	// Then fetch extended metadata using the Deezer track ID
+	return c.GetExtendedMetadataByTrackID(ctx, deezerID)
+}
+
 func (c *DeezerClient) getJSON(ctx context.Context, endpoint string, dst interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
