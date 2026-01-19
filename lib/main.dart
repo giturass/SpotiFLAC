@@ -11,10 +11,15 @@ import 'package:spotiflac_android/services/cover_cache_manager.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize services - CoverCacheManager MUST complete before app starts
+  await CoverCacheManager.initialize();
+  debugPrint('CoverCacheManager initialized: ${CoverCacheManager.isInitialized}');
+  
+  // These can run in parallel
   await Future.wait([
     NotificationService().initialize(),
     ShareIntentService().initialize(),
-    CoverCacheManager.initialize(),
   ]);
   
   runApp(
