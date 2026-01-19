@@ -17,7 +17,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
     final topPadding = MediaQuery.of(context).padding.top;
 
     return PopScope(
-      canPop: true, // Always allow back gesture
+      canPop: true,
       child: Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -161,7 +161,7 @@ class _ThemePreviewCard extends StatelessWidget {
         width: double.infinity,
         decoration: BoxDecoration(
           color: colorScheme
-              .surfaceContainerHighest, // Background similar to reference
+              .surfaceContainerHighest,
           borderRadius: BorderRadius.circular(28),
         ),
         clipBehavior: Clip.antiAlias,
@@ -203,7 +203,7 @@ class _ThemePreviewCard extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.1),
-                      blurRadius: 12, // Reduced from 20 for performance
+                      blurRadius: 12,
                       offset: const Offset(0, 8),
                     ),
                   ],

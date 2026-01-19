@@ -30,7 +30,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     }
   }
 
-  /// Run one-time migrations for settings
   Future<void> _runMigrations(SharedPreferences prefs) async {
     final lastMigration = prefs.getInt(_migrationVersionKey) ?? 0;
     
@@ -51,7 +50,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     await prefs.setString(_settingsKey, jsonEncode(state.toJson()));
   }
 
-  /// Apply current Spotify credentials to Go backend
   Future<void> _applySpotifyCredentials() async {
     if (state.spotifyClientId.isNotEmpty && 
         state.spotifyClientSecret.isNotEmpty) {
@@ -93,7 +91,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
   }
 
   void setLyricsMode(String mode) {
-    // Valid modes: embed, external, both
     if (mode == 'embed' || mode == 'external' || mode == 'both') {
       state = state.copyWith(lyricsMode: mode);
       _saveSettings();

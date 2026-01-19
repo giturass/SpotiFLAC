@@ -121,7 +121,6 @@ class RecentAccessNotifier extends Notifier<RecentAccessState> {
             .map((e) => RecentAccessItem.fromJson(e as Map<String, dynamic>))
             .toList();
       } catch (e) {
-        // Ignore parse errors
       }
     }
     
@@ -266,7 +265,6 @@ class RecentAccessNotifier extends Notifier<RecentAccessState> {
   }
 }
 
-/// Provider instance
 final recentAccessProvider = NotifierProvider<RecentAccessNotifier, RecentAccessState>(
   RecentAccessNotifier.new,
 );

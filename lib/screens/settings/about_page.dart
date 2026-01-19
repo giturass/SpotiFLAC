@@ -15,7 +15,7 @@ class AboutPage extends StatelessWidget {
     final topPadding = MediaQuery.of(context).padding.top;
 
     return PopScope(
-      canPop: true, // Always allow back gesture
+      canPop: true,
       child: Scaffold(
         body: CustomScrollView(
           slivers: [
@@ -253,9 +253,9 @@ class _AppHeaderCard extends StatelessWidget {
               color: colorScheme.primary,
               shape: BoxShape.circle,
             ),
-            child: Image.asset(
+            child:             Image.asset(
               'assets/images/logo-transparant.png',
-              color: colorScheme.onPrimary, // Tint with onPrimary color
+              color: colorScheme.onPrimary,
               fit: BoxFit.contain,
               errorBuilder: (_, _, _) => ClipRRect(
                 borderRadius: BorderRadius.circular(24),

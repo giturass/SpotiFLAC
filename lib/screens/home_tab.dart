@@ -75,7 +75,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     }
   }
 
-  /// Called when trackState changes - used to sync search bar with state
   void _onTrackStateChanged(TrackState? previous, TrackState next) {
     if (previous != null && 
         !next.hasContent && 
@@ -96,7 +95,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     
     if (searchProvider == null || searchProvider.isEmpty) return false;
     
-    // Check if the extension is enabled and has search capability
     final extension = extState.extensions.where((e) => e.id == searchProvider && e.enabled).firstOrNull;
     return extension != null;
   }
@@ -130,10 +128,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     }
   }
   
-  /// Execute live search with concurrency protection
-  /// Prevents race conditions in extensions by ensuring only one search runs at a time
   Future<void> _executeLiveSearch(String query) async {
-    // If a search is already in progress, queue this one
     if (_isLiveSearchInProgress) {
       _pendingLiveSearchQuery = query;
       return;
@@ -151,13 +146,10 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
       final pending = _pendingLiveSearchQuery;
       _pendingLiveSearchQuery = null;
       
-      // Execute pending query if it's different from what we just searched
-      // and still matches current text field content
       if (pending != null && 
           pending != query && 
           mounted && 
           _urlController.text.trim() == pending) {
-        // Small delay to let extension's state settle
         await Future.delayed(const Duration(milliseconds: 100));
         if (mounted && _urlController.text.trim() == pending) {
           _executeLiveSearch(pending);
@@ -224,7 +216,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     ref.read(settingsProvider.notifier).setHasSearchedBefore();
   }
 
-  /// Navigate to detail screen based on fetched content type
   void _navigateToDetailIfNeeded() {
     final trackState = ref.read(trackProvider);
     
@@ -356,7 +347,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
       // ignore: use_build_context_synchronously
       final l10n = context.l10n;
       
-      // Show quality picker if enabled in settings
       if (settings.askQualityBeforeDownload) {
         DownloadServicePicker.show(
           this.context,
@@ -676,7 +666,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     );
   }
 
-  /// Build recent access history section (shown when search focused)
   Widget _buildRecentAccess(List<RecentAccessItem> items, ColorScheme colorScheme) {
     final historyItems = ref.read(downloadHistoryProvider).items;
     
@@ -690,9 +679,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
       albumGroups.putIfAbsent(albumKey, () => []).add(h);
     }
     
-    // Convert to RecentAccessItem based on track count:
-    // - 1 track: show as individual Track
-    // - 2+ tracks: show as Album
     final downloadItems = <RecentAccessItem>[];
     for (final entry in albumGroups.entries) {
       final tracks = entry.value;
@@ -703,7 +689,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
           : mostRecent.artistName;
       
       if (tracks.length == 1) {
-        // Single track - show as Track
         downloadItems.add(RecentAccessItem(
           id: mostRecent.spotifyId ?? mostRecent.id,
           name: mostRecent.trackName,
@@ -714,7 +699,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
           providerId: 'download',
         ));
       } else {
-        // Multiple tracks - show as Album
         downloadItems.add(RecentAccessItem(
           id: '${mostRecent.albumName}|$artistForKey',
           name: mostRecent.albumName,
@@ -727,10 +711,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
       }
     }
     
-    // Sort by most recent and take top 10
     downloadItems.sort((a, b) => b.accessedAt.compareTo(a.accessedAt));
-    
-    // Filter out hidden downloads (use ref.watch for reactivity)
+
     final hiddenIds = ref.watch(recentAccessProvider.select((s) => s.hiddenDownloadIds));
     final visibleDownloads = downloadItems
         .where((item) => !hiddenIds.contains(item.id))
@@ -768,11 +750,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
               if (uniqueItems.isNotEmpty)
                 TextButton(
                   onPressed: () {
-                    // Hide ALL download items (not just visible ones)
                     for (final item in downloadItems) {
                       ref.read(recentAccessProvider.notifier).hideDownloadFromRecents(item.id);
                     }
-                    // Clear non-download recent history
                     ref.read(recentAccessProvider.notifier).clearHistory();
                   },
                   child: Text(
@@ -784,7 +764,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
           ),
           const SizedBox(height: 8),
           if (uniqueItems.isEmpty && hasHiddenDownloads)
-            // Show "Show All" button when recents is empty but there are hidden downloads
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
@@ -897,10 +876,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
                 icon: Icon(Icons.close, size: 20, color: colorScheme.onSurfaceVariant),
                 onPressed: () {
                   if (item.providerId == 'download') {
-                    // For download items, hide from recents without deleting the file
                     ref.read(recentAccessProvider.notifier).hideDownloadFromRecents(item.id);
                   } else {
-                    // For other items, remove from recent history
                     ref.read(recentAccessProvider.notifier).removeItem(item);
                   }
                 },
@@ -936,7 +913,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
           ));
         }
       case RecentAccessType.album:
-        // Handle downloaded albums - navigate to DownloadedAlbumScreen
         if (item.providerId == 'download') {
           Navigator.push(context, MaterialPageRoute(
             builder: (context) => DownloadedAlbumScreen(
@@ -1000,7 +976,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     );
   }
 
-  /// Build error widget with special handling for rate limit (429)
   Widget _buildErrorWidget(String error, ColorScheme colorScheme) {
     final isRateLimit = error.contains('429') || 
                         error.toLowerCase().contains('rate limit') ||
@@ -1427,7 +1402,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     ));
   }
 
-  /// Get search hint based on selected provider
   String _getSearchHint() {
     final settings = ref.read(settingsProvider);
     final searchProvider = settings.searchProvider;
@@ -1474,11 +1448,8 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
         ),
         prefixIcon: _SearchProviderDropdown(
           onProviderChanged: () {
-            // Reset search state when provider changes
             _lastSearchQuery = null;
-            // Force rebuild to update hint text
             setState(() {});
-            // Re-trigger search if there's text
             final text = _urlController.text.trim();
             if (text.isNotEmpty && text.length >= _minLiveSearchChars) {
               _performSearch(text);
@@ -1514,9 +1485,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     );
   }
 
-  /// Handle Enter key press - search or fetch URL
   void _onSearchSubmitted() {
-    // Cancel any pending live search since user explicitly pressed enter
     _liveSearchDebounce?.cancel();
     _pendingLiveSearchQuery = null;
     
@@ -1549,13 +1518,11 @@ class _SearchProviderDropdown extends ConsumerWidget {
     final extState = ref.watch(extensionProvider);
     final colorScheme = Theme.of(context).colorScheme;
     
-    // Get current provider info
     final currentProvider = settings.searchProvider;
     final searchProviders = extState.extensions
         .where((ext) => ext.enabled && ext.hasCustomSearch)
         .toList();
     
-    // Find current provider extension
     Extension? currentExt;
     if (currentProvider != null && currentProvider.isNotEmpty) {
       currentExt = searchProviders.where((e) => e.id == currentProvider).firstOrNull;
@@ -1567,12 +1534,10 @@ class _SearchProviderDropdown extends ConsumerWidget {
     if (currentExt != null) {
       iconPath = currentExt.iconPath;
       if (currentExt.searchBehavior?.icon != null) {
-        // Use search behavior icon if available
         displayIcon = _getIconFromName(currentExt.searchBehavior!.icon!);
       }
     }
     
-    // Don't show dropdown if no custom search providers available
     if (searchProviders.isEmpty) {
       return const Icon(Icons.search);
     }
@@ -1608,15 +1573,13 @@ class _SearchProviderDropdown extends ConsumerWidget {
         offset: const Offset(0, 40),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         onSelected: (String providerId) {
-        // Empty string means default (Deezer/Spotify)
         final provider = providerId.isEmpty ? null : providerId;
         ref.read(settingsProvider.notifier).setSearchProvider(provider);
         onProviderChanged?.call();
       },
       itemBuilder: (context) => [
-        // Default option (Deezer/Spotify based on metadata source)
         PopupMenuItem<String>(
-          value: '', // Empty string = default provider
+          value: '',
           child: Row(
             children: [
               Icon(
@@ -1716,7 +1679,6 @@ class _SearchProviderDropdown extends ConsumerWidget {
   }
 }
 
-/// Separate Consumer widget for each track item - only rebuilds when this specific track's status changes
 class _TrackItemWithStatus extends ConsumerWidget {
   final Track track;
   final int index;
@@ -2028,7 +1990,6 @@ class _CollectionItemWidget extends StatelessWidget {
   }
 }
 
-/// Screen for viewing extension album with track fetching
 class ExtensionAlbumScreen extends ConsumerStatefulWidget {
   final String extensionId;
   final String albumId;
@@ -2299,7 +2260,6 @@ class _ExtensionPlaylistScreenState extends ConsumerState<ExtensionPlaylistScree
   }
 }
 
-/// Screen for viewing extension artist with album fetching
 class ExtensionArtistScreen extends ConsumerStatefulWidget {
   final String extensionId;
   final String artistId;

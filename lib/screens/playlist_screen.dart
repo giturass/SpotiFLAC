@@ -11,7 +11,6 @@ import 'package:spotiflac_android/providers/download_queue_provider.dart';
 import 'package:spotiflac_android/providers/settings_provider.dart';
 import 'package:spotiflac_android/widgets/download_service_picker.dart';
 
-/// Playlist detail screen with Material Expressive 3 design
 class PlaylistScreen extends ConsumerStatefulWidget {
   final String playlistName;
   final String? coverUrl;
@@ -69,7 +68,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
         });
       }
     } catch (_) {
-      // Ignore palette extraction errors
     }
   }
 

@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:spotiflac_android/services/cover_cache_manager.dart';
 
-/// A wrapper around CachedNetworkImage that uses persistent cache storage.
-/// 
-/// This ensures cover images are cached to disk and persist across app restarts,
-/// instead of being stored in the temporary directory that can be cleared by the OS.
 class CachedCoverImage extends StatelessWidget {
   final String imageUrl;
   final double? width;
@@ -57,8 +53,6 @@ class CachedCoverImage extends StatelessWidget {
   }
 }
 
-/// Provider for CachedNetworkImageProvider that uses persistent cache.
-/// Use this for precacheImage() calls.
 CachedNetworkImageProvider cachedCoverImageProvider(String url) {
   return CachedNetworkImageProvider(
     url,

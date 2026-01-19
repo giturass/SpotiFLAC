@@ -10,7 +10,6 @@ final _log = AppLogger('FFmpeg');
 class FFmpegService {
   static const _channel = MethodChannel('com.zarz.spotiflac/ffmpeg');
 
-  /// Execute FFmpeg command and return result
   static Future<FFmpegResult> _execute(String command) async {
     try {
       final result = await _channel.invokeMethod('execute', {'command': command});
@@ -26,8 +25,6 @@ class FFmpegService {
     }
   }
 
-  /// Convert M4A (DASH segments) to FLAC
-  /// Returns the output file path on success, null on failure
   static Future<String?> convertM4aToFlac(String inputPath) async {
     final outputPath = inputPath.replaceAll('.m4a', '.flac');
 
@@ -47,14 +44,11 @@ class FFmpegService {
     return null;
   }
 
-  /// Convert FLAC to MP3
-  /// If deleteOriginal is true, deletes the FLAC file after conversion
   static Future<String?> convertFlacToMp3(
     String inputPath, {
     String bitrate = '320k',
     bool deleteOriginal = true,
   }) async {
-    // Convert in same folder, just change extension
     final outputPath = inputPath.replaceAll('.flac', '.mp3');
 
     final command =
@@ -63,7 +57,6 @@ class FFmpegService {
     final result = await _execute(command);
 
     if (result.success) {
-      // Delete original FLAC if requested
       if (deleteOriginal) {
         try {
           await File(inputPath).delete();
@@ -76,7 +69,6 @@ class FFmpegService {
     return null;
   }
 
-  /// Convert FLAC to M4A (AAC or ALAC)
   static Future<String?> convertFlacToM4a(
     String inputPath, {
     String codec = 'aac',
@@ -110,7 +102,6 @@ class FFmpegService {
     return null;
   }
 
-  /// Check if FFmpeg is available
   static Future<bool> isAvailable() async {
     try {
       final version = await _channel.invokeMethod('getVersion');
@@ -120,7 +111,6 @@ class FFmpegService {
     }
   }
 
-  /// Get FFmpeg version info
   static Future<String?> getVersion() async {
     try {
       final version = await _channel.invokeMethod('getVersion');
@@ -130,8 +120,6 @@ class FFmpegService {
     }
   }
 
-  /// Embed metadata and cover art to FLAC file
-  /// Returns the file path on success, null on failure
   static Future<String?> embedMetadata({
     required String flacPath,
     String? coverPath,
@@ -211,8 +199,6 @@ class FFmpegService {
     return null;
   }
 
-  /// Embed metadata and cover art to MP3 file using ID3v2 tags
-  /// Returns the file path on success, null on failure
   static Future<String?> embedMetadataToMp3({
     required String mp3Path,
     String? coverPath,
@@ -242,7 +228,6 @@ class FFmpegService {
     cmdBuffer.write('-c:a copy ');
     
     if (metadata != null) {
-      // Convert FLAC/Vorbis tags to ID3v2 tags for MP3
       final id3Metadata = _convertToId3Tags(metadata);
       id3Metadata.forEach((key, value) {
         final sanitizedValue = value.replaceAll('"', '\\"');
@@ -295,7 +280,6 @@ class FFmpegService {
     return null;
   }
 
-  /// Convert FLAC/Vorbis comment tags to ID3v2 compatible tags
   static Map<String, String> _convertToId3Tags(Map<String, String> vorbisMetadata) {
     final id3Map = <String, String>{};
     
@@ -330,7 +314,7 @@ class FFmpegService {
           id3Map['date'] = value;
           break;
         case 'ISRC':
-          id3Map['TSRC'] = value; // ID3v2 ISRC frame
+          id3Map['TSRC'] = value;
           break;
         case 'LYRICS':
         case 'UNSYNCEDLYRICS':
@@ -346,7 +330,6 @@ class FFmpegService {
   }
 }
 
-/// Result of FFmpeg command execution
 class FFmpegResult {
   final bool success;
   final int returnCode;

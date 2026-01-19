@@ -18,8 +18,6 @@ class CoverCacheManager {
   static bool _initialized = false;
   static String? _cachePath;
 
-  /// Get the singleton cache manager instance.
-  /// Must call [initialize] before using this.
   static CacheManager get instance {
     if (!_initialized || _instance == null) {
       // Fallback to default cache manager if not initialized
@@ -32,8 +30,6 @@ class CoverCacheManager {
   /// Check if cache manager is initialized
   static bool get isInitialized => _initialized && _instance != null;
 
-  /// Initialize the cache manager with persistent storage path.
-  /// Call this once during app startup (in main.dart).
   static Future<void> initialize() async {
     if (_initialized) return;
 
@@ -73,7 +69,6 @@ class CoverCacheManager {
     await _instance!.emptyCache();
   }
 
-  /// Get cache statistics
   static Future<CacheStats> getStats() async {
     if (!_initialized || _cachePath == null) {
       return const CacheStats(fileCount: 0, totalSizeBytes: 0);
@@ -113,7 +108,6 @@ class CacheStats {
     required this.totalSizeBytes,
   });
 
-  /// Get human-readable size string
   String get formattedSize {
     if (totalSizeBytes < 1024) {
       return '$totalSizeBytes B';

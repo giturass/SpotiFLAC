@@ -97,7 +97,6 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
   int? _monthlyListeners;
   String? _error;
   
-  // Sticky title state
   bool _showTitleInAppBar = false;
   final ScrollController _scrollController = ScrollController();
 
@@ -310,7 +309,6 @@ return Scaffold(
     );
   }
 
-  /// Build Spotify-style header with full-width image and artist name overlay
   Widget _buildHeader(BuildContext context, ColorScheme colorScheme) {
     String? imageUrl = _headerImageUrl;
     if (imageUrl == null || imageUrl.isEmpty) {
@@ -479,7 +477,6 @@ if (hasValidImage)
     );
   }
 
-  /// Build a single popular track item with dynamic download status
   Widget _buildPopularTrackItem(int rank, Track track, ColorScheme colorScheme) {
     final queueItem = ref.watch(
       downloadQueueLookupProvider.select((lookup) => lookup.byTrackId[track.id]),
@@ -608,7 +605,6 @@ if (hasValidImage)
     _downloadTrack(track);
   }
 
-  /// Build download button with status indicator for popular tracks
   Widget _buildPopularDownloadButton({
     required Track track,
     required ColorScheme colorScheme,

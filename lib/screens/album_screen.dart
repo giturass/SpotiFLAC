@@ -13,7 +13,6 @@ import 'package:spotiflac_android/providers/recent_access_provider.dart';
 import 'package:spotiflac_android/services/platform_bridge.dart';
 import 'package:spotiflac_android/widgets/download_service_picker.dart';
 
-/// Simple in-memory cache for album tracks
 class _AlbumCache {
   static final Map<String, _CacheEntry> _cache = {};
   static const Duration _ttl = Duration(minutes: 10);
@@ -39,7 +38,6 @@ class _CacheEntry {
   _CacheEntry(this.tracks, this.expiresAt);
 }
 
-/// Album detail screen with Material Expressive 3 design
 class AlbumScreen extends ConsumerStatefulWidget {
   final String albumId;
   final String albumName;
@@ -99,7 +97,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
   }
 
   void _onScroll() {
-    // Show title in AppBar when scrolled past the header (320 - kToolbarHeight + info card top)
     final shouldShow = _scrollController.offset > 280;
     if (shouldShow != _showTitleInAppBar) {
       setState(() => _showTitleInAppBar = shouldShow);
@@ -121,7 +118,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
         });
       }
     } catch (_) {
-      // Ignore palette extraction errors
     }
   }
 
@@ -132,12 +128,8 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
       
       if (widget.albumId.startsWith('deezer:')) {
         final deezerAlbumId = widget.albumId.replaceFirst('deezer:', '');
-        // ignore: avoid_print
-        print('[AlbumScreen] Fetching from Deezer: $deezerAlbumId');
         metadata = await PlatformBridge.getDeezerMetadata('album', deezerAlbumId);
       } else {
-        // ignore: avoid_print
-        print('[AlbumScreen] Fetching from Spotify with fallback: ${widget.albumId}');
         final url = 'https://open.spotify.com/album/${widget.albumId}';
         metadata = await PlatformBridge.getSpotifyMetadataWithFallback(url);
       }
@@ -219,7 +211,7 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
       expandedHeight: 320,
       pinned: true,
       stretch: true,
-      backgroundColor: colorScheme.surface, // Use theme color for collapsed state
+      backgroundColor: colorScheme.surface,
       surfaceTintColor: Colors.transparent,
       title: AnimatedOpacity(
         duration: const Duration(milliseconds: 200),
@@ -261,7 +253,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
                     ),
                   ),
                 ),
-                // Cover image centered - fade out when collapsing
                 AnimatedOpacity(
                   duration: const Duration(milliseconds: 150),
                   opacity: showContent ? 1.0 : 0.0,
@@ -449,7 +440,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
     }
   }
 
-  /// Build error widget with special handling for rate limit (429)
   Widget _buildErrorWidget(String error, ColorScheme colorScheme) {
     final isRateLimit = error.contains('429') || 
                         error.toLowerCase().contains('rate limit') ||
@@ -512,7 +502,6 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
   }
 }
 
-/// Separate Consumer widget for each track - only rebuilds when this specific track's status changes
 class _AlbumTrackItem extends ConsumerWidget {
   final Track track;
   final VoidCallback onDownload;

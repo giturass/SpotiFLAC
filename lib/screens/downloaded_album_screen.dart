@@ -77,7 +77,6 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen> {
         });
       }
     } catch (_) {
-      // Ignore palette extraction errors
     }
   }
 
@@ -508,9 +507,7 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen> {
   Widget _buildTrackList(BuildContext context, ColorScheme colorScheme, List<DownloadHistoryItem> tracks) {
     final discMap = _groupTracksByDisc(tracks);
 
-    // Single disc - use simple list
     if (discMap.length <= 1) {
-      // Single disc - use simple list
       return SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
@@ -525,7 +522,6 @@ class _DownloadedAlbumScreenState extends ConsumerState<DownloadedAlbumScreen> {
       );
     }
 
-    // Multiple discs - build list with separators
     final discNumbers = discMap.keys.toList()..sort();
     final List<Widget> children = [];
 

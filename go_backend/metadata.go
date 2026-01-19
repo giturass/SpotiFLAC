@@ -11,7 +11,6 @@ import (
 	"github.com/go-flac/go-flac"
 )
 
-// Metadata represents track metadata for embedding
 type Metadata struct {
 	Title       string
 	Artist      string
@@ -24,12 +23,11 @@ type Metadata struct {
 	ISRC        string
 	Description string
 	Lyrics      string
-	Genre       string // Music genre (e.g., "Rock", "Pop", "Electronic")
-	Label       string // Record label (ORGANIZATION tag in Vorbis)
-	Copyright   string // Copyright information
+	Genre       string
+	Label       string
+	Copyright   string
 }
 
-// EmbedMetadata embeds metadata into a FLAC file
 func EmbedMetadata(filePath string, metadata Metadata, coverPath string) error {
 	f, err := flac.ParseFile(filePath)
 	if err != nil {
@@ -138,8 +136,6 @@ func EmbedMetadata(filePath string, metadata Metadata, coverPath string) error {
 	return f.Save(filePath)
 }
 
-// EmbedMetadataWithCoverData embeds metadata into a FLAC file with cover data as bytes
-// This avoids file permission issues on Android by not requiring a temp file
 func EmbedMetadataWithCoverData(filePath string, metadata Metadata, coverData []byte) error {
 	f, err := flac.ParseFile(filePath)
 	if err != nil {
@@ -337,7 +333,6 @@ func fileExists(path string) bool {
 	return err == nil
 }
 
-// EmbedLyrics embeds lyrics into a FLAC file as a separate operation
 func EmbedLyrics(filePath string, lyrics string) error {
 	f, err := flac.ParseFile(filePath)
 	if err != nil {
@@ -375,11 +370,9 @@ func EmbedLyrics(filePath string, lyrics string) error {
 	return f.Save(filePath)
 }
 
-// EmbedGenreLabel embeds genre and label into a FLAC file as a separate operation
-// This is used for extension downloads where the file is already downloaded
 func EmbedGenreLabel(filePath string, genre, label string) error {
 	if genre == "" && label == "" {
-		return nil // Nothing to embed
+		return nil
 	}
 
 	f, err := flac.ParseFile(filePath)
@@ -451,16 +444,12 @@ func ExtractLyrics(filePath string) (string, error) {
 	return "", fmt.Errorf("no lyrics found in file")
 }
 
-// AudioQuality represents audio quality info from a FLAC file
 type AudioQuality struct {
 	BitDepth     int   `json:"bit_depth"`
 	SampleRate   int   `json:"sample_rate"`
 	TotalSamples int64 `json:"total_samples"`
 }
 
-// GetAudioQuality reads bit depth and sample rate from a FLAC file's StreamInfo block
-// FLAC StreamInfo is always the first metadata block after the 4-byte "fLaC" marker
-// For M4A files, it delegates to GetM4AQuality
 func GetAudioQuality(filePath string) (AudioQuality, error) {
 	file, err := os.Open(filePath)
 	if err != nil {
@@ -597,7 +586,6 @@ func EmbedM4AMetadata(filePath string, metadata Metadata, coverData []byte) erro
 	return nil
 }
 
-// findAtom finds an atom by name starting from offset
 func findAtom(data []byte, name string, offset int) int {
 	for i := offset; i < len(data)-8; {
 		size := int(uint32(data[i])<<24 | uint32(data[i+1])<<16 | uint32(data[i+2])<<8 | uint32(data[i+3]))
@@ -689,7 +677,6 @@ func buildMetaAtom(metadata Metadata, coverData []byte) []byte {
 	return metaAtom
 }
 
-// buildTextAtom builds a text metadata atom (©nam, ©ART, etc.)
 func buildTextAtom(name, value string) []byte {
 	valueBytes := []byte(value)
 
@@ -741,7 +728,6 @@ func buildTrackNumberAtom(track, total int) []byte {
 	return atom
 }
 
-// buildDiscNumberAtom builds disk atom
 func buildDiscNumberAtom(disc, total int) []byte {
 	dataAtom := []byte{
 		0, 0, 0, 22, // size
@@ -767,9 +753,9 @@ func buildDiscNumberAtom(disc, total int) []byte {
 
 // buildCoverAtom builds covr atom with image data
 func buildCoverAtom(coverData []byte) []byte {
-	imageType := byte(13) // default JPEG
+	imageType := byte(13)
 	if len(coverData) > 8 && coverData[0] == 0x89 && coverData[1] == 'P' && coverData[2] == 'N' && coverData[3] == 'G' {
-		imageType = 14 // PNG
+		imageType = 14
 	}
 
 	dataSize := 16 + len(coverData)
@@ -779,8 +765,8 @@ func buildCoverAtom(coverData []byte) []byte {
 	dataAtom[2] = byte(dataSize >> 8)
 	dataAtom[3] = byte(dataSize)
 	dataAtom = append(dataAtom, []byte("data")...)
-	dataAtom = append(dataAtom, 0, 0, 0, imageType) // type = JPEG or PNG
-	dataAtom = append(dataAtom, 0, 0, 0, 0)         // locale
+	dataAtom = append(dataAtom, 0, 0, 0, imageType)
+	dataAtom = append(dataAtom, 0, 0, 0, 0)
 	dataAtom = append(dataAtom, coverData...)
 
 	atomSize := 8 + len(dataAtom)
@@ -795,7 +781,6 @@ func buildCoverAtom(coverData []byte) []byte {
 	return atom
 }
 
-// GetM4AQuality reads audio quality from M4A file
 func GetM4AQuality(filePath string) (AudioQuality, error) {
 	data, err := os.ReadFile(filePath)
 	if err != nil {

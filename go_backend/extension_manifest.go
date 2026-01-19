@@ -151,9 +151,7 @@ func ParseManifest(data []byte) (*ExtensionManifest, error) {
 	return &manifest, nil
 }
 
-// Validate checks if the manifest has all required fields and valid values
 func (m *ExtensionManifest) Validate() error {
-	// Check required fields
 	if strings.TrimSpace(m.Name) == "" {
 		return &ManifestValidationError{Field: "name", Message: "name is required"}
 	}
@@ -174,7 +172,6 @@ func (m *ExtensionManifest) Validate() error {
 		return &ManifestValidationError{Field: "type", Message: "at least one type is required"}
 	}
 
-	// Validate extension types
 	for _, t := range m.Types {
 		if t != ExtensionTypeMetadataProvider && t != ExtensionTypeDownloadProvider {
 			return &ManifestValidationError{
@@ -200,21 +197,6 @@ func (m *ExtensionManifest) Validate() error {
 			}
 		}
 
-		// Validate setting type
-		validTypes := map[SettingType]bool{
-			SettingTypeString: true,
-			SettingTypeNumber: true,
-			SettingTypeBool:   true,
-			SettingTypeSelect: true,
-			SettingTypeButton: true,
-		}
-		if !validTypes[setting.Type] {
-			return &ManifestValidationError{
-				Field:   fmt.Sprintf("settings[%d].type", i),
-				Message: fmt.Sprintf("invalid setting type: %s", setting.Type),
-			}
-		}
-
 		// Select type requires options
 		if setting.Type == SettingTypeSelect && len(setting.Options) == 0 {
 			return &ManifestValidationError{
@@ -223,7 +205,6 @@ func (m *ExtensionManifest) Validate() error {
 			}
 		}
 
-		// Button type requires action
 		if setting.Type == SettingTypeButton && setting.Action == "" {
 			return &ManifestValidationError{
 				Field:   fmt.Sprintf("settings[%d].action", i),
@@ -300,7 +281,6 @@ func (m *ExtensionManifest) MatchesURL(urlStr string) bool {
 		return false
 	}
 
-	// Parse URL to get host
 	urlStr = strings.ToLower(strings.TrimSpace(urlStr))
 	for _, pattern := range m.URLHandler.Patterns {
 		pattern = strings.ToLower(strings.TrimSpace(pattern))

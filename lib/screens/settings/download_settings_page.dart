@@ -22,7 +22,7 @@ class DownloadSettingsPage extends ConsumerWidget {
     final isBuiltInService = _builtInServices.contains(settings.defaultService);
 
     return PopScope(
-      canPop: true, // Always allow back gesture
+      canPop: true,
       child: Scaffold(
         body: CustomScrollView(
           slivers: [

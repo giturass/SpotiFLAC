@@ -1,4 +1,3 @@
-// Package gobackend provides extension management functionality
 package gobackend
 
 import (
@@ -15,8 +14,6 @@ import (
 	"github.com/dop251/goja"
 )
 
-// compareVersions compares two semantic version strings
-// Returns: -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2
 func compareVersions(v1, v2 string) int {
 	parts1 := strings.Split(strings.TrimPrefix(v1, "v"), ".")
 	parts2 := strings.Split(strings.TrimPrefix(v2, "v"), ".")
@@ -46,7 +43,6 @@ func compareVersions(v1, v2 string) int {
 	return 0
 }
 
-// LoadedExtension represents an extension that has been loaded into memory
 type LoadedExtension struct {
 	ID        string             `json:"id"`
 	Manifest  *ExtensionManifest `json:"manifest"`
@@ -72,7 +68,6 @@ var (
 	globalExtManagerOnce sync.Once
 )
 
-// GetExtensionManager returns the global extension manager instance
 func GetExtensionManager() *ExtensionManager {
 	globalExtManagerOnce.Do(func() {
 		globalExtManager = &ExtensionManager{
@@ -82,7 +77,6 @@ func GetExtensionManager() *ExtensionManager {
 	return globalExtManager
 }
 
-// SetDirectories sets the extensions and data directories
 func (m *ExtensionManager) SetDirectories(extensionsDir, dataDir string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -100,9 +94,7 @@ func (m *ExtensionManager) SetDirectories(extensionsDir, dataDir string) error {
 	return nil
 }
 
-// LoadExtensionFromFile loads an extension from a .spotiflac-ext file
 func (m *ExtensionManager) LoadExtensionFromFile(filePath string) (*LoadedExtension, error) {
-	// Validate file extension
 	if !strings.HasSuffix(strings.ToLower(filePath), ".spotiflac-ext") {
 		return nil, fmt.Errorf("Invalid file format. Please select a .spotiflac-ext file")
 	}
@@ -181,14 +173,11 @@ func (m *ExtensionManager) LoadExtensionFromFile(filePath string) (*LoadedExtens
 		return nil, fmt.Errorf("failed to create extension directory: %w", err)
 	}
 
-	// Extract all files (preserving directory structure)
 	for _, file := range zipReader.File {
 		if file.FileInfo().IsDir() {
 			continue
 		}
 
-		// Preserve relative path within the zip (support subdirectories)
-		// Clean the path to prevent path traversal attacks
 		relPath := filepath.Clean(file.Name)
 		if strings.HasPrefix(relPath, "..") || filepath.IsAbs(relPath) {
 			GoLog("[Extension] Skipping unsafe path in archive: %s\n", file.Name)
@@ -246,7 +235,6 @@ func (m *ExtensionManager) LoadExtensionFromFile(filePath string) (*LoadedExtens
 	return ext, nil
 }
 
-// initializeVM creates and initializes the Goja VM for an extension
 func (m *ExtensionManager) initializeVM(ext *LoadedExtension) error {
 	vm := goja.New()
 	ext.VM = vm
@@ -323,7 +311,6 @@ func (m *ExtensionManager) UnloadExtension(extensionID string) error {
 	return nil
 }
 
-// GetExtension returns a loaded extension by ID
 // Returns error if extension not found (gomobile compatible)
 func (m *ExtensionManager) GetExtension(extensionID string) (*LoadedExtension, error) {
 	m.mu.RLock()
@@ -348,7 +335,6 @@ func (m *ExtensionManager) GetAllExtensions() []*LoadedExtension {
 	return result
 }
 
-// SetExtensionEnabled enables or disables an extension
 func (m *ExtensionManager) SetExtensionEnabled(extensionID string, enabled bool) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -409,7 +395,6 @@ func (m *ExtensionManager) LoadExtensionsFromDirectory(dirPath string) ([]string
 	return loaded, errors
 }
 
-// loadExtensionFromDirectory loads an extension from an already extracted directory
 func (m *ExtensionManager) loadExtensionFromDirectory(dirPath string) (*LoadedExtension, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -498,7 +483,6 @@ func (m *ExtensionManager) RemoveExtension(extensionID string) error {
 	return nil
 }
 
-// UpgradeExtension upgrades an existing extension from a new package file
 // Only allows upgrades (new version > current version), not downgrades
 func (m *ExtensionManager) UpgradeExtension(filePath string) (*LoadedExtension, error) {
 	// Validate file extension
@@ -645,7 +629,6 @@ func (m *ExtensionManager) UpgradeExtension(filePath string) (*LoadedExtension, 
 	return ext, nil
 }
 
-// ExtensionUpgradeInfo holds information about extension upgrade check
 type ExtensionUpgradeInfo struct {
 	ExtensionID    string `json:"extension_id"`
 	CurrentVersion string `json:"current_version"`
@@ -717,7 +700,6 @@ func (m *ExtensionManager) checkExtensionUpgradeInternal(filePath string) (*Exte
 	return info, nil
 }
 
-// CheckExtensionUpgradeJSON checks if a package file is an upgrade and returns JSON
 func (m *ExtensionManager) CheckExtensionUpgradeJSON(filePath string) (string, error) {
 	info, err := m.checkExtensionUpgradeInternal(filePath)
 	if err != nil {
@@ -827,7 +809,6 @@ func (m *ExtensionManager) GetInstalledExtensionsJSON() (string, error) {
 
 // ==================== Extension Lifecycle ====================
 
-// InitializeExtension calls the extension's initialize method with settings
 func (m *ExtensionManager) InitializeExtension(extensionID string, settings map[string]interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -889,7 +870,6 @@ func (m *ExtensionManager) InitializeExtension(extensionID string, settings map[
 	return nil
 }
 
-// CleanupExtension calls the extension's cleanup method
 func (m *ExtensionManager) CleanupExtension(extensionID string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
@@ -900,10 +880,9 @@ func (m *ExtensionManager) CleanupExtension(extensionID string) error {
 	}
 
 	if ext.VM == nil {
-		return nil // No VM, nothing to cleanup
+		return nil
 	}
 
-	// Call cleanup function
 	script := `
 		(function() {
 			if (typeof extension !== 'undefined' && typeof extension.cleanup === 'function') {
@@ -952,16 +931,13 @@ func (m *ExtensionManager) UnloadAllExtensions() {
 	m.mu.Unlock()
 
 	for _, id := range extensionIDs {
-		// Call cleanup first
 		m.CleanupExtension(id)
-		// Then unload
 		m.UnloadExtension(id)
 	}
 
 	GoLog("[Extension] All extensions unloaded\n")
 }
 
-// InvokeAction calls a custom action function on an extension (e.g., for button settings)
 // The function is called as extension.<actionName>() and can return a result
 func (m *ExtensionManager) InvokeAction(extensionID string, actionName string) (map[string]interface{}, error) {
 	m.mu.Lock()

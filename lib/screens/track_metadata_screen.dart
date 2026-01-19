@@ -13,8 +13,6 @@ import 'package:spotiflac_android/providers/download_queue_provider.dart';
 import 'package:spotiflac_android/services/platform_bridge.dart';
 import 'package:spotiflac_android/l10n/l10n.dart';
 
-/// Screen to display detailed metadata for a downloaded track
-/// Designed with Material Expressive 3 style
 class TrackMetadataScreen extends ConsumerStatefulWidget {
   final DownloadHistoryItem item;
 
@@ -101,7 +99,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
         });
       }
     } catch (_) {
-      // Ignore palette extraction errors
     }
   }
 
@@ -263,7 +260,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Background with dominant color
         AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -280,7 +276,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
           ),
         ),
         
-        // Cover image centered - fade out when collapsing
         AnimatedOpacity(
           duration: const Duration(milliseconds: 150),
           opacity: showContent ? 1.0 : 0.0,
@@ -683,7 +678,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
                       ),
                     ),
                   ),
-                // Show 320kbps for MP3, bit depth/sample rate for FLAC
                 if (fileExtension == 'MP3')
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -1057,8 +1051,8 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
               ref.read(downloadHistoryProvider.notifier).removeFromHistory(item.id);
               
               if (context.mounted) {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Go back to history
+                Navigator.pop(context);
+                Navigator.pop(context);
               }
             },
             child: Text(context.l10n.dialogDelete, style: TextStyle(color: colorScheme.error)),

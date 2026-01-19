@@ -94,7 +94,6 @@ func (r *ExtensionRuntime) hmacSHA1(call goja.FunctionCall) goja.Value {
 		return r.vm.ToValue([]byte{})
 	}
 
-	// Get key - can be string or array of bytes
 	var keyBytes []byte
 	keyArg := call.Arguments[0].Export()
 	switch k := keyArg.(type) {
@@ -113,7 +112,6 @@ func (r *ExtensionRuntime) hmacSHA1(call goja.FunctionCall) goja.Value {
 		return r.vm.ToValue([]byte{})
 	}
 
-	// Get message - can be string or array of bytes
 	var msgBytes []byte
 	msgArg := call.Arguments[1].Export()
 	switch m := msgArg.(type) {
@@ -136,7 +134,6 @@ func (r *ExtensionRuntime) hmacSHA1(call goja.FunctionCall) goja.Value {
 	mac.Write(msgBytes)
 	result := mac.Sum(nil)
 
-	// Convert to array of numbers for JavaScript
 	jsArray := make([]interface{}, len(result))
 	for i, b := range result {
 		jsArray[i] = int(b)

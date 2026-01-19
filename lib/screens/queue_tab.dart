@@ -13,7 +13,6 @@ import 'package:spotiflac_android/providers/settings_provider.dart';
 import 'package:spotiflac_android/screens/track_metadata_screen.dart';
 import 'package:spotiflac_android/screens/downloaded_album_screen.dart';
 
-/// Grouped album data for history display
 class _GroupedAlbum {
   final String albumName;
   final String artistName;
@@ -108,7 +107,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     );
   }
 
-  /// Enter selection mode with initial item
   void _enterSelectionMode(String itemId) {
     HapticFeedback.mediumImpact();
     setState(() {
@@ -125,7 +123,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     });
   }
 
-  /// Toggle item selection
   void _toggleSelection(String itemId) {
     setState(() {
       if (_selectedIds.contains(itemId)) {
@@ -146,7 +143,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     });
   }
 
-  /// Delete selected items
   Future<void> _deleteSelected() async {
     final count = _selectedIds.length;
     final confirmed = await showDialog<bool>(
@@ -307,9 +303,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     );
   }
 
-  /// Filter history items based on current filter mode
-  /// Album = track yang albumnya punya >1 track di history
-  /// Single = track yang albumnya cuma 1 track di history
   List<DownloadHistoryItem> _filterHistoryItems(
     List<DownloadHistoryItem> items,
     String filterMode,
@@ -725,7 +718,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     );
   }
 
-  /// Build content for each filter tab
   Widget _buildFilterContent({
     required BuildContext context,
     required ColorScheme colorScheme,
@@ -931,7 +923,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     );
   }
 
-  /// Build album grid item for grouped albums view
   Widget _buildAlbumGridItem(
     BuildContext context,
     _GroupedAlbum album,
@@ -1745,7 +1736,6 @@ child: CachedNetworkImage(
   }
 }
 
-/// Filter chip widget for history filtering
 class _FilterChip extends StatelessWidget {
   final String label;
   final int count;
