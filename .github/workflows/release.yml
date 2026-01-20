@@ -428,24 +428,30 @@ jobs:
           name: android-apk
           path: ./release
 
+      - name: Download iOS IPA
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa
+          path: ./release
+
       - name: Extract changelog for version
         id: changelog
         run: |
           VERSION=${{ needs.get-version.outputs.version }}
           VERSION_NUM=${VERSION#v}
 
-          # Extract changelog, limit to ~1500 chars for Telegram (4096 limit minus message overhead)
+          # Extract changelog, limit to ~2500 chars for Telegram (4096 limit minus message overhead)
           FULL_CHANGELOG=$(sed -n "/^## \[$VERSION_NUM\]/,/^## \[/{ /^## \[$VERSION_NUM\]/d; /^## \[/d; p; }" CHANGELOG.md | sed '/^---$/d')
           
           if [ -z "$FULL_CHANGELOG" ]; then
             CHANGELOG="See release notes on GitHub for details."
           else
-            # Take first 1500 characters, then cut at last complete line
-            CHANGELOG=$(echo "$FULL_CHANGELOG" | head -c 1500 | sed '$d')
+            # Take first 2500 characters, then cut at last complete line
+            CHANGELOG=$(echo "$FULL_CHANGELOG" | head -c 2500 | sed '$d')
             
             # Check if truncated
             FULL_LEN=${#FULL_CHANGELOG}
-            if [ $FULL_LEN -gt 1500 ]; then
+            if [ $FULL_LEN -gt 2500 ]; then
               CHANGELOG="${CHANGELOG}"$'\n\n... (see full changelog on GitHub)'
             fi
           fi
@@ -464,17 +470,12 @@ jobs:
           ARM64_APK=$(find ./release -name "*arm64*.apk" | head -1)
           ARM32_APK=$(find ./release -name "*arm32*.apk" | head -1)
           
-          # Prepare message with changelog
+          # Prepare message with changelog (files uploaded separately)
           printf '%s\n' \
-            "*SpotiFLAC ${VERSION} Released!*" \
+            "*SpotiFLAC Mobile ${VERSION} Released!*" \
             "" \
             "*What's New:*" \
             "${CHANGELOG}" \
-            "" \
-            "*Download:*" \
-            "- [arm64 APK](https://github.com/${{ github.repository }}/releases/download/${VERSION}/SpotiFLAC-${VERSION}-arm64.apk) (recommended)" \
-            "- [arm32 APK](https://github.com/${{ github.repository }}/releases/download/${VERSION}/SpotiFLAC-${VERSION}-arm32.apk)" \
-            "- [iOS IPA](https://github.com/${{ github.repository }}/releases/download/${VERSION}/SpotiFLAC-${VERSION}-ios-unsigned.ipa)" \
             "" \
             "[View Release Notes](https://github.com/${{ github.repository }}/releases/tag/${VERSION})" \
             > /tmp/telegram_message.txt
@@ -504,6 +505,16 @@ jobs:
               -F chat_id="${TELEGRAM_CHANNEL_ID}" \
               -F document=@"${ARM32_APK}" \
               -F caption="SpotiFLAC ${VERSION} - arm32"
+          fi
+
+          # Upload iOS IPA to channel
+          IOS_IPA=$(find ./release -name "*ios*.ipa" | head -1)
+          if [ -f "$IOS_IPA" ]; then
+            echo "Uploading iOS IPA to Telegram..."
+            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
+              -F chat_id="${TELEGRAM_CHANNEL_ID}" \
+              -F document=@"${IOS_IPA}" \
+              -F caption="SpotiFLAC ${VERSION} - iOS (unsigned, sideload required)"
           fi
 
           echo "Telegram notification sent!"
