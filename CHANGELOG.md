@@ -22,6 +22,15 @@
 - **Deezer**: Track position fallback to index+1 when API returns 0
 - **Localization**: Fixed 16 ICU plural syntax warnings in Spanish & Portuguese
 
+### Performance
+
+- **Home Feed**: Precomputed Quick Picks section flag and reduced per-page allocations; explore state now watched by field to cut rebuilds
+- **Home Recent**: Cached recent-access aggregation and limited list allocations for recent downloads
+- **Settings/Theme/Recent**: Cached SharedPreferences instance to avoid repeated `getInstance()` calls
+- **History/DB**: Batched iOS path migration updates to reduce write overhead
+- **Download Queue**: Reduced polling allocations and avoided double-load scheduling for history
+- **Misc**: Precompiled regex in share intent, update dialog, extensions error parsing, log analysis, and LRC cleanup; faster palette cache hits and log filtering
+
 ---
 
 ## [3.2.0] - 2026-01-22

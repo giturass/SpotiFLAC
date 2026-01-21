@@ -29,6 +29,18 @@ class HomeTab extends ConsumerStatefulWidget {
   ConsumerState<HomeTab> createState() => _HomeTabState();
 }
 
+class _RecentAccessView {
+  final List<RecentAccessItem> uniqueItems;
+  final List<RecentAccessItem> downloadItems;
+  final bool hasHiddenDownloads;
+
+  const _RecentAccessView({
+    required this.uniqueItems,
+    required this.downloadItems,
+    required this.hasHiddenDownloads,
+  });
+}
+
 class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClientMixin, SingleTickerProviderStateMixin {
   final _urlController = TextEditingController();
   bool _isTyping = false;
@@ -51,6 +63,11 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
   
   /// Debounce duration for live search
   static const Duration _liveSearchDelay = Duration(milliseconds: 800);
+
+  List<DownloadHistoryItem>? _recentAccessHistoryCache;
+  List<RecentAccessItem>? _recentAccessItemsCache;
+  Set<String>? _recentAccessHiddenIdsCache;
+  _RecentAccessView? _recentAccessViewCache;
   
   @override
   bool get wantKeepAlive => true;
@@ -447,7 +464,12 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     final error = ref.watch(trackProvider.select((s) => s.error));
     final hasSearchedBefore = ref.watch(settingsProvider.select((s) => s.hasSearchedBefore));
     
-    final exploreState = ref.watch(exploreProvider);
+    final exploreSections =
+        ref.watch(exploreProvider.select((s) => s.sections));
+    final exploreGreeting =
+        ref.watch(exploreProvider.select((s) => s.greeting));
+    final exploreLoading =
+        ref.watch(exploreProvider.select((s) => s.isLoading));
     final hasHomeFeedExtension = ref.watch(extensionProvider.select((s) => 
       s.extensions.any((e) => e.enabled && e.hasHomeFeed)
     ));
@@ -461,11 +483,17 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     final topPadding = mediaQuery.padding.top;
     final historyItems = ref.watch(downloadHistoryProvider.select((s) => s.items));
     final recentAccessItems = ref.watch(recentAccessProvider.select((s) => s.items));
+    final hiddenDownloadIds =
+        ref.watch(recentAccessProvider.select((s) => s.hiddenDownloadIds));
     
     final hasRecentItems = recentAccessItems.isNotEmpty || historyItems.isNotEmpty;
     final showRecentAccess = isShowingRecentAccess && hasRecentItems && !hasActualResults && !isLoading;
+    final recentAccessView = showRecentAccess
+        ? _getRecentAccessView(recentAccessItems, historyItems, hiddenDownloadIds)
+        : null;
     
-    final showExplore = !hasActualResults && !isLoading && !showRecentAccess && hasHomeFeedExtension && exploreState.hasContent;
+    final hasExploreContent = exploreSections.isNotEmpty;
+    final showExplore = !hasActualResults && !isLoading && !showRecentAccess && hasHomeFeedExtension && hasExploreContent;
     
     if (hasActualResults && isShowingRecentAccess) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -577,11 +605,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
           
           if (showRecentAccess)
             SliverToBoxAdapter(
-              child: _buildRecentAccess(
-                recentAccessItems,
-                historyItems,
-                colorScheme,
-              ),
+              child: _buildRecentAccess(recentAccessView!, colorScheme),
             ),
           
           SliverToBoxAdapter(
@@ -614,9 +638,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
           ),
           
           if (showExplore)
-            ..._buildExploreSections(exploreState, colorScheme),
+            ..._buildExploreSections(exploreSections, exploreGreeting, colorScheme),
           
-          if (hasHomeFeedExtension && !hasActualResults && !isLoading && exploreState.isLoading)
+          if (hasHomeFeedExtension && !hasActualResults && !isLoading && exploreLoading)
             const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.all(32),
@@ -640,7 +664,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
   }
 
   Widget _buildRecentDownloads(List<DownloadHistoryItem> items, ColorScheme colorScheme) {
-    final displayItems = items.take(10).toList();
+    final itemCount = items.length < 10 ? items.length : 10;
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -658,9 +682,9 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
           height: 130,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: displayItems.length,
+            itemCount: itemCount,
             itemBuilder: (context, index) {
-              final item = displayItems[index];
+              final item = items[index];
               return KeyedSubtree(
                 key: ValueKey(item.id),
                 child: GestureDetector(
@@ -711,10 +735,117 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     );
   }
 
-  List<Widget> _buildExploreSections(ExploreState exploreState, ColorScheme colorScheme) {
-    final greeting = exploreState.greeting;
+  _RecentAccessView _getRecentAccessView(
+    List<RecentAccessItem> items,
+    List<DownloadHistoryItem> historyItems,
+    Set<String> hiddenIds,
+  ) {
+    final cached = _recentAccessViewCache;
+    if (cached != null &&
+        identical(historyItems, _recentAccessHistoryCache) &&
+        identical(items, _recentAccessItemsCache) &&
+        identical(hiddenIds, _recentAccessHiddenIdsCache)) {
+      return cached;
+    }
+
+    final albumGroups = <String, List<DownloadHistoryItem>>{};
+    for (final h in historyItems) {
+      final artistForKey =
+          (h.albumArtist != null && h.albumArtist!.isNotEmpty)
+              ? h.albumArtist!
+              : h.artistName;
+      final albumKey = '${h.albumName}|$artistForKey';
+      albumGroups.putIfAbsent(albumKey, () => []).add(h);
+    }
+
+    final downloadItems = <RecentAccessItem>[];
+    for (final entry in albumGroups.entries) {
+      final tracks = entry.value;
+      final mostRecent = tracks.reduce(
+        (a, b) => a.downloadedAt.isAfter(b.downloadedAt) ? a : b,
+      );
+      final artistForKey =
+          (mostRecent.albumArtist != null && mostRecent.albumArtist!.isNotEmpty)
+              ? mostRecent.albumArtist!
+              : mostRecent.artistName;
+
+      if (tracks.length == 1) {
+        downloadItems.add(
+          RecentAccessItem(
+            id: mostRecent.spotifyId ?? mostRecent.id,
+            name: mostRecent.trackName,
+            subtitle: mostRecent.artistName,
+            imageUrl: mostRecent.coverUrl,
+            type: RecentAccessType.track,
+            accessedAt: mostRecent.downloadedAt,
+            providerId: 'download',
+          ),
+        );
+      } else {
+        downloadItems.add(
+          RecentAccessItem(
+            id: '${mostRecent.albumName}|$artistForKey',
+            name: mostRecent.albumName,
+            subtitle: artistForKey,
+            imageUrl: mostRecent.coverUrl,
+            type: RecentAccessType.album,
+            accessedAt: mostRecent.downloadedAt,
+            providerId: 'download',
+          ),
+        );
+      }
+    }
+
+    downloadItems.sort((a, b) => b.accessedAt.compareTo(a.accessedAt));
+
+    final visibleDownloads = <RecentAccessItem>[];
+    for (final item in downloadItems) {
+      if (!hiddenIds.contains(item.id)) {
+        visibleDownloads.add(item);
+        if (visibleDownloads.length >= 10) {
+          break;
+        }
+      }
+    }
+
+    final allItems = <RecentAccessItem>[
+      ...items,
+      ...visibleDownloads,
+    ];
+    allItems.sort((a, b) => b.accessedAt.compareTo(a.accessedAt));
+
+    final seen = <String>{};
+    final uniqueItems = <RecentAccessItem>[];
+    for (final item in allItems) {
+      final key = '${item.type.name}:${item.id}';
+      if (seen.add(key)) {
+        uniqueItems.add(item);
+        if (uniqueItems.length >= 10) {
+          break;
+        }
+      }
+    }
+
+    final view = _RecentAccessView(
+      uniqueItems: uniqueItems,
+      downloadItems: downloadItems,
+      hasHiddenDownloads: hiddenIds.isNotEmpty,
+    );
+
+    _recentAccessHistoryCache = historyItems;
+    _recentAccessItemsCache = items;
+    _recentAccessHiddenIdsCache = hiddenIds;
+    _recentAccessViewCache = view;
+
+    return view;
+  }
+
+  List<Widget> _buildExploreSections(
+    List<ExploreSection> sections,
+    String? greeting,
+    ColorScheme colorScheme,
+  ) {
     final hasGreeting = greeting != null && greeting.isNotEmpty;
-    final sections = exploreState.sections;
     final sectionOffset = hasGreeting ? 1 : 0;
     final totalCount = sections.length + sectionOffset + 1; // + bottom padding
     
@@ -749,9 +880,7 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
   }
   
   Widget _buildExploreSection(ExploreSection section, ColorScheme colorScheme) {
-    final isYTMusicQuickPicks = _isYTMusicQuickPicksSection(section);
-    
-    if (isYTMusicQuickPicks) {
+    if (section.isYTMusicQuickPicks) {
       return _buildYTMusicQuickPicksSection(section, colorScheme);
     }
     
@@ -781,19 +910,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
         ),
       ],
     );
-  }
-  
-  bool _isYTMusicQuickPicksSection(ExploreSection section) {
-    if (section.items.isEmpty) return false;
-    if (section.items.first.providerId != 'ytmusic-spotiflac') return false;
-    
-    for (final item in section.items) {
-      if (item.type != 'track') {
-        return false;
-      }
-    }
-    
-    return true;
   }
   
   /// Build YT Music "Quick picks" style swipeable pages section
@@ -1097,72 +1213,10 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
     }
   }
 
-  Widget _buildRecentAccess(
-    List<RecentAccessItem> items,
-    List<DownloadHistoryItem> historyItems,
-    ColorScheme colorScheme,
-  ) {
-    final albumGroups = <String, List<DownloadHistoryItem>>{};
-    for (final h in historyItems) {
-      final artistForKey = (h.albumArtist != null && h.albumArtist!.isNotEmpty) 
-          ? h.albumArtist! 
-          : h.artistName;
-      final albumKey = '${h.albumName}|$artistForKey';
-      albumGroups.putIfAbsent(albumKey, () => []).add(h);
-    }
-    
-    final downloadItems = <RecentAccessItem>[];
-    for (final entry in albumGroups.entries) {
-      final tracks = entry.value;
-      final mostRecent = tracks.reduce((a, b) => 
-          a.downloadedAt.isAfter(b.downloadedAt) ? a : b);
-      final artistForKey = (mostRecent.albumArtist != null && mostRecent.albumArtist!.isNotEmpty) 
-          ? mostRecent.albumArtist! 
-          : mostRecent.artistName;
-      
-      if (tracks.length == 1) {
-        downloadItems.add(RecentAccessItem(
-          id: mostRecent.spotifyId ?? mostRecent.id,
-          name: mostRecent.trackName,
-          subtitle: mostRecent.artistName,
-          imageUrl: mostRecent.coverUrl,
-          type: RecentAccessType.track,
-          accessedAt: mostRecent.downloadedAt,
-          providerId: 'download',
-        ));
-      } else {
-        downloadItems.add(RecentAccessItem(
-          id: '${mostRecent.albumName}|$artistForKey',
-          name: mostRecent.albumName,
-          subtitle: artistForKey,
-          imageUrl: mostRecent.coverUrl,
-          type: RecentAccessType.album,
-          accessedAt: mostRecent.downloadedAt,
-          providerId: 'download',
-        ));
-      }
-    }
-    
-    downloadItems.sort((a, b) => b.accessedAt.compareTo(a.accessedAt));
-
-    final hiddenIds = ref.watch(recentAccessProvider.select((s) => s.hiddenDownloadIds));
-    final visibleDownloads = downloadItems
-        .where((item) => !hiddenIds.contains(item.id))
-        .take(10)
-        .toList();
-    
-    final allItems = [...items, ...visibleDownloads];
-    allItems.sort((a, b) => b.accessedAt.compareTo(a.accessedAt));
-    
-    final seen = <String>{};
-    final uniqueItems = allItems.where((item) {
-      final key = '${item.type.name}:${item.id}';
-      if (seen.contains(key)) return false;
-      seen.add(key);
-      return true;
-    }).take(10).toList();
-    
-    final hasHiddenDownloads = hiddenIds.isNotEmpty;
+  Widget _buildRecentAccess(_RecentAccessView view, ColorScheme colorScheme) {
+    final uniqueItems = view.uniqueItems;
+    final downloadItems = view.downloadItems;
+    final hasHiddenDownloads = view.hasHiddenDownloads;
     
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
@@ -2923,11 +2977,15 @@ class _QuickPicksPageViewState extends State<_QuickPicksPageView> {
             },
             itemBuilder: (context, pageIndex) {
               final startIndex = pageIndex * widget.itemsPerPage;
-              final endIndex = (startIndex + widget.itemsPerPage).clamp(0, widget.section.items.length);
-              final pageItems = widget.section.items.sublist(startIndex, endIndex);
+              final endIndex =
+                  (startIndex + widget.itemsPerPage).clamp(0, widget.section.items.length);
+              final pageItemCount = endIndex - startIndex;
               
               return Column(
-                children: pageItems.map((item) => _buildQuickPickItem(item)).toList(),
+                children: List.generate(pageItemCount, (index) {
+                  final item = widget.section.items[startIndex + index];
+                  return _buildQuickPickItem(item);
+                }),
               );
             },
           ),

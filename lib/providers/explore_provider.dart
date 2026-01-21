@@ -55,21 +55,26 @@ class ExploreSection {
   final String uri;
   final String title;
   final List<ExploreItem> items;
+  final bool isYTMusicQuickPicks;
 
   const ExploreSection({
     required this.uri,
     required this.title,
     required this.items,
+    this.isYTMusicQuickPicks = false,
   });
 
   factory ExploreSection.fromJson(Map<String, dynamic> json) {
     final itemsList = json['items'] as List<dynamic>? ?? [];
+    final items = itemsList
+        .map((item) => ExploreItem.fromJson(item as Map<String, dynamic>))
+        .toList();
+    final isQuickPicks = _isYTMusicQuickPicksItems(items);
     return ExploreSection(
       uri: json['uri'] as String? ?? '',
       title: json['title'] as String? ?? '',
-      items: itemsList
-          .map((item) => ExploreItem.fromJson(item as Map<String, dynamic>))
-          .toList(),
+      items: items,
+      isYTMusicQuickPicks: isQuickPicks,
     );
   }
 }
@@ -121,6 +126,17 @@ String _getLocalGreeting() {
   } else {
     return 'Good night';
   }
+}
+
+bool _isYTMusicQuickPicksItems(List<ExploreItem> items) {
+  if (items.isEmpty) return false;
+  if (items.first.providerId != 'ytmusic-spotiflac') return false;
+  for (final item in items) {
+    if (item.type != 'track') {
+      return false;
+    }
+  }
+  return true;
 }
 
 /// Provider for explore/home feed state

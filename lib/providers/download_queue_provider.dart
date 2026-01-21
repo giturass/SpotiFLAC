@@ -180,9 +180,9 @@ class DownloadHistoryNotifier extends Notifier<DownloadHistoryState> {
   /// Synchronously schedule load - ensures it runs before any UI renders
   void _loadFromDatabaseSync() {
     if (_isLoaded) return;
+    _isLoaded = true;
     Future.microtask(() async {
       await _loadFromDatabase();
-      _isLoaded = true;
     });
   }
 
@@ -475,10 +475,21 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         final currentItems = state.items;
         final itemsById = <String, DownloadItem>{};
         final itemIndexById = <String, int>{};
+        int queuedCount = 0;
+        int downloadingCount = 0;
+        DownloadItem? firstDownloading;
         for (int i = 0; i < currentItems.length; i++) {
           final item = currentItems[i];
           itemsById[item.id] = item;
           itemIndexById[item.id] = i;
+          if (item.status == DownloadStatus.downloading) {
+            downloadingCount++;
+            firstDownloading ??= item;
+          }
+          if (item.status == DownloadStatus.queued ||
+              item.status == DownloadStatus.downloading) {
+            queuedCount++;
+          }
         }
         final progressUpdates = <String, _ProgressUpdate>{};
 
@@ -600,15 +611,12 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           final bytesReceived = firstProgress['bytes_received'] as int? ?? 0;
           final bytesTotal = firstProgress['bytes_total'] as int? ?? 0;
 
-          final downloadingItems = state.items
-              .where((i) => i.status == DownloadStatus.downloading)
-              .toList();
-          if (downloadingItems.isNotEmpty) {
-            final trackName = downloadingItems.length == 1
-                ? downloadingItems.first.track.name
-                : '${downloadingItems.length} downloads';
-            final artistName = downloadingItems.length == 1
-                ? downloadingItems.first.track.artistName
+          if (downloadingCount > 0 && firstDownloading != null) {
+            final trackName = downloadingCount == 1
+                ? firstDownloading.track.name
+                : '$downloadingCount downloads';
+            final artistName = downloadingCount == 1
+                ? firstDownloading.track.artistName
                 : 'Downloading...';
 
             int notifProgress = bytesReceived;
@@ -630,11 +638,11 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
 
             if (Platform.isAndroid) {
               PlatformBridge.updateDownloadServiceProgress(
-                trackName: downloadingItems.first.track.name,
-                artistName: downloadingItems.first.track.artistName,
+                trackName: firstDownloading.track.name,
+                artistName: firstDownloading.track.artistName,
                 progress: notifProgress,
                 total: notifTotal > 0 ? notifTotal : 1,
-                queueCount: state.queuedCount,
+                queueCount: queuedCount,
               ).catchError((_) {});
             }
           }

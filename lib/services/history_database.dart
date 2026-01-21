@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:spotiflac_android/utils/logger.dart';
 
 final _log = AppLogger('HistoryDatabase');
+final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
 /// Cached current iOS container path for path normalization
 String? _currentContainerPath;
@@ -135,7 +136,7 @@ class HistoryDatabase {
     await _initContainerPath();
     if (_currentContainerPath == null) return false;
     
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs;
     final lastContainer = prefs.getString('ios_last_container_path');
     
     // Skip if container hasn't changed
@@ -152,6 +153,7 @@ class HistoryDatabase {
       // Get all items with iOS paths
       final rows = await db.query('history', columns: ['id', 'file_path']);
       int updatedCount = 0;
+      final batch = db.batch();
       
       for (final row in rows) {
         final id = row['id'] as String;
@@ -160,7 +162,7 @@ class HistoryDatabase {
         if (oldPath != null && _iosContainerPattern.hasMatch(oldPath)) {
           final newPath = _normalizeIosPath(oldPath);
           if (newPath != oldPath) {
-            await db.update(
+            batch.update(
               'history',
               {'file_path': newPath},
               where: 'id = ?',
@@ -169,6 +171,10 @@ class HistoryDatabase {
             updatedCount++;
           }
         }
+      }
+      
+      if (updatedCount > 0) {
+        await batch.commit(noResult: true);
       }
       
       // Save current container path
@@ -185,7 +191,7 @@ class HistoryDatabase {
   /// Migrate data from SharedPreferences to SQLite
   /// Returns true if migration was performed, false if already migrated
   Future<bool> migrateFromSharedPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await _prefs;
     final migrationKey = 'history_migrated_to_sqlite';
     
     if (prefs.getBool(migrationKey) == true) {

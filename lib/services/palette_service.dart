@@ -19,8 +19,9 @@ class PaletteService {
       return null;
     }
 
-    if (_colorCache.containsKey(imageUrl)) {
-      return _colorCache[imageUrl];
+    final cached = _colorCache[imageUrl];
+    if (cached != null) {
+      return cached;
     }
 
     try {

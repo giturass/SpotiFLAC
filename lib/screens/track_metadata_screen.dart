@@ -37,6 +37,8 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
   final ScrollController _scrollController = ScrollController();
   static final RegExp _lrcTimestampPattern =
       RegExp(r'^\[\d{2}:\d{2}\.\d{2,3}\]');
+  static final RegExp _lrcMetadataPattern =
+      RegExp(r'^\[[a-zA-Z]+:.*\]$');
   static const List<String> _months = [
     'Jan',
     'Feb',
@@ -1045,14 +1047,11 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen> {
     final lines = lrc.split('\n');
     final cleanLines = <String>[];
     
-    // Pattern to match LRC metadata tags like [ti:...], [ar:...], [al:...], [by:...], etc.
-    final metadataPattern = RegExp(r'^\[[a-zA-Z]+:.*\]$');
-    
     for (final line in lines) {
       final trimmedLine = line.trim();
       
       // Skip metadata tags
-      if (metadataPattern.hasMatch(trimmedLine)) {
+      if (_lrcMetadataPattern.hasMatch(trimmedLine)) {
         continue;
       }
       
