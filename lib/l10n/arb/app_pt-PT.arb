@@ -127,7 +127,7 @@
   "@historyNoSinglesSubtitle": {
     "description": "Empty state subtitle for singles filter"
   },
-  "historySearchHint": "Search history...",
+  "historySearchHint": "Pesquisar histórico...",
   "@historySearchHint": {
     "description": "Search bar placeholder in history"
   },
@@ -552,19 +552,19 @@
   "@aboutFeatureRequestSubtitle": {
     "description": "Subtitle for feature request"
   },
-  "aboutTelegramChannel": "Telegram Channel",
+  "aboutTelegramChannel": "Canal do Telegram",
   "@aboutTelegramChannel": {
     "description": "Link to Telegram channel"
   },
-  "aboutTelegramChannelSubtitle": "Announcements and updates",
+  "aboutTelegramChannelSubtitle": "Anúncios e atualizações",
   "@aboutTelegramChannelSubtitle": {
     "description": "Subtitle for Telegram channel"
   },
-  "aboutTelegramChat": "Telegram Community",
+  "aboutTelegramChat": "Comunidade do Telegram",
   "@aboutTelegramChat": {
     "description": "Link to Telegram chat group"
   },
-  "aboutTelegramChatSubtitle": "Chat with other users",
+  "aboutTelegramChatSubtitle": "Converse com outros usuários",
   "@aboutTelegramChatSubtitle": {
     "description": "Subtitle for Telegram chat"
   },
@@ -1150,7 +1150,7 @@
     "description": "Dialog title - import CSV playlist"
   },
   "dialogImportPlaylistMessage": "{count} Faixas encontradas em CSV. Adicioná-las à lista de downloads?",
-  "csvImportTracks": "{count} tracks from CSV",
+  "csvImportTracks": "{count} faixas do CSV",
   "@csvImportTracks": {
     "description": "Label shown in quality picker for CSV import",
     "placeholders": {
@@ -1888,39 +1888,39 @@
   "@sectionFileSettings": {
     "description": "Settings section header"
   },
-  "sectionLyrics": "Lyrics",
+  "sectionLyrics": "Letras",
   "@sectionLyrics": {
     "description": "Settings section header"
   },
-  "lyricsMode": "Lyrics Mode",
+  "lyricsMode": "Modo de Letras",
   "@lyricsMode": {
     "description": "Setting - how to save lyrics"
   },
-  "lyricsModeDescription": "Choose how lyrics are saved with your downloads",
+  "lyricsModeDescription": "Escolha como as letras são salvas com os seus downloads",
   "@lyricsModeDescription": {
     "description": "Lyrics mode picker description"
   },
-  "lyricsModeEmbed": "Embed in file",
+  "lyricsModeEmbed": "Incorporar no arquivo",
   "@lyricsModeEmbed": {
     "description": "Lyrics mode option - embed in audio file"
   },
-  "lyricsModeEmbedSubtitle": "Lyrics stored inside FLAC metadata",
+  "lyricsModeEmbedSubtitle": "Letra armazenada nos metadados da FLAC",
   "@lyricsModeEmbedSubtitle": {
     "description": "Subtitle for embed option"
   },
-  "lyricsModeExternal": "External .lrc file",
+  "lyricsModeExternal": "Arquivo .lrc externo",
   "@lyricsModeExternal": {
     "description": "Lyrics mode option - separate LRC file"
   },
-  "lyricsModeExternalSubtitle": "Separate .lrc file for players like Samsung Music",
+  "lyricsModeExternalSubtitle": "Arquivo .lrc separado para reprodutores como o Samsung Music",
   "@lyricsModeExternalSubtitle": {
     "description": "Subtitle for external option"
   },
-  "lyricsModeBoth": "Both",
+  "lyricsModeBoth": "Ambos",
   "@lyricsModeBoth": {
     "description": "Lyrics mode option - embed and external"
   },
-  "lyricsModeBothSubtitle": "Embed and save .lrc file",
+  "lyricsModeBothSubtitle": "Incorporar e salvar arquivo .lrc",
   "@lyricsModeBothSubtitle": {
     "description": "Subtitle for both option"
   },
@@ -2070,15 +2070,15 @@
   "@trackReleaseDate": {
     "description": "Metadata label - release date"
   },
-  "trackGenre": "Genre",
+  "trackGenre": "Género",
   "@trackGenre": {
     "description": "Metadata label - music genre"
   },
-  "trackLabel": "Label",
+  "trackLabel": "Gravadora",
   "@trackLabel": {
     "description": "Metadata label - record label"
   },
-  "trackCopyright": "Copyright",
+  "trackCopyright": "Direitos Autorais",
   "@trackCopyright": {
     "description": "Metadata label - copyright information"
   },
@@ -2101,6 +2101,18 @@
   "trackLyricsLoadFailed": "Falha ao carregar a letra",
   "@trackLyricsLoadFailed": {
     "description": "Message when lyrics loading fails"
+  },
+  "trackEmbedLyrics": "Incorporar Letras",
+  "@trackEmbedLyrics": {
+    "description": "Action - embed lyrics into audio file"
+  },
+  "trackLyricsEmbedded": "Letras incorporadas com sucesso",
+  "@trackLyricsEmbedded": {
+    "description": "Snackbar - lyrics saved to file"
+  },
+  "trackInstrumental": "Faixa de instrumentais",
+  "@trackInstrumental": {
+    "description": "Message when track is instrumental (no lyrics)"
   },
   "trackCopiedToClipboard": "Copiado para a área de transferência",
   "@trackCopiedToClipboard": {
@@ -2621,6 +2633,14 @@
   "@albumFolderYearAlbumSubtitle": {
     "description": "Folder structure example"
   },
+  "albumFolderArtistAlbumSingles": "Artista / Álbum + Singles",
+  "@albumFolderArtistAlbumSingles": {
+    "description": "Album folder option with singles inside artist"
+  },
+  "albumFolderArtistAlbumSinglesSubtitle": "Artista/Álbum/ e Artista/Singles/",
+  "@albumFolderArtistAlbumSinglesSubtitle": {
+    "description": "Folder structure example"
+  },
   "downloadedAlbumDeleteSelected": "Apagar Selecionados",
   "@downloadedAlbumDeleteSelected": {
     "description": "Button - delete selected tracks"
@@ -2727,15 +2747,15 @@
       }
     }
   },
-  "discographyDownload": "Download Discography",
+  "discographyDownload": "Baixar Discografia",
   "@discographyDownload": {
     "description": "Button - download artist discography"
   },
-  "discographyDownloadAll": "Download All",
+  "discographyDownloadAll": "Baixar Tudo",
   "@discographyDownloadAll": {
     "description": "Option - download entire discography"
   },
-  "discographyDownloadAllSubtitle": "{count} tracks from {albumCount} releases",
+  "discographyDownloadAllSubtitle": "{count} faixas de {albumCount} lançamentos",
   "@discographyDownloadAllSubtitle": {
     "description": "Subtitle showing total tracks and albums",
     "placeholders": {
@@ -2747,11 +2767,11 @@
       }
     }
   },
-  "discographyAlbumsOnly": "Albums Only",
+  "discographyAlbumsOnly": "Somente Álbuns",
   "@discographyAlbumsOnly": {
     "description": "Option - download only albums"
   },
-  "discographyAlbumsOnlySubtitle": "{count} tracks from {albumCount} albums",
+  "discographyAlbumsOnlySubtitle": "{count} faixas de {albumCount} álbuns",
   "@discographyAlbumsOnlySubtitle": {
     "description": "Subtitle showing album tracks count",
     "placeholders": {
@@ -2763,11 +2783,11 @@
       }
     }
   },
-  "discographySinglesOnly": "Singles & EPs Only",
+  "discographySinglesOnly": "Somente Singles e EPs",
   "@discographySinglesOnly": {
     "description": "Option - download only singles"
   },
-  "discographySinglesOnlySubtitle": "{count} tracks from {albumCount} singles",
+  "discographySinglesOnlySubtitle": "{count} faixas de {albumCount} singles",
   "@discographySinglesOnlySubtitle": {
     "description": "Subtitle showing singles tracks count",
     "placeholders": {
@@ -2779,19 +2799,19 @@
       }
     }
   },
-  "discographySelectAlbums": "Select Albums...",
+  "discographySelectAlbums": "Selecione Álbuns...",
   "@discographySelectAlbums": {
     "description": "Option - manually select albums to download"
   },
-  "discographySelectAlbumsSubtitle": "Choose specific albums or singles",
+  "discographySelectAlbumsSubtitle": "Escolher álbuns ou singles específicos",
   "@discographySelectAlbumsSubtitle": {
     "description": "Subtitle for select albums option"
   },
-  "discographyFetchingTracks": "Fetching tracks...",
+  "discographyFetchingTracks": "Buscando faixas...",
   "@discographyFetchingTracks": {
     "description": "Progress - fetching album tracks"
   },
-  "discographyFetchingAlbum": "Fetching {current} of {total}...",
+  "discographyFetchingAlbum": "Buscando {current} de {total}...",
   "@discographyFetchingAlbum": {
     "description": "Progress - fetching specific album",
     "placeholders": {
@@ -2803,7 +2823,7 @@
       }
     }
   },
-  "discographySelectedCount": "{count} selected",
+  "discographySelectedCount": "{count} selecionado(s)",
   "@discographySelectedCount": {
     "description": "Selection count badge",
     "placeholders": {
@@ -2812,11 +2832,11 @@
       }
     }
   },
-  "discographyDownloadSelected": "Download Selected",
+  "discographyDownloadSelected": "Baixar Selecionados",
   "@discographyDownloadSelected": {
     "description": "Button - download selected albums"
   },
-  "discographyAddedToQueue": "Added {count} tracks to queue",
+  "discographyAddedToQueue": "{count} faixas adicionadas à fila",
   "@discographyAddedToQueue": {
     "description": "Snackbar - tracks added from discography",
     "placeholders": {
@@ -2825,7 +2845,7 @@
       }
     }
   },
-  "discographySkippedDownloaded": "{added} added, {skipped} already downloaded",
+  "discographySkippedDownloaded": "{added} adicionada(s), {skipped} já baixada(s)",
   "@discographySkippedDownloaded": {
     "description": "Snackbar - with skipped tracks count",
     "placeholders": {
@@ -2837,11 +2857,11 @@
       }
     }
   },
-  "discographyNoAlbums": "No albums available",
+  "discographyNoAlbums": "Nenhum álbum disponível",
   "@discographyNoAlbums": {
     "description": "Error - no albums found for artist"
   },
-  "discographyFailedToFetch": "Failed to fetch some albums",
+  "discographyFailedToFetch": "Falha ao obter alguns álbuns",
   "@discographyFailedToFetch": {
     "description": "Error - some albums failed to load"
   }
