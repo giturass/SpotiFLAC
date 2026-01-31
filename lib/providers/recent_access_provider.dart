@@ -122,7 +122,8 @@ class RecentAccessNotifier extends Notifier<RecentAccessState> {
         items = decoded
             .map((e) => RecentAccessItem.fromJson(e as Map<String, dynamic>))
             .toList();
-      } catch (e) {
+      } catch (_) {
+        // Ignore JSON parse errors, use empty list
       }
     }
     

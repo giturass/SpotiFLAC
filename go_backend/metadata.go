@@ -682,21 +682,6 @@ func EmbedM4AMetadata(filePath string, metadata Metadata, coverData []byte) erro
 	return nil
 }
 
-func findAtom(data []byte, name string, offset int) int {
-	for i := offset; i < len(data)-8; {
-		size := int(uint32(data[i])<<24 | uint32(data[i+1])<<16 | uint32(data[i+2])<<8 | uint32(data[i+3]))
-		if size < 8 {
-			break
-		}
-		atomName := string(data[i+4 : i+8])
-		if atomName == name {
-			return i
-		}
-		i += size
-	}
-	return -1
-}
-
 // buildMetaAtom builds a complete meta atom with ilst containing metadata
 func buildMetaAtom(metadata Metadata, coverData []byte) []byte {
 	var ilst []byte

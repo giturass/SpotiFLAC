@@ -1010,10 +1010,7 @@ func (c *DeezerClient) GetExtendedMetadataByISRC(ctx context.Context, isrc strin
 	}
 
 	// SpotifyID contains "deezer:123" format, extract the ID
-	deezerID := track.SpotifyID
-	if strings.HasPrefix(deezerID, "deezer:") {
-		deezerID = strings.TrimPrefix(deezerID, "deezer:")
-	}
+	deezerID := strings.TrimPrefix(track.SpotifyID, "deezer:")
 
 	if deezerID == "" {
 		return nil, fmt.Errorf("track found but no Deezer ID")

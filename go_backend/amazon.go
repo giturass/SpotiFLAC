@@ -36,46 +36,6 @@ type AfkarXYZResponse struct {
 	} `json:"data"`
 }
 
-func amazonArtistsMatch(expectedArtist, foundArtist string) bool {
-	normExpected := strings.ToLower(strings.TrimSpace(expectedArtist))
-	normFound := strings.ToLower(strings.TrimSpace(foundArtist))
-
-	if normExpected == normFound {
-		return true
-	}
-
-	if strings.Contains(normExpected, normFound) || strings.Contains(normFound, normExpected) {
-		return true
-	}
-
-	expectedFirst := strings.Split(normExpected, ",")[0]
-	expectedFirst = strings.Split(expectedFirst, " feat")[0]
-	expectedFirst = strings.Split(expectedFirst, " ft.")[0]
-	expectedFirst = strings.TrimSpace(expectedFirst)
-
-	foundFirst := strings.Split(normFound, ",")[0]
-	foundFirst = strings.Split(foundFirst, " feat")[0]
-	foundFirst = strings.Split(foundFirst, " ft.")[0]
-	foundFirst = strings.TrimSpace(foundFirst)
-
-	if expectedFirst == foundFirst {
-		return true
-	}
-
-	if strings.Contains(expectedFirst, foundFirst) || strings.Contains(foundFirst, expectedFirst) {
-		return true
-	}
-
-	expectedASCII := amazonIsASCIIString(expectedArtist)
-	foundASCII := amazonIsASCIIString(foundArtist)
-	if expectedASCII != foundASCII {
-		GoLog("[Amazon] Artist names in different scripts, assuming match: '%s' vs '%s'\n", expectedArtist, foundArtist)
-		return true
-	}
-
-	return false
-}
-
 func amazonIsASCIIString(s string) bool {
 	for _, r := range s {
 		if r > 127 {
