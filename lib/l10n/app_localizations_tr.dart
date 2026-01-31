@@ -478,6 +478,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Orijinal HiFi projesi kurucusu. Tidal entegrasyonun temeli!';
 
   @override
+  String get aboutSjdonadoDesc =>
+      'Creator of I Don\'t Have Spotify (IDHS). The fallback link resolver that saves the day!';
+
+  @override
   String get aboutDoubleDouble => 'DoubleDouble';
 
   @override

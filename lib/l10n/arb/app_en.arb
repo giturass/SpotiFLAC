@@ -334,6 +334,8 @@
   "@aboutBinimumDesc": {"description": "Credit description for binimum"},
   "aboutSachinsenalDesc": "The original HiFi project creator. The foundation of Tidal integration!",
   "@aboutSachinsenalDesc": {"description": "Credit description for sachinsenal0x64"},
+  "aboutSjdonadoDesc": "Creator of I Don't Have Spotify (IDHS). The fallback link resolver that saves the day!",
+  "@aboutSjdonadoDesc": {"description": "Credit description for sjdonado"},
   "aboutDoubleDouble": "DoubleDouble",
   "@aboutDoubleDouble": {"description": "Name of Amazon API service - DO NOT TRANSLATE"},
   "aboutDoubleDoubleDesc": "Amazing API for Amazon Music downloads. Thank you for making it free!",

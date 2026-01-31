@@ -112,11 +112,10 @@ class AboutPage extends StatelessWidget {
                   githubUsername: 'sachinsenal0x64',
                   showDivider: true,
                 ),
-                _AboutSettingsItem(
-                  icon: Icons.cloud_outlined,
-                  title: context.l10n.aboutDoubleDouble,
-                  subtitle: context.l10n.aboutDoubleDoubleDesc,
-                  onTap: () => _launchUrl('https://doubledouble.top'),
+                _ContributorItem(
+                  name: 'sjdonado',
+                  description: context.l10n.aboutSjdonadoDesc,
+                  githubUsername: 'sjdonado',
                   showDivider: true,
                 ),
                 _AboutSettingsItem(

@@ -484,6 +484,10 @@ class AppLocalizationsDe extends AppLocalizations {
       'Der ursprüngliche Entwickler des HiFi-Projekts. Die Grundlage der Tidal-Integration!';
 
   @override
+  String get aboutSjdonadoDesc =>
+      'Creator of I Don\'t Have Spotify (IDHS). The fallback link resolver that saves the day!';
+
+  @override
   String get aboutDoubleDouble => 'DoubleDouble';
 
   @override

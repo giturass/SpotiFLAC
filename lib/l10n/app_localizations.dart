@@ -952,6 +952,12 @@ abstract class AppLocalizations {
   /// **'The original HiFi project creator. The foundation of Tidal integration!'**
   String get aboutSachinsenalDesc;
 
+  /// Credit description for sjdonado
+  ///
+  /// In en, this message translates to:
+  /// **'Creator of I Don\'t Have Spotify (IDHS). The fallback link resolver that saves the day!'**
+  String get aboutSjdonadoDesc;
+
   /// Name of Amazon API service - DO NOT TRANSLATE
   ///
   /// In en, this message translates to:

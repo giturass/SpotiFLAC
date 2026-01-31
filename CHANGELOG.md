@@ -22,14 +22,14 @@
 
 ### Changed
 
-- **Amazon Download API**: Switched to AfkarXYZ API for improved reliability
-- **Qobuz Download API**: Added Jumo API as fallback with quality fallback support
+- **Amazon Download API**: Switched to AfkarXYZ API for improved reliability ([#108](https://github.com/zarzet/SpotiFLAC-Mobile/issues/108))
+- **Qobuz Download API**: Added Jumo API as fallback with quality fallback support ([#108](https://github.com/zarzet/SpotiFLAC-Mobile/issues/108))
 - **Search Results**: Reduced artist limit from 5 to 2 for cleaner results
 
 ### Fixed
 
 - **Opus Cover Art**: Fixed cover art not being embedded in Opus files
-- **Deezer Pagination**: Fixed albums/playlists with >25 tracks only showing first 25
+- **Deezer Pagination**: Fixed albums/playlists with >25 tracks only showing first 25 ([#112](https://github.com/zarzet/SpotiFLAC-Mobile/issues/112))
 
 ---
 
