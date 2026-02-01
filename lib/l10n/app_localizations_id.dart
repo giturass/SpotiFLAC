@@ -2196,7 +2196,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get discographyNoAlbums => 'No albums available';
 
   @override
-  String get discographyFailedToFetch => 'Gagal mengambil beberapa album';
+  String get discographyFailedToFetch => 'Failed to fetch some albums';
 
   @override
   String get sectionStorageAccess => 'Storage Access';

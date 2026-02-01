@@ -27,7 +27,7 @@ const _builtInServices = [
       QualityOption(id: 'LOSSLESS', label: 'FLAC Lossless', description: '16-bit / 44.1kHz'),
       QualityOption(id: 'HI_RES', label: 'Hi-Res FLAC', description: '24-bit / up to 96kHz'),
       QualityOption(id: 'HI_RES_LOSSLESS', label: 'Hi-Res FLAC Max', description: '24-bit / up to 192kHz'),
-      QualityOption(id: 'HIGH', label: 'AAC 320kbps', description: 'Native AAC (no conversion)'),
+      QualityOption(id: 'HIGH', label: 'Lossy 320kbps', description: 'MP3 or Opus (smaller files)'),
     ],
   ),
   BuiltInService(
@@ -49,13 +49,6 @@ const _builtInServices = [
     ],
   ),
 ];
-
-/// Lossy quality option (shown when enabled in settings)
-const _lossyQualityOption = QualityOption(
-  id: 'LOSSY',
-  label: 'Lossy',
-  description: 'MP3 320kbps or Opus 128kbps',
-);
 
 /// A reusable widget for selecting download service (built-in + extensions)
 class DownloadServicePicker extends ConsumerStatefulWidget {
@@ -113,34 +106,21 @@ class _DownloadServicePickerState extends ConsumerState<DownloadServicePicker> {
 
   /// Get quality options for the selected service
   List<QualityOption> _getQualityOptions() {
-    final settings = ref.read(settingsProvider);
     final builtIn = _builtInServices.where((s) => s.id == _selectedService).firstOrNull;
     if (builtIn != null) {
-      // Add Lossy option if enabled in settings
-      if (settings.enableLossyOption) {
-        return [...builtIn.qualityOptions, _lossyQualityOption];
-      }
       return builtIn.qualityOptions;
     }
 
     final extensionState = ref.read(extensionProvider);
     final ext = extensionState.extensions.where((e) => e.id == _selectedService).firstOrNull;
     if (ext != null && ext.qualityOptions.isNotEmpty) {
-      // Add Lossy option for extensions too if enabled
-      if (settings.enableLossyOption) {
-        return [...ext.qualityOptions, _lossyQualityOption];
-      }
       return ext.qualityOptions;
     }
 
     // Default fallback options
-    final defaultOptions = [
+    return [
       const QualityOption(id: 'DEFAULT', label: 'Default Quality', description: 'Best available'),
     ];
-    if (settings.enableLossyOption) {
-      return [...defaultOptions, _lossyQualityOption];
-    }
-    return defaultOptions;
   }
 
   @override
@@ -262,7 +242,6 @@ class _DownloadServicePickerState extends ConsumerState<DownloadServicePicker> {
         return Icons.aod;
       case 'MP3_320':
       case 'MP3':
-      case 'LOSSY':
         return Icons.audiotrack;
       case 'OPUS':
       case 'OPUS_128':

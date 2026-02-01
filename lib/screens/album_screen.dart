@@ -80,7 +80,9 @@ class _AlbumScreenState extends ConsumerState<AlbumScreen> {
     _scrollController.addListener(_onScroll);
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final providerId = widget.albumId.startsWith('deezer:') ? 'deezer' : 'spotify';
+      // Use extensionId if available, otherwise detect from albumId prefix
+      final providerId = widget.extensionId ?? 
+          (widget.albumId.startsWith('deezer:') ? 'deezer' : 'spotify');
       ref.read(recentAccessProvider.notifier).recordAlbumAccess(
         id: widget.albumId,
         name: widget.albumName,

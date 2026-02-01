@@ -174,24 +174,6 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                         .read(settingsProvider.notifier)
                         .setAskQualityBeforeDownload(value),
                   ),
-                  SettingsSwitchItem(
-                    icon: Icons.audiotrack,
-                    title: context.l10n.enableLossyOption,
-                    subtitle: settings.enableLossyOption
-                        ? context.l10n.enableLossyOptionSubtitleOn
-                        : context.l10n.enableLossyOptionSubtitleOff,
-                    value: settings.enableLossyOption,
-                    onChanged: (value) => ref
-                        .read(settingsProvider.notifier)
-                        .setEnableLossyOption(value),
-                  ),
-                  if (settings.enableLossyOption)
-                    SettingsItem(
-                      icon: Icons.tune,
-                      title: context.l10n.lossyFormat,
-                      subtitle: _getLossyBitrateLabel(settings.lossyBitrate),
-                      onTap: () => _showLossyBitratePicker(context, ref, settings.lossyBitrate),
-                    ),
                   if (!settings.askQualityBeforeDownload && isBuiltInService) ...[
                     _QualityOption(
                       title: context.l10n.qualityFlacLossless,
@@ -216,29 +198,25 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                       onTap: () => ref
                           .read(settingsProvider.notifier)
                           .setAudioQuality('HI_RES_LOSSLESS'),
-                      showDivider: isTidalService || settings.enableLossyOption,
+                      showDivider: isTidalService,
                     ),
-                    // Native AAC 320kbps option (Tidal only)
+                    // Lossy 320kbps option (Tidal only) - downloads M4A, converts to MP3/Opus
                     if (isTidalService)
                       _QualityOption(
-                        title: 'AAC 320kbps',
-                        subtitle: 'Native AAC (no conversion)',
+                        title: 'Lossy 320kbps',
+                        subtitle: _getTidalHighFormatLabel(settings.tidalHighFormat),
                         isSelected: settings.audioQuality == 'HIGH',
                         onTap: () => ref
                             .read(settingsProvider.notifier)
                             .setAudioQuality('HIGH'),
-                        showDivider: settings.enableLossyOption,
+                        showDivider: false,
                       ),
-                    if (settings.enableLossyOption)
-                      _QualityOption(
-                        title: context.l10n.qualityLossy,
-                        subtitle: settings.lossyFormat == 'opus' 
-                            ? context.l10n.qualityLossyOpusSubtitle
-                            : context.l10n.qualityLossyMp3Subtitle,
-                        isSelected: settings.audioQuality == 'LOSSY',
-                        onTap: () => ref
-                            .read(settingsProvider.notifier)
-                            .setAudioQuality('LOSSY'),
+                    if (isTidalService && settings.audioQuality == 'HIGH')
+                      SettingsItem(
+                        icon: Icons.tune,
+                        title: 'Lossy Format',
+                        subtitle: _getTidalHighFormatLabel(settings.tidalHighFormat),
+                        onTap: () => _showTidalHighFormatPicker(context, ref, settings.tidalHighFormat),
                         showDivider: false,
                       ),
                   ],
@@ -870,28 +848,18 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
     );
   }
 
-  String _getLossyBitrateLabel(String bitrate) {
-    switch (bitrate) {
+  String _getTidalHighFormatLabel(String format) {
+    switch (format) {
       case 'mp3_320':
-        return 'MP3 320kbps (Best)';
-      case 'mp3_256':
-        return 'MP3 256kbps';
-      case 'mp3_192':
-        return 'MP3 192kbps';
-      case 'mp3_128':
-        return 'MP3 128kbps';
+        return 'MP3 320kbps';
       case 'opus_128':
-        return 'Opus 128kbps (Best)';
-      case 'opus_96':
-        return 'Opus 96kbps';
-      case 'opus_64':
-        return 'Opus 64kbps';
+        return 'Opus 128kbps';
       default:
         return 'MP3 320kbps';
     }
   }
 
-  void _showLossyBitratePicker(
+  void _showTidalHighFormatPicker(
     BuildContext context,
     WidgetRef ref,
     String current,
@@ -900,130 +868,54 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: colorScheme.surfaceContainerHigh,
-      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (context) => SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
-                child: Text(
-                  context.l10n.lossyFormat,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+              child: Text(
+                'Lossy 320kbps Format',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+              child: Text(
+                'Choose the output format for Tidal 320kbps lossy downloads. The original AAC stream will be converted to your selected format.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                child: Text(
-                  context.l10n.lossyFormatDescription,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              // MP3 Section
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
-                child: Text(
-                  'MP3',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.audiotrack),
-                title: const Text('320kbps'),
-                subtitle: const Text('Best quality, larger files'),
-                trailing: current == 'mp3_320' ? Icon(Icons.check, color: colorScheme.primary) : null,
-                onTap: () {
-                  ref.read(settingsProvider.notifier).setLossyBitrate('mp3_320');
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.audiotrack),
-                title: const Text('256kbps'),
-                subtitle: const Text('High quality'),
-                trailing: current == 'mp3_256' ? Icon(Icons.check, color: colorScheme.primary) : null,
-                onTap: () {
-                  ref.read(settingsProvider.notifier).setLossyBitrate('mp3_256');
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.audiotrack),
-                title: const Text('192kbps'),
-                subtitle: const Text('Good quality'),
-                trailing: current == 'mp3_192' ? Icon(Icons.check, color: colorScheme.primary) : null,
-                onTap: () {
-                  ref.read(settingsProvider.notifier).setLossyBitrate('mp3_192');
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.audiotrack),
-                title: const Text('128kbps'),
-                subtitle: const Text('Smaller files'),
-                trailing: current == 'mp3_128' ? Icon(Icons.check, color: colorScheme.primary) : null,
-                onTap: () {
-                  ref.read(settingsProvider.notifier).setLossyBitrate('mp3_128');
-                  Navigator.pop(context);
-                },
-              ),
-              const Divider(indent: 24, endIndent: 24),
-              // Opus Section
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
-                child: Text(
-                  'Opus',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.graphic_eq),
-                title: const Text('128kbps'),
-                subtitle: const Text('Best quality, efficient codec'),
-                trailing: current == 'opus_128' ? Icon(Icons.check, color: colorScheme.primary) : null,
-                onTap: () {
-                  ref.read(settingsProvider.notifier).setLossyBitrate('opus_128');
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.graphic_eq),
-                title: const Text('96kbps'),
-                subtitle: const Text('Good quality'),
-                trailing: current == 'opus_96' ? Icon(Icons.check, color: colorScheme.primary) : null,
-                onTap: () {
-                  ref.read(settingsProvider.notifier).setLossyBitrate('opus_96');
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.graphic_eq),
-                title: const Text('64kbps'),
-                subtitle: const Text('Smallest files'),
-                trailing: current == 'opus_64' ? Icon(Icons.check, color: colorScheme.primary) : null,
-                onTap: () {
-                  ref.read(settingsProvider.notifier).setLossyBitrate('opus_64');
-                  Navigator.pop(context);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.audiotrack),
+              title: const Text('MP3 320kbps'),
+              subtitle: const Text('Best compatibility, ~10MB per track'),
+              trailing: current == 'mp3_320' ? Icon(Icons.check, color: colorScheme.primary) : null,
+              onTap: () {
+                ref.read(settingsProvider.notifier).setTidalHighFormat('mp3_320');
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.graphic_eq),
+              title: const Text('Opus 128kbps'),
+              subtitle: const Text('Modern codec, ~4MB per track'),
+              trailing: current == 'opus_128' ? Icon(Icons.check, color: colorScheme.primary) : null,
+              onTap: () {
+                ref.read(settingsProvider.notifier).setTidalHighFormat('opus_128');
+                Navigator.pop(context);
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
       ),
     );

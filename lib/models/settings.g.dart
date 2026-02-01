@@ -36,10 +36,8 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
       json['albumFolderStructure'] as String? ?? 'artist_album',
   showExtensionStore: json['showExtensionStore'] as bool? ?? true,
   locale: json['locale'] as String? ?? 'system',
-  enableLossyOption: json['enableLossyOption'] as bool? ?? false,
-  lossyFormat: json['lossyFormat'] as String? ?? 'mp3',
-  lossyBitrate: json['lossyBitrate'] as String? ?? 'mp3_320',
   lyricsMode: json['lyricsMode'] as String? ?? 'embed',
+  tidalHighFormat: json['tidalHighFormat'] as String? ?? 'mp3_320',
   useAllFilesAccess: json['useAllFilesAccess'] as bool? ?? false,
 );
 
@@ -72,9 +70,7 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'albumFolderStructure': instance.albumFolderStructure,
       'showExtensionStore': instance.showExtensionStore,
       'locale': instance.locale,
-      'enableLossyOption': instance.enableLossyOption,
-      'lossyFormat': instance.lossyFormat,
-      'lossyBitrate': instance.lossyBitrate,
       'lyricsMode': instance.lyricsMode,
+      'tidalHighFormat': instance.tidalHighFormat,
       'useAllFilesAccess': instance.useAllFilesAccess,
     };

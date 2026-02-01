@@ -48,6 +48,53 @@ class FFmpegService {
     return null;
   }
 
+  /// Convert M4A (AAC) to lossy format (MP3 or Opus)
+  /// format: 'mp3' or 'opus'
+  /// bitrate: e.g., 'mp3_320', 'opus_128' - extracts the kbps value
+  static Future<String?> convertM4aToLossy(
+    String inputPath, {
+    required String format,
+    String? bitrate,
+    bool deleteOriginal = true,
+  }) async {
+    // Extract bitrate value from format like 'mp3_320' -> '320k'
+    String bitrateValue = format == 'opus' ? '128k' : '320k';
+    if (bitrate != null && bitrate.contains('_')) {
+      final parts = bitrate.split('_');
+      if (parts.length == 2) {
+        bitrateValue = '${parts[1]}k';
+      }
+    }
+    
+    final extension = format == 'opus' ? '.opus' : '.mp3';
+    final outputPath = inputPath.replaceAll('.m4a', extension);
+    
+    String command;
+    if (format == 'opus') {
+      // M4A -> Opus conversion
+      command =
+          '-i "$inputPath" -codec:a libopus -b:a $bitrateValue -vbr on -compression_level 10 -map 0:a "$outputPath" -y';
+    } else {
+      // M4A -> MP3 conversion
+      command =
+          '-i "$inputPath" -codec:a libmp3lame -b:a $bitrateValue -map 0:a -id3v2_version 3 "$outputPath" -y';
+    }
+
+    final result = await _execute(command);
+
+    if (result.success) {
+      if (deleteOriginal) {
+        try {
+          await File(inputPath).delete();
+        } catch (_) {}
+      }
+      return outputPath;
+    }
+
+    _log.e('M4A to $format conversion failed: ${result.output}');
+    return null;
+  }
+
   static Future<String?> convertFlacToMp3(
     String inputPath, {
     String bitrate = '320k',

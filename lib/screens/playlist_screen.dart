@@ -64,10 +64,17 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen> {
     });
     
     try {
-      final result = await PlatformBridge.getDeezerMetadata('playlist', widget.playlistId!);
+      // Extract numeric ID from "deezer:123" format
+      String playlistId = widget.playlistId!;
+      if (playlistId.startsWith('deezer:')) {
+        playlistId = playlistId.substring(7);
+      }
+      
+      final result = await PlatformBridge.getDeezerMetadata('playlist', playlistId);
       if (!mounted) return;
       
-      final trackList = result['tracks'] as List<dynamic>? ?? [];
+      // Go backend returns 'track_list' not 'tracks'
+      final trackList = result['track_list'] as List<dynamic>? ?? [];
       final tracks = trackList.map((t) => _parseTrack(t as Map<String, dynamic>)).toList();
       
       setState(() {

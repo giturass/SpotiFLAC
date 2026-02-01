@@ -122,16 +122,16 @@ func NewTidalDownloader() *TidalDownloader {
 // GetAvailableAPIs returns list of available Tidal APIs
 func (t *TidalDownloader) GetAvailableAPIs() []string {
 	encodedAPIs := []string{
+		"dGlkYWwtYXBpLmJpbmltdW0ub3Jn",     // tidal-api.binimum.org (priority)
 		"dGlkYWwua2lub3BsdXMub25saW5l",     // tidal.kinoplus.online
-		"dGlkYWwtYXBpLmJpbmltdW0ub3Jn",     // tidal-api.binimum.org
 		"dHJpdG9uLnNxdWlkLnd0Zg==",         // triton.squid.wtf
-		"aGlmaS1vbmUuc3BvdGlzYXZlci5uZXQ=", // hifi-one.spotisaver.net
-		"aGlmaS10d28uc3BvdGlzYXZlci5uZXQ=", // hifi-two.spotisaver.net
 		"dm9nZWwucXFkbC5zaXRl",             // vogel.qqdl.site
 		"bWF1cy5xcWRsLnNpdGU=",             // maus.qqdl.site
 		"aHVuZC5xcWRsLnNpdGU=",             // hund.qqdl.site
 		"a2F0emUucXFkbC5zaXRl",             // katze.qqdl.site
 		"d29sZi5xcWRsLnNpdGU=",             // wolf.qqdl.site
+		"aGlmaS1vbmUuc3BvdGlzYXZlci5uZXQ=", // hifi-one.spotisaver.net
+		"aGlmaS10d28uc3BvdGlzYXZlci5uZXQ=", // hifi-two.spotisaver.net
 	}
 
 	var apis []string
@@ -1678,29 +1678,18 @@ func downloadFromTidal(req DownloadRequest) (TidalDownloadResult, error) {
 			fmt.Println("[Tidal] No lyrics available from parallel fetch")
 		}
 	} else if strings.HasSuffix(actualOutputPath, ".m4a") {
-		// For HIGH quality (AAC 320kbps), embed metadata directly to M4A
+		// For HIGH quality (AAC 320kbps), skip metadata embedding as it can corrupt the file
+		// The M4A from Tidal server already has basic metadata
 		if quality == "HIGH" {
-			GoLog("[Tidal] Embedding metadata to M4A file for HIGH quality...\n")
-			if err := EmbedM4AMetadata(actualOutputPath, metadata, coverData); err != nil {
-				GoLog("[Tidal] Warning: failed to embed M4A metadata: %v\n", err)
-			} else {
-				GoLog("[Tidal] M4A metadata embedded successfully\n")
-			}
+			GoLog("[Tidal] HIGH quality M4A - skipping metadata embedding (file from server is already valid)\n")
 
-			// Handle lyrics for M4A
+			// Only save external LRC file for lyrics
 			if req.EmbedLyrics && parallelResult != nil && parallelResult.LyricsLRC != "" {
-				lyricsMode := req.LyricsMode
-				if lyricsMode == "" {
-					lyricsMode = "external" // Default to external for M4A since embedding is complex
-				}
-
-				if lyricsMode == "external" || lyricsMode == "both" {
-					GoLog("[Tidal] Saving external LRC file for M4A...\n")
-					if lrcPath, lrcErr := SaveLRCFile(actualOutputPath, parallelResult.LyricsLRC); lrcErr != nil {
-						GoLog("[Tidal] Warning: failed to save LRC file: %v\n", lrcErr)
-					} else {
-						GoLog("[Tidal] LRC file saved: %s\n", lrcPath)
-					}
+				GoLog("[Tidal] Saving external LRC file for M4A...\n")
+				if lrcPath, lrcErr := SaveLRCFile(actualOutputPath, parallelResult.LyricsLRC); lrcErr != nil {
+					GoLog("[Tidal] Warning: failed to save LRC file: %v\n", lrcErr)
+				} else {
+					GoLog("[Tidal] LRC file saved: %s\n", lrcPath)
 				}
 			}
 		} else {

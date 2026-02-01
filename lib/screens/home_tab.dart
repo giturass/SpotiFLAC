@@ -1887,12 +1887,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
   void _navigateToSearchAlbum(SearchAlbum album) {
     ref.read(settingsProvider.notifier).setHasSearchedBefore();
     
-    // Extract the numeric ID from "deezer:123" format
-    String albumId = album.id;
-    if (albumId.startsWith('deezer:')) {
-      albumId = albumId.substring(7);
-    }
-    
     ref.read(recentAccessProvider.notifier).recordAlbumAccess(
       id: album.id,
       name: album.name,
@@ -1901,9 +1895,10 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
       providerId: 'deezer',
     );
     
+    // Keep the full ID with prefix (e.g., "deezer:123") for AlbumScreen to detect source
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => AlbumScreen(
-        albumId: albumId,
+        albumId: album.id,
         albumName: album.name,
         coverUrl: album.imageUrl,
         tracks: const [], // Will be fetched by AlbumScreen
@@ -1914,12 +1909,6 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
   void _navigateToSearchPlaylist(SearchPlaylist playlist) {
     ref.read(settingsProvider.notifier).setHasSearchedBefore();
     
-    // Extract the numeric ID from "deezer:123" format
-    String playlistId = playlist.id;
-    if (playlistId.startsWith('deezer:')) {
-      playlistId = playlistId.substring(7);
-    }
-    
     ref.read(recentAccessProvider.notifier).recordPlaylistAccess(
       id: playlist.id,
       name: playlist.name,
@@ -1928,12 +1917,13 @@ class _HomeTabState extends ConsumerState<HomeTab> with AutomaticKeepAliveClient
       providerId: 'deezer',
     );
     
+    // Keep the full ID with prefix (e.g., "deezer:123") for PlaylistScreen to detect source
     Navigator.push(context, MaterialPageRoute(
       builder: (context) => PlaylistScreen(
         playlistName: playlist.name,
         coverUrl: playlist.imageUrl,
         tracks: const [], // Will be fetched
-        playlistId: playlistId,
+        playlistId: playlist.id,
       ),
     ));
   }

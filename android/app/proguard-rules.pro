@@ -28,6 +28,9 @@
 # FFmpeg Kit
 -keep class com.arthenica.ffmpegkit.** { *; }
 -keep class com.arthenica.smartexception.** { *; }
+# FFmpeg Kit (new fork package)
+-keep class com.antonkarpenko.ffmpegkit.** { *; }
+-keep class com.antonkarpenko.smartexception.** { *; }
 
 # Apache Tika (if used by FFmpeg)
 -dontwarn org.apache.tika.**

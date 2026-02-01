@@ -1804,10 +1804,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       );
 
       final quality = item.qualityOverride ?? state.audioQuality;
-      
-      // For LOSSY, we need to download FLAC first then convert
-      // Servers don't support lossy quality directly
-      final downloadQuality = quality == 'LOSSY' ? 'LOSSLESS' : quality;
 
 // Fetch extended metadata (genre, label) from Deezer if available
       String? genre;
@@ -1858,7 +1854,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       if (useExtensions) {
         _log.d('Using extension providers for download');
         _log.d(
-          'Quality: $quality${item.qualityOverride != null ? ' (override)' : ''}${quality == 'LOSSY' ? ' (downloading as LOSSLESS for conversion)' : ''}',
+          'Quality: $quality${item.qualityOverride != null ? ' (override)' : ''}',
         );
         _log.d('Output dir: $outputDir');
         result = await PlatformBridge.downloadWithExtensions(
@@ -1871,7 +1867,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           coverUrl: trackToDownload.coverUrl,
           outputDir: outputDir,
           filenameFormat: state.filenameFormat,
-          quality: downloadQuality,
+          quality: quality,
           trackNumber: trackToDownload.trackNumber ?? 1,
           discNumber: trackToDownload.discNumber ?? 1,
           releaseDate: trackToDownload.releaseDate,
@@ -1885,7 +1881,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       } else if (state.autoFallback) {
         _log.d('Using auto-fallback mode');
         _log.d(
-          'Quality: $quality${item.qualityOverride != null ? ' (override)' : ''}${quality == 'LOSSY' ? ' (downloading as LOSSLESS for conversion)' : ''}',
+          'Quality: $quality${item.qualityOverride != null ? ' (override)' : ''}',
         );
         _log.d('Output dir: $outputDir');
         result = await PlatformBridge.downloadWithFallback(
@@ -1898,7 +1894,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           coverUrl: trackToDownload.coverUrl,
           outputDir: outputDir,
           filenameFormat: state.filenameFormat,
-          quality: downloadQuality,
+          quality: quality,
           trackNumber: trackToDownload.trackNumber ?? 1,
           discNumber: trackToDownload.discNumber ?? 1,
           releaseDate: trackToDownload.releaseDate,
@@ -1921,7 +1917,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           coverUrl: trackToDownload.coverUrl,
           outputDir: outputDir,
           filenameFormat: state.filenameFormat,
-          quality: downloadQuality,
+          quality: quality,
           trackNumber: trackToDownload.trackNumber ?? 1,
           discNumber: trackToDownload.discNumber ?? 1,
           releaseDate: trackToDownload.releaseDate,
@@ -1980,10 +1976,73 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         }
 
         if (filePath != null && filePath.endsWith('.m4a')) {
-          // For HIGH quality (native AAC 320kbps), skip M4A to FLAC conversion
+          // For HIGH quality (Tidal AAC 320kbps), convert to MP3 or Opus
           if (quality == 'HIGH') {
-            _log.i('Native AAC 320kbps download (HIGH quality), keeping M4A file');
-            actualQuality = 'AAC 320kbps';
+            final tidalHighFormat = settings.tidalHighFormat;
+            _log.i('Tidal HIGH quality download, converting M4A to $tidalHighFormat...');
+            
+            try {
+              updateItemStatus(
+                item.id,
+                DownloadStatus.downloading,
+                progress: 0.95,
+              );
+              
+              // Convert M4A to the selected format
+              final format = tidalHighFormat.startsWith('opus') ? 'opus' : 'mp3';
+              final convertedPath = await FFmpegService.convertM4aToLossy(
+                filePath,
+                format: format,
+                bitrate: tidalHighFormat,
+                deleteOriginal: true,
+              );
+              
+              if (convertedPath != null) {
+                filePath = convertedPath;
+                final bitrateDisplay = tidalHighFormat.contains('_') 
+                    ? '${tidalHighFormat.split('_').last}kbps' 
+                    : '320kbps';
+                actualQuality = '${format.toUpperCase()} $bitrateDisplay';
+                _log.i('Successfully converted M4A to $format: $convertedPath');
+                
+                // Embed metadata
+                _log.i('Embedding metadata to $format...');
+                updateItemStatus(
+                  item.id,
+                  DownloadStatus.downloading,
+                  progress: 0.99,
+                );
+                
+                final backendGenre = result['genre'] as String?;
+                final backendLabel = result['label'] as String?;
+                final backendCopyright = result['copyright'] as String?;
+                
+                if (format == 'mp3') {
+                  await _embedMetadataToMp3(
+                    convertedPath, 
+                    trackToDownload,
+                    genre: backendGenre ?? genre,
+                    label: backendLabel ?? label,
+                    copyright: backendCopyright,
+                  );
+                } else {
+                  await _embedMetadataToOpus(
+                    convertedPath, 
+                    trackToDownload,
+                    genre: backendGenre ?? genre,
+                    label: backendLabel ?? label,
+                    copyright: backendCopyright,
+                  );
+                }
+                _log.d('Metadata embedded successfully');
+              } else {
+                _log.w('M4A to $format conversion failed, keeping M4A file');
+                actualQuality = 'AAC 320kbps';
+              }
+            } catch (e) {
+              _log.w('M4A conversion process failed: $e, keeping M4A file');
+              actualQuality = 'AAC 320kbps';
+            }
           } else {
             _log.d(
               'M4A file detected (Hi-Res DASH stream), attempting conversion to FLAC...',
@@ -2110,74 +2169,6 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
             }
           }
           return;
-        }
-
-        if (quality == 'LOSSY' && filePath != null && filePath.endsWith('.flac')) {
-          if (wasExisting) {
-            _log.i('Lossy requested but existing FLAC found - skipping conversion to preserve original file');
-          } else {
-            final lossyFormat = settings.lossyFormat;
-            final lossyBitrate = settings.lossyBitrate;
-            _log.i('Lossy quality selected, converting FLAC to $lossyFormat ($lossyBitrate)...');
-            updateItemStatus(
-              item.id,
-              DownloadStatus.downloading,
-              progress: 0.97,
-            );
-            
-            try {
-              final convertedPath = await FFmpegService.convertFlacToLossy(
-                filePath,
-                format: lossyFormat,
-                bitrate: lossyBitrate,
-                deleteOriginal: true,
-              );
-              
-              if (convertedPath != null) {
-                filePath = convertedPath;
-                // Extract bitrate for display (e.g., 'mp3_320' -> '320kbps')
-                final bitrateDisplay = lossyBitrate.contains('_') 
-                    ? '${lossyBitrate.split('_').last}kbps' 
-                    : (lossyFormat == 'opus' ? '128kbps' : '320kbps');
-                actualQuality = '${lossyFormat.toUpperCase()} $bitrateDisplay';
-                _log.i('Successfully converted to $lossyFormat ($bitrateDisplay): $convertedPath');
-                
-                // Embed metadata and cover for both MP3 and Opus
-                _log.i('Embedding metadata to $lossyFormat...');
-                updateItemStatus(
-                  item.id,
-                  DownloadStatus.downloading,
-                  progress: 0.99,
-                );
-                
-                final lossyBackendGenre = result['genre'] as String?;
-                final lossyBackendLabel = result['label'] as String?;
-                final lossyBackendCopyright = result['copyright'] as String?;
-                
-                if (lossyFormat == 'mp3') {
-                  await _embedMetadataToMp3(
-                    convertedPath, 
-                    trackToDownload,
-                    genre: lossyBackendGenre ?? genre,
-                    label: lossyBackendLabel ?? label,
-                    copyright: lossyBackendCopyright,
-                  );
-                } else if (lossyFormat == 'opus') {
-                  await _embedMetadataToOpus(
-                    convertedPath, 
-                    trackToDownload,
-                    genre: lossyBackendGenre ?? genre,
-                    label: lossyBackendLabel ?? label,
-                    copyright: lossyBackendCopyright,
-                  );
-                }
-              } else {
-                _log.w('$lossyFormat conversion failed, keeping FLAC file');
-              }
-            } catch (e) {
-              _log.e('Lossy conversion error: $e, keeping FLAC file');
-            }
-          }
         }
 
         updateItemStatus(

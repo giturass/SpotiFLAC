@@ -231,24 +231,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
     _saveSettings();
   }
 
-  void setEnableLossyOption(bool enabled) {
-    state = state.copyWith(enableLossyOption: enabled);
-    // If Lossy is disabled and current quality is LOSSY, reset to LOSSLESS
-    if (!enabled && state.audioQuality == 'LOSSY') {
-      state = state.copyWith(audioQuality: 'LOSSLESS');
-    }
-    _saveSettings();
-  }
-
-  void setLossyFormat(String format) {
-    state = state.copyWith(lossyFormat: format);
-    _saveSettings();
-  }
-
-  void setLossyBitrate(String bitrate) {
-    // Extract format from bitrate (e.g., 'mp3_320' -> 'mp3')
-    final format = bitrate.split('_').first;
-    state = state.copyWith(lossyBitrate: bitrate, lossyFormat: format);
+  void setTidalHighFormat(String format) {
+    state = state.copyWith(tidalHighFormat: format);
     _saveSettings();
   }
 

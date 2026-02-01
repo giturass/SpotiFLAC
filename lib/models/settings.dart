@@ -31,10 +31,8 @@ class AppSettings {
   final String albumFolderStructure;
   final bool showExtensionStore;
   final String locale;
-  final bool enableLossyOption;
-  final String lossyFormat;
-  final String lossyBitrate; // e.g., 'mp3_320', 'mp3_256', 'mp3_192', 'mp3_128', 'opus_128', 'opus_96', 'opus_64'
   final String lyricsMode;
+  final String tidalHighFormat; // Format for Tidal HIGH quality: 'mp3_320' or 'opus_128'
   final bool useAllFilesAccess; // Android 13+ only: enable MANAGE_EXTERNAL_STORAGE
 
   const AppSettings({
@@ -65,10 +63,8 @@ class AppSettings {
     this.albumFolderStructure = 'artist_album',
     this.showExtensionStore = true,
     this.locale = 'system',
-    this.enableLossyOption = false,
-    this.lossyFormat = 'mp3',
-    this.lossyBitrate = 'mp3_320',
     this.lyricsMode = 'embed',
+    this.tidalHighFormat = 'mp3_320',
     this.useAllFilesAccess = false,
   });
 
@@ -101,10 +97,8 @@ class AppSettings {
     String? albumFolderStructure,
     bool? showExtensionStore,
     String? locale,
-    bool? enableLossyOption,
-    String? lossyFormat,
-    String? lossyBitrate,
     String? lyricsMode,
+    String? tidalHighFormat,
     bool? useAllFilesAccess,
   }) {
     return AppSettings(
@@ -135,10 +129,8 @@ class AppSettings {
       albumFolderStructure: albumFolderStructure ?? this.albumFolderStructure,
       showExtensionStore: showExtensionStore ?? this.showExtensionStore,
       locale: locale ?? this.locale,
-      enableLossyOption: enableLossyOption ?? this.enableLossyOption,
-      lossyFormat: lossyFormat ?? this.lossyFormat,
-      lossyBitrate: lossyBitrate ?? this.lossyBitrate,
       lyricsMode: lyricsMode ?? this.lyricsMode,
+      tidalHighFormat: tidalHighFormat ?? this.tidalHighFormat,
       useAllFilesAccess: useAllFilesAccess ?? this.useAllFilesAccess,
     );
   }
