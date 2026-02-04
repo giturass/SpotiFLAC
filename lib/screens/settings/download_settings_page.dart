@@ -1166,7 +1166,8 @@ class _ServiceSelector extends ConsumerWidget {
                 icon: Icons.shopping_bag,
                 label: 'Amazon',
                 isSelected: effectiveService == 'amazon',
-                onTap: () => onChanged('amazon'),
+                isDisabled: true,
+                onTap: () {},
               ),
             ],
           ),
@@ -1203,11 +1204,15 @@ class _ServiceChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final bool isDisabled;
+  final String? disabledReason;
   const _ServiceChip({
     required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.isDisabled = false,
+    this.disabledReason,
   });
 
   @override
@@ -1222,37 +1227,66 @@ class _ServiceChip extends StatelessWidget {
           )
         : colorScheme.surfaceContainerHigh;
 
+    final disabledColor = isDark
+        ? Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.02),
+            colorScheme.surface,
+          )
+        : colorScheme.surfaceContainerLow;
+
     return Expanded(
-      child: Material(
-        color: isSelected ? colorScheme.primaryContainer : unselectedColor,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          onTap: onTap,
+      child: Tooltip(
+        message: isDisabled && disabledReason != null ? disabledReason! : '',
+        child: Material(
+          color: isDisabled
+              ? disabledColor
+              : isSelected
+                  ? colorScheme.primaryContainer
+                  : unselectedColor,
           borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            child: Column(
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected
-                      ? colorScheme.onPrimaryContainer
-                      : colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                    color: isSelected
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSurfaceVariant,
+          child: InkWell(
+            onTap: isDisabled ? null : onTap,
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              child: Column(
+                children: [
+                  Icon(
+                    icon,
+                    color: isDisabled
+                        ? colorScheme.onSurface.withValues(alpha: 0.38)
+                        : isSelected
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurfaceVariant,
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: isSelected && !isDisabled
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                      color: isDisabled
+                          ? colorScheme.onSurface.withValues(alpha: 0.38)
+                          : isSelected
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (isDisabled && disabledReason != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        disabledReason!,
+                        style: TextStyle(
+                          fontSize: 9,
+                          color: colorScheme.onSurface.withValues(alpha: 0.38),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),
