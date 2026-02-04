@@ -12,6 +12,7 @@ import 'package:spotiflac_android/providers/track_provider.dart';
 import 'package:spotiflac_android/providers/settings_provider.dart';
 import 'package:spotiflac_android/providers/download_queue_provider.dart';
 import 'package:spotiflac_android/providers/recent_access_provider.dart';
+import 'package:spotiflac_android/providers/local_library_provider.dart';
 import 'package:spotiflac_android/services/platform_bridge.dart';
 import 'package:spotiflac_android/screens/album_screen.dart';
 import 'package:spotiflac_android/screens/home_tab.dart' show ExtensionAlbumScreen;
@@ -955,6 +956,18 @@ if (hasValidImage)
       return state.isDownloaded(track.id);
     }));
     
+    // Check local library for duplicate detection
+    final settings = ref.watch(settingsProvider);
+    final showLocalLibraryIndicator = settings.localLibraryEnabled && settings.localLibraryShowDuplicates;
+    final isInLocalLibrary = showLocalLibraryIndicator 
+        ? ref.watch(localLibraryProvider.select((state) => 
+            state.existsInLibrary(
+              isrc: track.isrc,
+              trackName: track.name,
+              artistName: track.artistName,
+            )))
+        : false;
+    
     final isQueued = queueItem != null;
     final isDownloading = queueItem?.status == DownloadStatus.downloading;
     final isFinalizing = queueItem?.status == DownloadStatus.finalizing;
@@ -964,7 +977,7 @@ if (hasValidImage)
     final showAsDownloaded = isCompleted || (!isQueued && isInHistory);
     
     return InkWell(
-      onTap: () => _handlePopularTrackTap(track, isQueued: isQueued, isInHistory: isInHistory),
+      onTap: () => _handlePopularTrackTap(track, isQueued: isQueued, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
@@ -1042,6 +1055,7 @@ if (hasValidImage)
               isFinalizing: isFinalizing,
               showAsDownloaded: showAsDownloaded,
               isInHistory: isInHistory,
+              isInLocalLibrary: isInLocalLibrary,
               progress: progress,
             ),
           ],
@@ -1051,8 +1065,18 @@ if (hasValidImage)
   }
 
   /// Handle tap on popular track item
-  void _handlePopularTrackTap(Track track, {required bool isQueued, required bool isInHistory}) async {
+  void _handlePopularTrackTap(Track track, {required bool isQueued, required bool isInHistory, required bool isInLocalLibrary}) async {
     if (isQueued) return;
+    
+    // Check if track already exists in local library
+    if (isInLocalLibrary) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.snackbarAlreadyInLibrary(track.name))),
+        );
+      }
+      return;
+    }
     
     if (isInHistory) {
       final historyItem = ref.read(downloadHistoryProvider.notifier).getBySpotifyId(track.id);
@@ -1082,6 +1106,7 @@ if (hasValidImage)
     required bool isFinalizing,
     required bool showAsDownloaded,
     required bool isInHistory,
+    required bool isInLocalLibrary,
     required double progress,
   }) {
     const double size = 40.0;
@@ -1089,7 +1114,7 @@ if (hasValidImage)
     
     if (showAsDownloaded) {
       return GestureDetector(
-        onTap: () => _handlePopularTrackTap(track, isQueued: isQueued, isInHistory: isInHistory),
+        onTap: () => _handlePopularTrackTap(track, isQueued: isQueued, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary),
         child: Container(
           width: size,
           height: size,

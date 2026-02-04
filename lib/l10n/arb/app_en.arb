@@ -672,6 +672,13 @@
       "trackName": {"type": "String"}
     }
   },
+  "snackbarAlreadyInLibrary": "\"{trackName}\" already exists in your library",
+  "@snackbarAlreadyInLibrary": {
+    "description": "Snackbar - track already exists in local library",
+    "placeholders": {
+      "trackName": {"type": "String"}
+    }
+  },
   "snackbarHistoryCleared": "History cleared",
   "@snackbarHistoryCleared": {"description": "Snackbar - history deleted"},
   "snackbarCredentialsSaved": "Credentials saved",

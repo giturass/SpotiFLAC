@@ -10,6 +10,7 @@ import 'package:spotiflac_android/models/download_item.dart';
 import 'package:spotiflac_android/providers/download_queue_provider.dart';
 import 'package:spotiflac_android/providers/settings_provider.dart';
 import 'package:spotiflac_android/providers/recent_access_provider.dart';
+import 'package:spotiflac_android/providers/local_library_provider.dart';
 import 'package:spotiflac_android/services/platform_bridge.dart';
 import 'package:spotiflac_android/widgets/download_service_picker.dart';
 import 'package:spotiflac_android/screens/artist_screen.dart';
@@ -620,6 +621,18 @@ class _AlbumTrackItem extends ConsumerWidget {
       return state.isDownloaded(track.id);
     }));
     
+    // Check local library for duplicate detection
+    final settings = ref.watch(settingsProvider);
+    final showLocalLibraryIndicator = settings.localLibraryEnabled && settings.localLibraryShowDuplicates;
+    final isInLocalLibrary = showLocalLibraryIndicator 
+        ? ref.watch(localLibraryProvider.select((state) => 
+            state.existsInLibrary(
+              isrc: track.isrc,
+              trackName: track.name,
+              artistName: track.artistName,
+            )))
+        : false;
+    
     final isQueued = queueItem != null;
     final isDownloading = queueItem?.status == DownloadStatus.downloading;
     final isFinalizing = queueItem?.status == DownloadStatus.finalizing;
@@ -649,16 +662,46 @@ child: ListTile(
             ),
           ),
           title: Text(track.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
-          subtitle: Text(track.artistName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: colorScheme.onSurfaceVariant)),
-          trailing: _buildDownloadButton(context, ref, colorScheme, isQueued: isQueued, isDownloading: isDownloading, isFinalizing: isFinalizing, showAsDownloaded: showAsDownloaded, isInHistory: isInHistory, progress: progress),
-          onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory),
+          subtitle: Row(
+            children: [
+              Flexible(child: Text(track.artistName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: colorScheme.onSurfaceVariant))),
+              if (isInLocalLibrary) ...[
+                const SizedBox(width: 6),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: colorScheme.tertiaryContainer,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.folder_outlined, size: 10, color: colorScheme.onTertiaryContainer),
+                      const SizedBox(width: 3),
+                      Text(context.l10n.libraryInLibrary, style: TextStyle(fontSize: 9, fontWeight: FontWeight.w500, color: colorScheme.onTertiaryContainer)),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+          trailing: _buildDownloadButton(context, ref, colorScheme, isQueued: isQueued, isDownloading: isDownloading, isFinalizing: isFinalizing, showAsDownloaded: showAsDownloaded, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary, progress: progress),
+          onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary),
         ),
       ),
     );
   }
 
-  void _handleTap(BuildContext context, WidgetRef ref, {required bool isQueued, required bool isInHistory}) async {
+  void _handleTap(BuildContext context, WidgetRef ref, {required bool isQueued, required bool isInHistory, required bool isInLocalLibrary}) async {
     if (isQueued) return;
+    
+    // Check if track already exists in local library
+    if (isInLocalLibrary) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.snackbarAlreadyInLibrary(track.name))));
+      }
+      return;
+    }
     
     if (isInHistory) {
       final historyItem = ref.read(downloadHistoryProvider.notifier).getBySpotifyId(track.id);
@@ -684,6 +727,7 @@ child: ListTile(
     required bool isFinalizing,
     required bool showAsDownloaded,
     required bool isInHistory,
+    required bool isInLocalLibrary,
     required double progress,
   }) {
     const double size = 44.0;
@@ -691,7 +735,7 @@ child: ListTile(
     
     if (showAsDownloaded) {
       return GestureDetector(
-        onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory),
+        onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary),
         child: Container(width: size, height: size, decoration: BoxDecoration(color: colorScheme.primaryContainer, shape: BoxShape.circle), child: Icon(Icons.check, color: colorScheme.onPrimaryContainer, size: iconSize)),
       );
     } else if (isFinalizing) {

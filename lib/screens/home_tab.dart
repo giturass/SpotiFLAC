@@ -2465,7 +2465,7 @@ class _TrackItemWithStatus extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         InkWell(
-          onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory),
+          onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary),
           splashColor: colorScheme.primary.withValues(alpha: 0.12),
           highlightColor: colorScheme.primary.withValues(alpha: 0.08),
           child: Padding(
@@ -2547,7 +2547,7 @@ class _TrackItemWithStatus extends ConsumerWidget {
                     ],
                   ),
                 ),
-                _buildDownloadButton(context, ref, colorScheme, isQueued: isQueued, isDownloading: isDownloading, isFinalizing: isFinalizing, showAsDownloaded: showAsDownloaded, isInHistory: isInHistory, progress: progress),
+                _buildDownloadButton(context, ref, colorScheme, isQueued: isQueued, isDownloading: isDownloading, isFinalizing: isFinalizing, showAsDownloaded: showAsDownloaded, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary, progress: progress),
               ],
             ),
           ),
@@ -2564,8 +2564,18 @@ class _TrackItemWithStatus extends ConsumerWidget {
     );
   }
 
-  void _handleTap(BuildContext context, WidgetRef ref, {required bool isQueued, required bool isInHistory}) async {
+  void _handleTap(BuildContext context, WidgetRef ref, {required bool isQueued, required bool isInHistory, required bool isInLocalLibrary}) async {
     if (isQueued) return;
+    
+    // Check if track already exists in local library
+    if (isInLocalLibrary) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(context.l10n.snackbarAlreadyInLibrary(track.name))),
+        );
+      }
+      return;
+    }
     
     if (isInHistory) {
       final historyItem = ref.read(downloadHistoryProvider.notifier).getBySpotifyId(track.id);
@@ -2593,6 +2603,7 @@ class _TrackItemWithStatus extends ConsumerWidget {
     required bool isFinalizing,
     required bool showAsDownloaded,
     required bool isInHistory,
+    required bool isInLocalLibrary,
     required double progress,
   }) {
     const double size = 44.0;
@@ -2600,7 +2611,7 @@ class _TrackItemWithStatus extends ConsumerWidget {
     
     if (showAsDownloaded) {
       return GestureDetector(
-        onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory),
+        onTap: () => _handleTap(context, ref, isQueued: isQueued, isInHistory: isInHistory, isInLocalLibrary: isInLocalLibrary),
         child: Container(
           width: size,
           height: size,
