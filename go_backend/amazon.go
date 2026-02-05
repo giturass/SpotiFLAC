@@ -17,6 +17,13 @@ import (
 	"time"
 )
 
+// Amazon API timeout and retry configuration for mobile networks
+const (
+	amazonAPITimeoutMobile = 30 * time.Second // Longer timeout for unstable mobile networks
+	amazonMaxRetries       = 2                // Number of retry attempts
+	amazonRetryDelay       = 500 * time.Millisecond
+)
+
 type AmazonDownloader struct {
 	client *http.Client
 }
@@ -36,15 +43,6 @@ type AfkarXYZResponse struct {
 	} `json:"data"`
 }
 
-func amazonIsASCIIString(s string) bool {
-	for _, r := range s {
-		if r > 127 {
-			return false
-		}
-	}
-	return true
-}
-
 func NewAmazonDownloader() *AmazonDownloader {
 	amazonDownloaderOnce.Do(func() {
 		globalAmazonDownloader = &AmazonDownloader{
@@ -54,12 +52,50 @@ func NewAmazonDownloader() *AmazonDownloader {
 	return globalAmazonDownloader
 }
 
-func (a *AmazonDownloader) downloadFromAfkarXYZ(amazonURL string) (string, string, error) {
+// fetchAmazonURLWithRetry fetches from AfkarXYZ API with retry logic for mobile networks
+func (a *AmazonDownloader) fetchAmazonURLWithRetry(amazonURL string) (string, string, error) {
 	apiURL := "https://amazon.afkarxyz.fun/convert?url=" + url.QueryEscape(amazonURL)
 
-	GoLog("[Amazon] Fetching from AfkarXYZ API...\n")
+	var lastErr error
+	for attempt := 0; attempt <= amazonMaxRetries; attempt++ {
+		if attempt > 0 {
+			delay := amazonRetryDelay * time.Duration(1<<(attempt-1)) // Exponential backoff
+			GoLog("[Amazon] Retry %d/%d after %v...\n", attempt, amazonMaxRetries, delay)
+			time.Sleep(delay)
+		}
 
-	req, err := http.NewRequest("GET", apiURL, nil)
+		downloadURL, fileName, err := a.doAfkarXYZRequest(apiURL)
+		if err == nil {
+			return downloadURL, fileName, nil
+		}
+
+		lastErr = err
+		errStr := err.Error()
+
+		// Check if error is retryable
+		isRetryable := strings.Contains(errStr, "timeout") ||
+			strings.Contains(errStr, "connection reset") ||
+			strings.Contains(errStr, "connection refused") ||
+			strings.Contains(errStr, "EOF") ||
+			strings.Contains(errStr, "status 5") ||
+			strings.Contains(errStr, "status 429")
+
+		if !isRetryable {
+			return "", "", err
+		}
+
+		GoLog("[Amazon] Attempt %d failed (retryable): %v\n", attempt+1, err)
+	}
+
+	return "", "", fmt.Errorf("all %d attempts failed: %w", amazonMaxRetries+1, lastErr)
+}
+
+// doAfkarXYZRequest performs a single request to AfkarXYZ API
+func (a *AmazonDownloader) doAfkarXYZRequest(apiURL string) (string, string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), amazonAPITimeoutMobile)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to create request: %w", err)
 	}
@@ -98,9 +134,19 @@ func (a *AmazonDownloader) downloadFromAfkarXYZ(amazonURL string) (string, strin
 	reg := regexp.MustCompile(`[<>:"/\\|?*]`)
 	fileName = reg.ReplaceAllString(fileName, "")
 
-	GoLog("[Amazon] AfkarXYZ returned: %s (%.2f MB)\n", fileName, float64(apiResp.Data.FileSize)/(1024*1024))
-
 	return apiResp.Data.DirectLink, fileName, nil
+}
+
+func (a *AmazonDownloader) downloadFromAfkarXYZ(amazonURL string) (string, string, error) {
+	GoLog("[Amazon] Fetching from AfkarXYZ API...\n")
+
+	downloadURL, fileName, err := a.fetchAmazonURLWithRetry(amazonURL)
+	if err != nil {
+		return "", "", err
+	}
+
+	GoLog("[Amazon] AfkarXYZ returned: %s\n", fileName)
+	return downloadURL, fileName, nil
 }
 
 func (a *AmazonDownloader) DownloadFile(downloadURL, outputPath, itemID string) error {
@@ -206,25 +252,40 @@ func downloadFromAmazon(req DownloadRequest) (AmazonDownloadResult, error) {
 		return AmazonDownloadResult{FilePath: "EXISTS:" + existingFile}, nil
 	}
 
+	amazonURL := ""
+	if req.ISRC != "" {
+		if cached := GetTrackIDCache().Get(req.ISRC); cached != nil && cached.AmazonURL != "" {
+			amazonURL = cached.AmazonURL
+			GoLog("[Amazon] Cache hit! Using cached Amazon URL for ISRC %s\n", req.ISRC)
+		}
+	}
+
 	songlink := NewSongLinkClient()
 	var availability *TrackAvailability
 	var err error
 
-	if deezerID, found := strings.CutPrefix(req.SpotifyID, "deezer:"); found {
-		GoLog("[Amazon] Using Deezer ID for SongLink lookup: %s\n", deezerID)
-		availability, err = songlink.CheckAvailabilityFromDeezer(deezerID)
-	} else if req.SpotifyID != "" {
-		availability, err = songlink.CheckTrackAvailability(req.SpotifyID, req.ISRC)
-	} else {
-		return AmazonDownloadResult{}, fmt.Errorf("no valid Spotify or Deezer ID provided for Amazon lookup")
-	}
+	if amazonURL == "" {
+		if deezerID, found := strings.CutPrefix(req.SpotifyID, "deezer:"); found {
+			GoLog("[Amazon] Using Deezer ID for SongLink lookup: %s\n", deezerID)
+			availability, err = songlink.CheckAvailabilityFromDeezer(deezerID)
+		} else if req.SpotifyID != "" {
+			availability, err = songlink.CheckTrackAvailability(req.SpotifyID, req.ISRC)
+		} else {
+			return AmazonDownloadResult{}, fmt.Errorf("no valid Spotify or Deezer ID provided for Amazon lookup")
+		}
 
-	if err != nil {
-		return AmazonDownloadResult{}, fmt.Errorf("failed to check Amazon availability via SongLink: %w", err)
-	}
+		if err != nil {
+			return AmazonDownloadResult{}, fmt.Errorf("failed to check Amazon availability via SongLink: %w", err)
+		}
 
-	if !availability.Amazon || availability.AmazonURL == "" {
-		return AmazonDownloadResult{}, fmt.Errorf("track not available on Amazon Music (SongLink returned no Amazon URL)")
+		if !availability.Amazon || availability.AmazonURL == "" {
+			return AmazonDownloadResult{}, fmt.Errorf("track not available on Amazon Music (SongLink returned no Amazon URL)")
+		}
+
+		amazonURL = availability.AmazonURL
+		if req.ISRC != "" {
+			GetTrackIDCache().SetAmazonURL(req.ISRC, amazonURL)
+		}
 	}
 
 	if req.OutputDir != "." {
@@ -234,7 +295,7 @@ func downloadFromAmazon(req DownloadRequest) (AmazonDownloadResult, error) {
 	}
 
 	// Download using AfkarXYZ API
-	downloadURL, _, err := downloader.downloadFromAfkarXYZ(availability.AmazonURL)
+	downloadURL, _, err := downloader.downloadFromAfkarXYZ(amazonURL)
 	if err != nil {
 		return AmazonDownloadResult{}, fmt.Errorf("failed to get download URL from AfkarXYZ: %w", err)
 	}

@@ -582,12 +582,123 @@ type tidalAPIResult struct {
 	duration time.Duration
 }
 
+// Tidal API timeout configuration
+// Mobile networks are more unstable, so we use longer timeouts
+const (
+	tidalAPITimeoutMobile = 25 * time.Second
+	tidalMaxRetries       = 2 // Number of retries per API
+	tidalRetryDelay       = 500 * time.Millisecond
+)
+
+// fetchTidalURLWithRetry fetches download URL from a single Tidal API with retry logic
+func fetchTidalURLWithRetry(api string, trackID int64, quality string, timeout time.Duration) (TidalDownloadInfo, error) {
+	var lastErr error
+	retryDelay := tidalRetryDelay
+
+	for attempt := 0; attempt <= tidalMaxRetries; attempt++ {
+		if attempt > 0 {
+			GoLog("[Tidal] Retry %d/%d for %s after %v\n", attempt, tidalMaxRetries, api, retryDelay)
+			time.Sleep(retryDelay)
+			retryDelay *= 2 // Exponential backoff
+		}
+
+		client := NewHTTPClientWithTimeout(timeout)
+		reqURL := fmt.Sprintf("%s/track/?id=%d&quality=%s", api, trackID, quality)
+
+		req, err := http.NewRequest("GET", reqURL, nil)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			lastErr = err
+			// Check for retryable errors (timeout, connection reset)
+			errStr := strings.ToLower(err.Error())
+			if strings.Contains(errStr, "timeout") ||
+				strings.Contains(errStr, "reset") ||
+				strings.Contains(errStr, "connection refused") ||
+				strings.Contains(errStr, "eof") {
+				continue // Retry
+			}
+			break // Non-retryable error
+		}
+		// Server errors are retryable
+		if resp.StatusCode >= 500 {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+			lastErr = fmt.Errorf("HTTP %d", resp.StatusCode)
+			continue
+		}
+
+		// 429 rate limit - wait and retry
+		if resp.StatusCode == 429 {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+			lastErr = fmt.Errorf("rate limited")
+			retryDelay = 2 * time.Second // Wait longer for rate limit
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+			return TidalDownloadInfo{}, fmt.Errorf("HTTP %d", resp.StatusCode)
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		// Try V2 response format (with manifest)
+		var v2Response TidalAPIResponseV2
+		if err := json.Unmarshal(body, &v2Response); err == nil && v2Response.Data.Manifest != "" {
+			if v2Response.Data.AssetPresentation == "PREVIEW" {
+				return TidalDownloadInfo{}, fmt.Errorf("returned PREVIEW instead of FULL")
+			}
+
+			return TidalDownloadInfo{
+				URL:        "MANIFEST:" + v2Response.Data.Manifest,
+				BitDepth:   v2Response.Data.BitDepth,
+				SampleRate: v2Response.Data.SampleRate,
+			}, nil
+		}
+
+		// Try V1 response format
+		var v1Responses []struct {
+			OriginalTrackURL string `json:"OriginalTrackUrl"`
+		}
+		if err := json.Unmarshal(body, &v1Responses); err == nil {
+			for _, item := range v1Responses {
+				if item.OriginalTrackURL != "" {
+					return TidalDownloadInfo{
+						URL:        item.OriginalTrackURL,
+						BitDepth:   16,
+						SampleRate: 44100,
+					}, nil
+				}
+			}
+		}
+
+		return TidalDownloadInfo{}, fmt.Errorf("no download URL or manifest in response")
+	}
+
+	if lastErr != nil {
+		return TidalDownloadInfo{}, lastErr
+	}
+	return TidalDownloadInfo{}, fmt.Errorf("all retries failed")
+}
+
 func getDownloadURLParallel(apis []string, trackID int64, quality string) (string, TidalDownloadInfo, error) {
 	if len(apis) == 0 {
 		return "", TidalDownloadInfo{}, fmt.Errorf("no APIs available")
 	}
 
-	GoLog("[Tidal] Requesting download URL from %d APIs in parallel...\n", len(apis))
+	GoLog("[Tidal] Requesting download URL from %d APIs in parallel (with retry)...\n", len(apis))
 
 	resultChan := make(chan tidalAPIResult, len(apis))
 	startTime := time.Now()
@@ -595,69 +706,13 @@ func getDownloadURLParallel(apis []string, trackID int64, quality string) (strin
 	for _, apiURL := range apis {
 		go func(api string) {
 			reqStart := time.Now()
-
-			client := NewHTTPClientWithTimeout(15 * time.Second)
-
-			reqURL := fmt.Sprintf("%s/track/?id=%d&quality=%s", api, trackID, quality)
-
-			req, err := http.NewRequest("GET", reqURL, nil)
-			if err != nil {
-				resultChan <- tidalAPIResult{apiURL: api, err: err, duration: time.Since(reqStart)}
-				return
+			info, err := fetchTidalURLWithRetry(api, trackID, quality, tidalAPITimeoutMobile)
+			resultChan <- tidalAPIResult{
+				apiURL:   api,
+				info:     info,
+				err:      err,
+				duration: time.Since(reqStart),
 			}
-
-			resp, err := client.Do(req)
-			if err != nil {
-				resultChan <- tidalAPIResult{apiURL: api, err: err, duration: time.Since(reqStart)}
-				return
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != 200 {
-				resultChan <- tidalAPIResult{apiURL: api, err: fmt.Errorf("HTTP %d", resp.StatusCode), duration: time.Since(reqStart)}
-				return
-			}
-
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				resultChan <- tidalAPIResult{apiURL: api, err: err, duration: time.Since(reqStart)}
-				return
-			}
-
-			var v2Response TidalAPIResponseV2
-			if err := json.Unmarshal(body, &v2Response); err == nil && v2Response.Data.Manifest != "" {
-				if v2Response.Data.AssetPresentation == "PREVIEW" {
-					resultChan <- tidalAPIResult{apiURL: api, err: fmt.Errorf("returned PREVIEW instead of FULL"), duration: time.Since(reqStart)}
-					return
-				}
-
-				info := TidalDownloadInfo{
-					URL:        "MANIFEST:" + v2Response.Data.Manifest,
-					BitDepth:   v2Response.Data.BitDepth,
-					SampleRate: v2Response.Data.SampleRate,
-				}
-				resultChan <- tidalAPIResult{apiURL: api, info: info, err: nil, duration: time.Since(reqStart)}
-				return
-			}
-
-			var v1Responses []struct {
-				OriginalTrackURL string `json:"OriginalTrackUrl"`
-			}
-			if err := json.Unmarshal(body, &v1Responses); err == nil {
-				for _, item := range v1Responses {
-					if item.OriginalTrackURL != "" {
-						info := TidalDownloadInfo{
-							URL:        item.OriginalTrackURL,
-							BitDepth:   16,
-							SampleRate: 44100,
-						}
-						resultChan <- tidalAPIResult{apiURL: api, info: info, err: nil, duration: time.Since(reqStart)}
-						return
-					}
-				}
-			}
-
-			resultChan <- tidalAPIResult{apiURL: api, err: fmt.Errorf("no download URL or manifest in response"), duration: time.Since(reqStart)}
 		}(apiURL)
 	}
 
@@ -782,6 +837,10 @@ func parseManifest(manifestB64 string) (directURL string, initURL string, mediaU
 			segmentCount += repeat + 1
 		}
 		GoLog("[Tidal] Total segments from regex: %d\n", segmentCount)
+	}
+
+	if segmentCount == 0 {
+		return "", "", nil, fmt.Errorf("no segments found in manifest")
 	}
 
 	for i := 1; i <= segmentCount; i++ {
@@ -1404,49 +1463,83 @@ func downloadFromTidal(req DownloadRequest) (TidalDownloadResult, error) {
 
 	if track == nil && req.SpotifyID != "" {
 		GoLog("[Tidal] ISRC search failed, trying SongLink...\n")
-		var tidalURL string
-		var slErr error
+
+		var trackID int64
+		var gotTidalID bool
 
 		if strings.HasPrefix(req.SpotifyID, "deezer:") {
 			deezerID := strings.TrimPrefix(req.SpotifyID, "deezer:")
 			GoLog("[Tidal] Using Deezer ID for SongLink lookup: %s\n", deezerID)
 			songlink := NewSongLinkClient()
-			tidalURL, slErr = songlink.GetTidalURLFromDeezer(deezerID)
+			availability, slErr := songlink.CheckAvailabilityFromDeezer(deezerID)
+			if slErr == nil && availability != nil && availability.TidalID != "" {
+				if _, parseErr := fmt.Sscanf(availability.TidalID, "%d", &trackID); parseErr == nil && trackID > 0 {
+					GoLog("[Tidal] Got Tidal ID %d directly from SongLink\n", trackID)
+					gotTidalID = true
+				}
+			}
+			// Fallback to URL parsing if TidalID not in struct
+			if !gotTidalID && availability != nil && availability.TidalURL != "" {
+				var idErr error
+				trackID, idErr = downloader.GetTrackIDFromURL(availability.TidalURL)
+				if idErr == nil && trackID > 0 {
+					GoLog("[Tidal] Got Tidal ID %d from URL parsing\n", trackID)
+					gotTidalID = true
+				}
+			}
 		} else {
-			tidalURL, slErr = downloader.GetTidalURLFromSpotify(req.SpotifyID)
+			songlink := NewSongLinkClient()
+			availability, slErr := songlink.CheckTrackAvailability(req.SpotifyID, req.ISRC)
+			if slErr == nil && availability != nil && availability.TidalID != "" {
+				if _, parseErr := fmt.Sscanf(availability.TidalID, "%d", &trackID); parseErr == nil && trackID > 0 {
+					GoLog("[Tidal] Got Tidal ID %d directly from SongLink\n", trackID)
+					gotTidalID = true
+				}
+			}
+			// Fallback to URL parsing if TidalID not in struct
+			if !gotTidalID && availability != nil && availability.TidalURL != "" {
+				var idErr error
+				trackID, idErr = downloader.GetTrackIDFromURL(availability.TidalURL)
+				if idErr == nil && trackID > 0 {
+					GoLog("[Tidal] Got Tidal ID %d from URL parsing\n", trackID)
+					gotTidalID = true
+				}
+			}
 		}
 
-		if slErr == nil && tidalURL != "" {
-			trackID, idErr := downloader.GetTrackIDFromURL(tidalURL)
-			if idErr == nil {
-				track, err = downloader.GetTrackInfoByID(trackID)
-				if track != nil {
-					tidalArtist := track.Artist.Name
-					if len(track.Artists) > 0 {
-						var artistNames []string
-						for _, a := range track.Artists {
-							artistNames = append(artistNames, a.Name)
-						}
-						tidalArtist = strings.Join(artistNames, ", ")
+		if gotTidalID && trackID > 0 {
+			track, err = downloader.GetTrackInfoByID(trackID)
+			if track != nil {
+				tidalArtist := track.Artist.Name
+				if len(track.Artists) > 0 {
+					var artistNames []string
+					for _, a := range track.Artists {
+						artistNames = append(artistNames, a.Name)
 					}
+					tidalArtist = strings.Join(artistNames, ", ")
+				}
 
-					if !artistsMatch(req.ArtistName, tidalArtist) {
-						GoLog("[Tidal] Artist mismatch from SongLink: expected '%s', got '%s'. Rejecting.\n",
-							req.ArtistName, tidalArtist)
-						track = nil
-					}
+				if !artistsMatch(req.ArtistName, tidalArtist) {
+					GoLog("[Tidal] Artist mismatch from SongLink: expected '%s', got '%s'. Rejecting.\n",
+						req.ArtistName, tidalArtist)
+					track = nil
+				}
 
-					if track != nil && expectedDurationSec > 0 {
-						durationDiff := track.Duration - expectedDurationSec
-						if durationDiff < 0 {
-							durationDiff = -durationDiff
-						}
-						if durationDiff > 3 {
-							GoLog("[Tidal] Duration mismatch from SongLink: expected %ds, got %ds. Rejecting.\n",
-								expectedDurationSec, track.Duration)
-							track = nil // Reject this match
-						}
+				if track != nil && expectedDurationSec > 0 {
+					durationDiff := track.Duration - expectedDurationSec
+					if durationDiff < 0 {
+						durationDiff = -durationDiff
 					}
+					if durationDiff > 3 {
+						GoLog("[Tidal] Duration mismatch from SongLink: expected %ds, got %ds. Rejecting.\n",
+							expectedDurationSec, track.Duration)
+						track = nil // Reject this match
+					}
+				}
+
+				// Cache for future use
+				if track != nil && req.ISRC != "" {
+					GetTrackIDCache().SetTidal(req.ISRC, track.ID)
 				}
 			}
 		}

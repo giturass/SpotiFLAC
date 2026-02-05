@@ -725,75 +725,141 @@ type qobuzAPIResult struct {
 	duration    time.Duration
 }
 
+// Qobuz API timeout configuration
+// Mobile networks are more unstable, so we use longer timeouts
+const (
+	qobuzAPITimeoutDesktop = 15 * time.Second
+	qobuzAPITimeoutMobile  = 25 * time.Second
+	qobuzMaxRetries        = 2 // Number of retries per API
+	qobuzRetryDelay        = 500 * time.Millisecond
+)
+
+// getQobuzAPITimeout returns appropriate timeout based on platform
+// For mobile (gomobile builds), we use longer timeouts
+func getQobuzAPITimeout() time.Duration {
+	// Since this runs in gomobile context, we always use mobile timeout
+	// The Go backend is only used on mobile (Android/iOS)
+	return qobuzAPITimeoutMobile
+}
+
+// fetchQobuzURLWithRetry fetches download URL from a single Qobuz API with retry logic
+func fetchQobuzURLWithRetry(api string, trackID int64, quality string, timeout time.Duration) (string, error) {
+	var lastErr error
+	retryDelay := qobuzRetryDelay
+
+	for attempt := 0; attempt <= qobuzMaxRetries; attempt++ {
+		if attempt > 0 {
+			GoLog("[Qobuz] Retry %d/%d for %s after %v\n", attempt, qobuzMaxRetries, api, retryDelay)
+			time.Sleep(retryDelay)
+			retryDelay *= 2 // Exponential backoff
+		}
+
+		client := NewHTTPClientWithTimeout(timeout)
+		reqURL := fmt.Sprintf("%s%d&quality=%s", api, trackID, quality)
+
+		req, err := http.NewRequest("GET", reqURL, nil)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			lastErr = err
+			// Check for retryable errors (timeout, connection reset)
+			errStr := strings.ToLower(err.Error())
+			if strings.Contains(errStr, "timeout") ||
+				strings.Contains(errStr, "reset") ||
+				strings.Contains(errStr, "connection refused") ||
+				strings.Contains(errStr, "eof") {
+				continue // Retry
+			}
+			break // Non-retryable error
+		}
+		// Server errors are retryable
+		if resp.StatusCode >= 500 {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+			lastErr = fmt.Errorf("HTTP %d", resp.StatusCode)
+			continue
+		}
+
+		// 429 rate limit - wait and retry
+		if resp.StatusCode == 429 {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+			lastErr = fmt.Errorf("rate limited")
+			retryDelay = 2 * time.Second // Wait longer for rate limit
+			continue
+		}
+
+		if resp.StatusCode != 200 {
+			io.Copy(io.Discard, resp.Body)
+			resp.Body.Close()
+			return "", fmt.Errorf("HTTP %d", resp.StatusCode)
+		}
+
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			lastErr = err
+			continue
+		}
+
+		if len(body) > 0 && body[0] == '<' {
+			return "", fmt.Errorf("received HTML instead of JSON")
+		}
+
+		var errorResp struct {
+			Error string `json:"error"`
+		}
+		if json.Unmarshal(body, &errorResp) == nil && errorResp.Error != "" {
+			// API-level errors are usually not retryable (track not found, etc.)
+			return "", fmt.Errorf("%s", errorResp.Error)
+		}
+
+		var result struct {
+			URL string `json:"url"`
+		}
+		if err := json.Unmarshal(body, &result); err != nil {
+			lastErr = fmt.Errorf("invalid JSON: %v", err)
+			continue
+		}
+
+		if result.URL != "" {
+			return result.URL, nil
+		}
+
+		return "", fmt.Errorf("no download URL in response")
+	}
+
+	if lastErr != nil {
+		return "", lastErr
+	}
+	return "", fmt.Errorf("all retries failed")
+}
+
 func getQobuzDownloadURLParallel(apis []string, trackID int64, quality string) (string, string, error) {
 	if len(apis) == 0 {
 		return "", "", fmt.Errorf("no APIs available")
 	}
 
-	GoLog("[Qobuz] Requesting download URL from %d APIs in parallel...\n", len(apis))
+	GoLog("[Qobuz] Requesting download URL from %d APIs in parallel (with retry)...\n", len(apis))
 
 	resultChan := make(chan qobuzAPIResult, len(apis))
 	startTime := time.Now()
+	timeout := getQobuzAPITimeout()
 
 	for _, apiURL := range apis {
 		go func(api string) {
 			reqStart := time.Now()
-
-			client := NewHTTPClientWithTimeout(15 * time.Second)
-
-			reqURL := fmt.Sprintf("%s%d&quality=%s", api, trackID, quality)
-
-			req, err := http.NewRequest("GET", reqURL, nil)
-			if err != nil {
-				resultChan <- qobuzAPIResult{apiURL: api, err: err, duration: time.Since(reqStart)}
-				return
+			downloadURL, err := fetchQobuzURLWithRetry(api, trackID, quality, timeout)
+			resultChan <- qobuzAPIResult{
+				apiURL:      api,
+				downloadURL: downloadURL,
+				err:         err,
+				duration:    time.Since(reqStart),
 			}
-
-			resp, err := client.Do(req)
-			if err != nil {
-				resultChan <- qobuzAPIResult{apiURL: api, err: err, duration: time.Since(reqStart)}
-				return
-			}
-			defer resp.Body.Close()
-
-			if resp.StatusCode != 200 {
-				resultChan <- qobuzAPIResult{apiURL: api, err: fmt.Errorf("HTTP %d", resp.StatusCode), duration: time.Since(reqStart)}
-				return
-			}
-
-			body, err := io.ReadAll(resp.Body)
-			if err != nil {
-				resultChan <- qobuzAPIResult{apiURL: api, err: err, duration: time.Since(reqStart)}
-				return
-			}
-
-			if len(body) > 0 && body[0] == '<' {
-				resultChan <- qobuzAPIResult{apiURL: api, err: fmt.Errorf("received HTML instead of JSON"), duration: time.Since(reqStart)}
-				return
-			}
-
-			var errorResp struct {
-				Error string `json:"error"`
-			}
-			if json.Unmarshal(body, &errorResp) == nil && errorResp.Error != "" {
-				resultChan <- qobuzAPIResult{apiURL: api, err: fmt.Errorf("%s", errorResp.Error), duration: time.Since(reqStart)}
-				return
-			}
-
-			var result struct {
-				URL string `json:"url"`
-			}
-			if err := json.Unmarshal(body, &result); err != nil {
-				resultChan <- qobuzAPIResult{apiURL: api, err: fmt.Errorf("invalid JSON: %v", err), duration: time.Since(reqStart)}
-				return
-			}
-
-			if result.URL != "" {
-				resultChan <- qobuzAPIResult{apiURL: api, downloadURL: result.URL, err: nil, duration: time.Since(reqStart)}
-				return
-			}
-
-			resultChan <- qobuzAPIResult{apiURL: api, err: fmt.Errorf("no download URL in response"), duration: time.Since(reqStart)}
 		}(apiURL)
 	}
 
@@ -964,6 +1030,7 @@ func downloadFromQobuz(req DownloadRequest) (QobuzDownloadResult, error) {
 	var track *QobuzTrack
 	var err error
 
+	// Strategy 1: Use Qobuz ID from Odesli enrichment (fastest, most accurate)
 	if req.QobuzID != "" {
 		GoLog("[Qobuz] Using Qobuz ID from Odesli enrichment: %s\n", req.QobuzID)
 		var trackID int64
@@ -978,17 +1045,43 @@ func downloadFromQobuz(req DownloadRequest) (QobuzDownloadResult, error) {
 		}
 	}
 
+	// Strategy 2: Use cached Qobuz Track ID (fast, no search needed)
 	if track == nil && req.ISRC != "" {
 		if cached := GetTrackIDCache().Get(req.ISRC); cached != nil && cached.QobuzTrackID > 0 {
 			GoLog("[Qobuz] Cache hit! Using cached track ID: %d\n", cached.QobuzTrackID)
-			track, err = downloader.SearchTrackByISRC(req.ISRC)
+			track, err = downloader.GetTrackByID(cached.QobuzTrackID)
 			if err != nil {
-				GoLog("[Qobuz] Cache hit but search failed: %v\n", err)
+				GoLog("[Qobuz] Cache hit but GetTrackByID failed: %v\n", err)
 				track = nil
 			}
 		}
 	}
 
+	// Strategy 3: Try to get QobuzID from SongLink if we have SpotifyID
+	if track == nil && req.SpotifyID != "" && req.QobuzID == "" {
+		GoLog("[Qobuz] Trying to get Qobuz ID from SongLink for Spotify ID: %s\n", req.SpotifyID)
+		songLinkClient := NewSongLinkClient()
+		availability, slErr := songLinkClient.CheckTrackAvailability(req.SpotifyID, req.ISRC)
+		if slErr == nil && availability != nil && availability.QobuzID != "" {
+			var trackID int64
+			if _, parseErr := fmt.Sscanf(availability.QobuzID, "%d", &trackID); parseErr == nil && trackID > 0 {
+				GoLog("[Qobuz] Got Qobuz ID %d from SongLink\n", trackID)
+				track, err = downloader.GetTrackByID(trackID)
+				if err != nil {
+					GoLog("[Qobuz] Failed to get track by SongLink ID %d: %v\n", trackID, err)
+					track = nil
+				} else if track != nil {
+					GoLog("[Qobuz] Successfully found track via SongLink ID: '%s' by '%s'\n", track.Title, track.Performer.Name)
+					// Cache for future use
+					if req.ISRC != "" {
+						GetTrackIDCache().SetQobuz(req.ISRC, track.ID)
+					}
+				}
+			}
+		}
+	}
+
+	// Strategy 4: ISRC search with duration verification
 	if track == nil && req.ISRC != "" {
 		GoLog("[Qobuz] Trying ISRC search: %s\n", req.ISRC)
 		track, err = downloader.SearchTrackByISRCWithDuration(req.ISRC, expectedDurationSec)
@@ -1005,7 +1098,9 @@ func downloadFromQobuz(req DownloadRequest) (QobuzDownloadResult, error) {
 		}
 	}
 
+	// Strategy 5: Metadata search with strict matching (duration tolerance: 10 seconds)
 	if track == nil {
+		GoLog("[Qobuz] Trying metadata search: '%s' by '%s'\n", req.TrackName, req.ArtistName)
 		track, err = downloader.SearchTrackByMetadataWithDuration(req.TrackName, req.ArtistName, expectedDurationSec)
 		if track != nil && !qobuzArtistsMatch(req.ArtistName, track.Performer.Name) {
 			GoLog("[Qobuz] Artist mismatch from metadata search: expected '%s', got '%s'. Rejecting.\n",

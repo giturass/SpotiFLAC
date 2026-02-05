@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.4.2] - 2026-02-04
+
+### Improved
+
+- **Mobile Network Reliability**: All providers (Qobuz, Tidal, Amazon, Deezer) now have retry logic with exponential backoff
+  - Increased API timeouts: 15s → 25s (Deezer, Qobuz, Tidal), 30s (Amazon)
+  - Up to 3 retry attempts per API call (500ms → 1s → 2s backoff)
+  - Retryable: timeout, connection reset/refused, EOF, HTTP 5xx, HTTP 429
+- **SongLink ID Extraction**: Extract QobuzID/TidalID directly from SongLink URLs
+  - New fields in `TrackAvailability`: `QobuzID`, `TidalID`
+  - Qobuz/Tidal now use direct Track ID from SongLink instead of re-parsing URLs
+- **Qobuz Download Flow**: New Strategy 3 - get QobuzID from SongLink before ISRC search
+  - Cache hit now uses `GetTrackByID()` directly instead of searching again
+  - Pre-warm cache tries SongLink first before direct ISRC search
+- **Tidal Download Flow**: Use `availability.TidalID` directly from SongLink struct
+
+---
+
 ## [3.4.1] - 2026-02-04
 
 ### Fixed

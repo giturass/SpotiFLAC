@@ -23,6 +23,11 @@ const (
 	deezerCacheTTL = 10 * time.Minute
 
 	deezerMaxParallelISRC = 10
+
+	// Deezer API timeout and retry configuration for mobile networks
+	deezerAPITimeoutMobile = 25 * time.Second
+	deezerMaxRetries       = 2
+	deezerRetryDelay       = 500 * time.Millisecond
 )
 
 type DeezerClient struct {
@@ -42,7 +47,7 @@ var (
 func GetDeezerClient() *DeezerClient {
 	deezerClientOnce.Do(func() {
 		deezerClient = &DeezerClient{
-			httpClient:  NewHTTPClientWithTimeout(15 * time.Second),
+			httpClient:  NewHTTPClientWithTimeout(deezerAPITimeoutMobile),
 			searchCache: make(map[string]*cacheEntry),
 			albumCache:  make(map[string]*cacheEntry),
 			artistCache: make(map[string]*cacheEntry),
@@ -992,6 +997,42 @@ func (c *DeezerClient) GetExtendedMetadataByISRC(ctx context.Context, isrc strin
 }
 
 func (c *DeezerClient) getJSON(ctx context.Context, endpoint string, dst interface{}) error {
+	var lastErr error
+
+	for attempt := 0; attempt <= deezerMaxRetries; attempt++ {
+		if attempt > 0 {
+			delay := deezerRetryDelay * time.Duration(1<<(attempt-1)) // Exponential backoff
+			GoLog("[Deezer] Retry %d/%d after %v...\n", attempt, deezerMaxRetries, delay)
+			time.Sleep(delay)
+		}
+
+		err := c.doGetJSON(ctx, endpoint, dst)
+		if err == nil {
+			return nil
+		}
+
+		lastErr = err
+		errStr := err.Error()
+
+		// Check if error is retryable
+		isRetryable := strings.Contains(errStr, "timeout") ||
+			strings.Contains(errStr, "connection reset") ||
+			strings.Contains(errStr, "connection refused") ||
+			strings.Contains(errStr, "EOF") ||
+			strings.Contains(errStr, "status 5") ||
+			strings.Contains(errStr, "status 429")
+
+		if !isRetryable {
+			return err
+		}
+
+		GoLog("[Deezer] Attempt %d failed (retryable): %v\n", attempt+1, err)
+	}
+
+	return fmt.Errorf("all %d attempts failed: %w", deezerMaxRetries+1, lastErr)
+}
+
+func (c *DeezerClient) doGetJSON(ctx context.Context, endpoint string, dst interface{}) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
 	if err != nil {
 		return err

@@ -1,6 +1,7 @@
 package gobackend
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 	"time"
@@ -9,7 +10,7 @@ import (
 type TrackIDCacheEntry struct {
 	TidalTrackID  int64
 	QobuzTrackID  int64
-	AmazonTrackID string
+	AmazonURL     string
 	ExpiresAt     time.Time
 }
 
@@ -106,7 +107,7 @@ func (c *TrackIDCache) SetQobuz(isrc string, trackID int64) {
 	}
 }
 
-func (c *TrackIDCache) SetAmazon(isrc string, trackID string) {
+func (c *TrackIDCache) SetAmazonURL(isrc string, amazonURL string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -115,7 +116,7 @@ func (c *TrackIDCache) SetAmazon(isrc string, trackID string) {
 		entry = &TrackIDCacheEntry{}
 		c.cache[isrc] = entry
 	}
-	entry.AmazonTrackID = trackID
+	entry.AmazonURL = amazonURL
 	now := time.Now()
 	entry.ExpiresAt = now.Add(c.ttl)
 
@@ -156,17 +157,20 @@ func FetchCoverAndLyricsParallel(
 ) *ParallelDownloadResult {
 	result := &ParallelDownloadResult{}
 	var wg sync.WaitGroup
+	var resultMu sync.Mutex
 
 	if coverURL != "" {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			data, err := downloadCoverToMemory(coverURL, maxQualityCover)
+			resultMu.Lock()
 			if err != nil {
 				result.CoverErr = err
 			} else {
 				result.CoverData = data
 			}
+			resultMu.Unlock()
 		}()
 	}
 
@@ -177,6 +181,7 @@ func FetchCoverAndLyricsParallel(
 			client := NewLyricsClient()
 			durationSec := float64(durationMs) / 1000.0
 			lyrics, err := client.FetchLyricsAllSources(spotifyID, trackName, artistName, durationSec)
+			resultMu.Lock()
 			if err != nil {
 				result.LyricsErr = err
 			} else if lyrics != nil && len(lyrics.Lines) > 0 {
@@ -185,6 +190,7 @@ func FetchCoverAndLyricsParallel(
 			} else {
 				result.LyricsErr = fmt.Errorf("no lyrics found")
 			}
+			resultMu.Unlock()
 		}()
 	}
 
@@ -211,6 +217,9 @@ func PreWarmTrackCache(requests []PreWarmCacheRequest) {
 	var wg sync.WaitGroup
 
 	for _, req := range requests {
+		if req.ISRC == "" {
+			continue
+		}
 		if cached := cache.Get(req.ISRC); cached != nil {
 			continue
 		}
@@ -225,7 +234,7 @@ func PreWarmTrackCache(requests []PreWarmCacheRequest) {
 			case "tidal":
 				preWarmTidalCache(r.ISRC, r.TrackName, r.ArtistName)
 			case "qobuz":
-				preWarmQobuzCache(r.ISRC)
+				preWarmQobuzCache(r.ISRC, r.SpotifyID)
 			case "amazon":
 				preWarmAmazonCache(r.ISRC, r.SpotifyID)
 			}
@@ -243,10 +252,30 @@ func preWarmTidalCache(isrc, _, _ string) {
 	}
 }
 
-func preWarmQobuzCache(isrc string) {
+// preWarmQobuzCache tries to get Qobuz Track ID in the following order:
+// 1. From SongLink (fast, no Qobuz API call needed)
+// 2. Direct ISRC search on Qobuz API (slower, may fail if ISRC not in Qobuz database)
+func preWarmQobuzCache(isrc, spotifyID string) {
+	// First, try to get QobuzID from SongLink - this is faster and more reliable
+	if spotifyID != "" {
+		client := NewSongLinkClient()
+		availability, err := client.CheckTrackAvailability(spotifyID, isrc)
+		if err == nil && availability != nil && availability.QobuzID != "" {
+			// Parse QobuzID to int64
+			var trackID int64
+			if _, parseErr := fmt.Sscanf(availability.QobuzID, "%d", &trackID); parseErr == nil && trackID > 0 {
+				GoLog("[Qobuz] Pre-warm cache: Got Qobuz ID %d from SongLink for ISRC %s\n", trackID, isrc)
+				GetTrackIDCache().SetQobuz(isrc, trackID)
+				return
+			}
+		}
+	}
+
+	// Fallback: Direct ISRC search on Qobuz API
 	downloader := NewQobuzDownloader()
 	track, err := downloader.SearchTrackByISRC(isrc)
 	if err == nil && track != nil {
+		GoLog("[Qobuz] Pre-warm cache: Got Qobuz ID %d from direct ISRC search for %s\n", track.ID, isrc)
 		GetTrackIDCache().SetQobuz(isrc, track.ID)
 	}
 }
@@ -254,13 +283,34 @@ func preWarmQobuzCache(isrc string) {
 func preWarmAmazonCache(isrc, spotifyID string) {
 	client := NewSongLinkClient()
 	availability, err := client.CheckTrackAvailability(spotifyID, isrc)
-	if err == nil && availability != nil && availability.Amazon {
-		GetTrackIDCache().SetAmazon(isrc, availability.AmazonURL)
+	if err == nil && availability != nil && availability.AmazonURL != "" {
+		GetTrackIDCache().SetAmazonURL(isrc, availability.AmazonURL)
 	}
 }
 
 func PreWarmCache(tracksJSON string) error {
-	var requests []PreWarmCacheRequest
+	var tracks []struct {
+		ISRC       string `json:"isrc"`
+		TrackName  string `json:"track_name"`
+		ArtistName string `json:"artist_name"`
+		SpotifyID  string `json:"spotify_id"`
+		Service    string `json:"service"`
+	}
+
+	if err := json.Unmarshal([]byte(tracksJSON), &tracks); err != nil {
+		return fmt.Errorf("failed to parse tracks JSON: %w", err)
+	}
+
+	requests := make([]PreWarmCacheRequest, len(tracks))
+	for i, t := range tracks {
+		requests[i] = PreWarmCacheRequest{
+			ISRC:       t.ISRC,
+			TrackName:  t.TrackName,
+			ArtistName: t.ArtistName,
+			SpotifyID:  t.SpotifyID,
+			Service:    t.Service,
+		}
+	}
 
 	go PreWarmTrackCache(requests)
 	return nil

@@ -8,7 +8,6 @@ import (
 	"net/url"
 	"strings"
 	"sync"
-	"time"
 )
 
 type SongLinkClient struct {
@@ -26,6 +25,8 @@ type TrackAvailability struct {
 	QobuzURL  string `json:"qobuz_url,omitempty"`
 	DeezerURL string `json:"deezer_url,omitempty"`
 	DeezerID  string `json:"deezer_id,omitempty"`
+	QobuzID   string `json:"qobuz_id,omitempty"`
+	TidalID   string `json:"tidal_id,omitempty"`
 }
 
 var (
@@ -98,6 +99,7 @@ func (s *SongLinkClient) CheckTrackAvailability(spotifyTrackID string, isrc stri
 	if tidalLink, ok := songLinkResp.LinksByPlatform["tidal"]; ok && tidalLink.URL != "" {
 		availability.Tidal = true
 		availability.TidalURL = tidalLink.URL
+		availability.TidalID = extractTidalIDFromURL(tidalLink.URL)
 	}
 
 	if amazonLink, ok := songLinkResp.LinksByPlatform["amazonMusic"]; ok && amazonLink.URL != "" {
@@ -109,6 +111,12 @@ func (s *SongLinkClient) CheckTrackAvailability(spotifyTrackID string, isrc stri
 		availability.Deezer = true
 		availability.DeezerURL = deezerLink.URL
 		availability.DeezerID = extractDeezerIDFromURL(deezerLink.URL)
+	}
+
+	if qobuzLink, ok := songLinkResp.LinksByPlatform["qobuz"]; ok && qobuzLink.URL != "" {
+		availability.Qobuz = true
+		availability.QobuzURL = qobuzLink.URL
+		availability.QobuzID = extractQobuzIDFromURL(qobuzLink.URL)
 	}
 
 	return availability, nil
@@ -131,40 +139,6 @@ func (s *SongLinkClient) GetStreamingURLs(spotifyTrackID string) (map[string]str
 	return urls, nil
 }
 
-func checkQobuzAvailability(isrc string) bool {
-	client := NewHTTPClientWithTimeout(10 * time.Second)
-	appID := "798273057"
-
-	apiBase, _ := base64.StdEncoding.DecodeString("aHR0cHM6Ly93d3cucW9idXouY29tL2FwaS5qc29uLzAuMi90cmFjay9zZWFyY2g/cXVlcnk9")
-	searchURL := fmt.Sprintf("%s%s&limit=1&app_id=%s", string(apiBase), isrc, appID)
-
-	req, err := http.NewRequest("GET", searchURL, nil)
-	if err != nil {
-		return false
-	}
-
-	resp, err := DoRequestWithUserAgent(client, req)
-	if err != nil {
-		return false
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		return false
-	}
-
-	var searchResp struct {
-		Tracks struct {
-			Total int `json:"total"`
-		} `json:"tracks"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&searchResp); err != nil {
-		return false
-	}
-
-	return searchResp.Tracks.Total > 0
-}
-
 // extractDeezerIDFromURL extracts Deezer track/album/artist ID from URL
 func extractDeezerIDFromURL(deezerURL string) string {
 	parts := strings.Split(deezerURL, "/")
@@ -177,6 +151,102 @@ func extractDeezerIDFromURL(deezerURL string) string {
 	}
 	return ""
 }
+
+// extractQobuzIDFromURL extracts Qobuz track ID from URL
+// URL formats:
+//   - https://www.qobuz.com/us-en/album/.../12345678 (album page with track highlight)
+//   - https://open.qobuz.com/track/12345678
+//   - https://www.qobuz.com/track/12345678
+//   - https://play.qobuz.com/track/12345678
+func extractQobuzIDFromURL(qobuzURL string) string {
+	if qobuzURL == "" {
+		return ""
+	}
+
+	// Try to find /track/ID pattern first
+	if strings.Contains(qobuzURL, "/track/") {
+		parts := strings.Split(qobuzURL, "/track/")
+		if len(parts) > 1 {
+			idPart := parts[1]
+			// Remove query parameters
+			if idx := strings.Index(idPart, "?"); idx > 0 {
+				idPart = idPart[:idx]
+			}
+			// Remove trailing slash or path
+			if idx := strings.Index(idPart, "/"); idx > 0 {
+				idPart = idPart[:idx]
+			}
+			idPart = strings.TrimSpace(idPart)
+			// Validate it's a number
+			if idPart != "" && isNumeric(idPart) {
+				return idPart
+			}
+		}
+	}
+
+	// Try to extract from album URL with track highlight
+	// Format: /album/albumname/trackid or ?trackId=12345678
+	if strings.Contains(qobuzURL, "trackId=") {
+		parts := strings.Split(qobuzURL, "trackId=")
+		if len(parts) > 1 {
+			idPart := parts[1]
+			if idx := strings.Index(idPart, "&"); idx > 0 {
+				idPart = idPart[:idx]
+			}
+			idPart = strings.TrimSpace(idPart)
+			if idPart != "" && isNumeric(idPart) {
+				return idPart
+			}
+		}
+	}
+
+	// Last resort: get last numeric segment from URL
+	parts := strings.Split(qobuzURL, "/")
+	for i := len(parts) - 1; i >= 0; i-- {
+		part := parts[i]
+		// Remove query parameters
+		if idx := strings.Index(part, "?"); idx > 0 {
+			part = part[:idx]
+		}
+		part = strings.TrimSpace(part)
+		if part != "" && isNumeric(part) {
+			return part
+		}
+	}
+
+	return ""
+}
+
+// extractTidalIDFromURL extracts Tidal track ID from URL
+// URL formats:
+//   - https://tidal.com/browse/track/12345678
+//   - https://listen.tidal.com/track/12345678
+func extractTidalIDFromURL(tidalURL string) string {
+	if tidalURL == "" {
+		return ""
+	}
+
+	if strings.Contains(tidalURL, "/track/") {
+		parts := strings.Split(tidalURL, "/track/")
+		if len(parts) > 1 {
+			idPart := parts[1]
+			if idx := strings.Index(idPart, "?"); idx > 0 {
+				idPart = idPart[:idx]
+			}
+			if idx := strings.Index(idPart, "/"); idx > 0 {
+				idPart = idPart[:idx]
+			}
+			idPart = strings.TrimSpace(idPart)
+			if idPart != "" && isNumeric(idPart) {
+				return idPart
+			}
+		}
+	}
+
+	return ""
+}
+
+// isNumeric is defined in library_scan.go
 
 func (s *SongLinkClient) GetDeezerIDFromSpotify(spotifyTrackID string) (string, error) {
 	availability, err := s.CheckTrackAvailability(spotifyTrackID, "")
@@ -353,11 +423,18 @@ func (s *SongLinkClient) checkAvailabilityFromDeezerSongLink(deezerTrackID strin
 	if tidalLink, ok := songLinkResp.LinksByPlatform["tidal"]; ok && tidalLink.URL != "" {
 		availability.Tidal = true
 		availability.TidalURL = tidalLink.URL
+		availability.TidalID = extractTidalIDFromURL(tidalLink.URL)
 	}
 
 	if amazonLink, ok := songLinkResp.LinksByPlatform["amazonMusic"]; ok && amazonLink.URL != "" {
 		availability.Amazon = true
 		availability.AmazonURL = amazonLink.URL
+	}
+
+	if qobuzLink, ok := songLinkResp.LinksByPlatform["qobuz"]; ok && qobuzLink.URL != "" {
+		availability.Qobuz = true
+		availability.QobuzURL = qobuzLink.URL
+		availability.QobuzID = extractQobuzIDFromURL(qobuzLink.URL)
 	}
 
 	if deezerLink, ok := songLinkResp.LinksByPlatform["deezer"]; ok && deezerLink.URL != "" {
@@ -431,11 +508,18 @@ func (s *SongLinkClient) CheckAvailabilityByPlatform(platform, entityType, entit
 	if tidalLink, ok := songLinkResp.LinksByPlatform["tidal"]; ok && tidalLink.URL != "" {
 		availability.Tidal = true
 		availability.TidalURL = tidalLink.URL
+		availability.TidalID = extractTidalIDFromURL(tidalLink.URL)
 	}
 
 	if amazonLink, ok := songLinkResp.LinksByPlatform["amazonMusic"]; ok && amazonLink.URL != "" {
 		availability.Amazon = true
 		availability.AmazonURL = amazonLink.URL
+	}
+
+	if qobuzLink, ok := songLinkResp.LinksByPlatform["qobuz"]; ok && qobuzLink.URL != "" {
+		availability.Qobuz = true
+		availability.QobuzURL = qobuzLink.URL
+		availability.QobuzID = extractQobuzIDFromURL(qobuzLink.URL)
 	}
 
 	if deezerLink, ok := songLinkResp.LinksByPlatform["deezer"]; ok && deezerLink.URL != "" {
@@ -552,6 +636,7 @@ func (s *SongLinkClient) CheckAvailabilityFromURL(inputURL string) (*TrackAvaila
 	if tidalLink, ok := songLinkResp.LinksByPlatform["tidal"]; ok && tidalLink.URL != "" {
 		availability.Tidal = true
 		availability.TidalURL = tidalLink.URL
+		availability.TidalID = extractTidalIDFromURL(tidalLink.URL)
 	}
 	if amazonLink, ok := songLinkResp.LinksByPlatform["amazonMusic"]; ok && amazonLink.URL != "" {
 		availability.Amazon = true
@@ -560,6 +645,7 @@ func (s *SongLinkClient) CheckAvailabilityFromURL(inputURL string) (*TrackAvaila
 	if qobuzLink, ok := songLinkResp.LinksByPlatform["qobuz"]; ok && qobuzLink.URL != "" {
 		availability.Qobuz = true
 		availability.QobuzURL = qobuzLink.URL
+		availability.QobuzID = extractQobuzIDFromURL(qobuzLink.URL)
 	}
 	if deezerLink, ok := songLinkResp.LinksByPlatform["deezer"]; ok && deezerLink.URL != "" {
 		availability.Deezer = true
