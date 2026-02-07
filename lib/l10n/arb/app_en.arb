@@ -1981,5 +1981,24 @@
   "tutorialReadyMessage": "You're all set! Start downloading your favorite music now.",
   "@tutorialReadyMessage": {"description": "Tutorial completion message"},
   "tutorialExample": "EXAMPLE",
-  "@tutorialExample": {"description": "Example label in tutorial"}
+  "@tutorialExample": {"description": "Example label in tutorial"},
+
+  "libraryForceFullScan": "Force Full Scan",
+  "@libraryForceFullScan": {"description": "Button to force a complete rescan of library"},
+  "libraryForceFullScanSubtitle": "Rescan all files, ignoring cache",
+  "@libraryForceFullScanSubtitle": {"description": "Subtitle for force full scan button"},
+
+  "cleanupOrphanedDownloads": "Cleanup Orphaned Downloads",
+  "@cleanupOrphanedDownloads": {"description": "Button to remove history entries for deleted files"},
+  "cleanupOrphanedDownloadsSubtitle": "Remove history entries for files that no longer exist",
+  "@cleanupOrphanedDownloadsSubtitle": {"description": "Subtitle for orphaned cleanup button"},
+  "cleanupOrphanedDownloadsResult": "Removed {count} orphaned entries from history",
+  "@cleanupOrphanedDownloadsResult": {
+    "description": "Snackbar after orphan cleanup",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "cleanupOrphanedDownloadsNone": "No orphaned entries found",
+  "@cleanupOrphanedDownloadsNone": {"description": "Snackbar when no orphans found"}
 }

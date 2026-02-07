@@ -4719,6 +4719,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'EXAMPLE'**
   String get tutorialExample;
+
+  /// Button to force a complete rescan of library
+  ///
+  /// In en, this message translates to:
+  /// **'Force Full Scan'**
+  String get libraryForceFullScan;
+
+  /// Subtitle for force full scan button
+  ///
+  /// In en, this message translates to:
+  /// **'Rescan all files, ignoring cache'**
+  String get libraryForceFullScanSubtitle;
+
+  /// Button to remove history entries for deleted files
+  ///
+  /// In en, this message translates to:
+  /// **'Cleanup Orphaned Downloads'**
+  String get cleanupOrphanedDownloads;
+
+  /// Subtitle for orphaned cleanup button
+  ///
+  /// In en, this message translates to:
+  /// **'Remove history entries for files that no longer exist'**
+  String get cleanupOrphanedDownloadsSubtitle;
+
+  /// Snackbar after orphan cleanup
+  ///
+  /// In en, this message translates to:
+  /// **'Removed {count} orphaned entries from history'**
+  String cleanupOrphanedDownloadsResult(int count);
+
+  /// Snackbar when no orphans found
+  ///
+  /// In en, this message translates to:
+  /// **'No orphaned entries found'**
+  String get cleanupOrphanedDownloadsNone;
 }
 
 class _AppLocalizationsDelegate

@@ -2642,4 +2642,25 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get tutorialExample => 'EXAMPLE';
+
+  @override
+  String get libraryForceFullScan => 'Force Full Scan';
+
+  @override
+  String get libraryForceFullScanSubtitle => 'Rescan all files, ignoring cache';
+
+  @override
+  String get cleanupOrphanedDownloads => 'Cleanup Orphaned Downloads';
+
+  @override
+  String get cleanupOrphanedDownloadsSubtitle =>
+      'Remove history entries for files that no longer exist';
+
+  @override
+  String cleanupOrphanedDownloadsResult(int count) {
+    return 'Removed $count orphaned entries from history';
+  }
+
+  @override
+  String get cleanupOrphanedDownloadsNone => 'No orphaned entries found';
 }
