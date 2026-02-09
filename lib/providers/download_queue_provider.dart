@@ -600,11 +600,13 @@ class _ProgressUpdate {
   final DownloadStatus status;
   final double progress;
   final double? speedMBps;
+  final int? bytesReceived;
 
   const _ProgressUpdate({
     required this.status,
     required this.progress,
     this.speedMBps,
+    this.bytesReceived,
   });
 }
 
@@ -801,6 +803,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
               status: DownloadStatus.downloading,
               progress: percentage,
               speedMBps: speedMBps,
+              bytesReceived: bytesReceived,
             );
 
             final mbReceived = bytesReceived / (1024 * 1024);
@@ -835,10 +838,12 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
               status: update.status,
               progress: update.progress,
               speedMBps: update.speedMBps ?? current.speedMBps,
+              bytesReceived: update.bytesReceived ?? current.bytesReceived,
             );
             if (current.status != next.status ||
                 current.progress != next.progress ||
-                current.speedMBps != next.speedMBps) {
+                current.speedMBps != next.speedMBps ||
+                current.bytesReceived != next.bytesReceived) {
               if (!changed) {
                 updatedItems = List<DownloadItem>.from(updatedItems);
                 changed = true;
@@ -1203,6 +1208,13 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   }
 
   String _determineOutputExt(String quality, String service) {
+    // YouTube provider - lossy only (Opus or MP3)
+    if (service.toLowerCase() == 'youtube') {
+      if (quality.toLowerCase().contains('mp3')) {
+        return '.mp3';
+      }
+      return '.opus';
+    }
     if (service.toLowerCase() == 'tidal' && quality == 'HIGH') {
       return '.m4a';
     }
@@ -2259,6 +2271,15 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           await musicDir.create(recursive: true);
         }
         state = state.copyWith(outputDir: musicDir.path);
+      } else if (!isValidIosWritablePath(state.outputDir)) {
+        // Check for other invalid paths (like container root without Documents/)
+        _log.w(
+          'iOS: Invalid output path detected (container root?), falling back to app Documents folder',
+        );
+        _log.w('Original path: ${state.outputDir}');
+        final correctedPath = await validateOrFixIosPath(state.outputDir);
+        _log.i('Corrected path: $correctedPath');
+        state = state.copyWith(outputDir: correctedPath);
       }
     }
 
@@ -2636,6 +2657,36 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         final relativeDir = useSaf ? outputDir : '';
         final fileName = useSaf ? (safFileName ?? '') : '';
         final outputExt = useSaf ? safOutputExt : '';
+
+        // YouTube provider - lossy only, bypasses fallback chain
+        if (item.service == 'youtube') {
+          _log.d('Using YouTube/Cobalt provider for download');
+          _log.d('Quality: $quality (lossy only)');
+          _log.d('Output dir: $outputDir');
+          return PlatformBridge.downloadFromYouTube(
+            trackName: trackToDownload.name,
+            artistName: trackToDownload.artistName,
+            albumName: trackToDownload.albumName,
+            albumArtist: normalizedAlbumArtist,
+            coverUrl: trackToDownload.coverUrl,
+            outputDir: outputDir,
+            filenameFormat: state.filenameFormat,
+            quality: quality,
+            trackNumber: trackToDownload.trackNumber ?? 1,
+            discNumber: trackToDownload.discNumber ?? 1,
+            releaseDate: trackToDownload.releaseDate,
+            itemId: item.id,
+            durationMs: trackToDownload.duration,
+            isrc: trackToDownload.isrc,
+            spotifyId: trackToDownload.id,
+            deezerId: deezerTrackId,
+            storageMode: storageMode,
+            safTreeUri: treeUri,
+            safRelativeDir: relativeDir,
+            safFileName: fileName,
+            safOutputExt: outputExt,
+          );
+        }
 
         if (useExtensions) {
           _log.d('Using extension providers for download');
@@ -3235,6 +3286,96 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
               try {
                 await File(tempPath).delete();
               } catch (_) {}
+            }
+        }
+        }
+
+        // YouTube downloads: embed metadata to raw Opus/MP3 files from Cobalt
+        if (!wasExisting &&
+            item.service == 'youtube' &&
+            filePath != null) {
+          final isOpusFile = filePath.endsWith('.opus');
+          final isMp3File = filePath.endsWith('.mp3');
+
+          if (isOpusFile || isMp3File) {
+            _log.i('YouTube download: embedding metadata to ${isOpusFile ? 'Opus' : 'MP3'} file');
+            updateItemStatus(
+              item.id,
+              DownloadStatus.downloading,
+              progress: 0.95,
+            );
+
+            final isContentUriPath = isContentUri(filePath);
+            if (isContentUriPath && effectiveSafMode) {
+              // SAF mode: copy to temp, embed, write back
+              final tempPath = await _copySafToTemp(filePath);
+              if (tempPath != null) {
+                try {
+                  if (isMp3File) {
+                    await _embedMetadataToMp3(
+                      tempPath,
+                      trackToDownload,
+                      genre: genre,
+                      label: label,
+                    );
+                  } else {
+                    await _embedMetadataToOpus(
+                      tempPath,
+                      trackToDownload,
+                      genre: genre,
+                      label: label,
+                    );
+                  }
+                  // Write back to SAF
+                  final ext = isMp3File ? '.mp3' : '.opus';
+                  final newFileName = '${safBaseName ?? 'track'}$ext';
+                  final newUri = await _writeTempToSaf(
+                    treeUri: settings.downloadTreeUri,
+                    relativeDir: effectiveOutputDir,
+                    fileName: newFileName,
+                    mimeType: _mimeTypeForExt(ext),
+                    srcPath: tempPath,
+                  );
+                  if (newUri != null) {
+                    if (newUri != filePath) {
+                      await _deleteSafFile(filePath);
+                    }
+                    filePath = newUri;
+                    finalSafFileName = newFileName;
+                    _log.d('YouTube SAF metadata embedding completed');
+                  } else {
+                    _log.w('Failed to write metadata-updated file back to SAF');
+                  }
+                } catch (e) {
+                  _log.w('YouTube SAF metadata embedding failed: $e');
+                } finally {
+                  try {
+                    await File(tempPath).delete();
+                  } catch (_) {}
+                }
+              }
+            } else {
+              // Non-SAF mode: embed directly
+              try {
+                if (isMp3File) {
+                  await _embedMetadataToMp3(
+                    filePath,
+                    trackToDownload,
+                    genre: genre,
+                    label: label,
+                  );
+                } else {
+                  await _embedMetadataToOpus(
+                    filePath,
+                    trackToDownload,
+                    genre: genre,
+                    label: label,
+                  );
+                }
+                _log.d('YouTube metadata embedding completed');
+              } catch (e) {
+                _log.w('YouTube metadata embedding failed: $e');
+              }
             }
           }
         }

@@ -22,7 +22,9 @@ class BuiltInService {
   });
 }
 
-/// Default quality options for built-in services (Tidal, Qobuz, Amazon)
+/// Default quality options for built-in services (Tidal, Qobuz, YouTube)
+/// Note: Amazon is fallback-only and not shown in picker
+/// Note: Tidal lossy (HIGH) removed - use YouTube for lossy downloads
 const _builtInServices = [
   BuiltInService(
     id: 'tidal',
@@ -31,7 +33,6 @@ const _builtInServices = [
       QualityOption(id: 'LOSSLESS', label: 'FLAC Lossless', description: '16-bit / 44.1kHz'),
       QualityOption(id: 'HI_RES', label: 'Hi-Res FLAC', description: '24-bit / up to 96kHz'),
       QualityOption(id: 'HI_RES_LOSSLESS', label: 'Hi-Res FLAC Max', description: '24-bit / up to 192kHz'),
-      QualityOption(id: 'HIGH', label: 'Lossy 320kbps', description: 'MP3 or Opus (smaller files)'),
     ],
   ),
   BuiltInService(
@@ -44,15 +45,14 @@ const _builtInServices = [
     ],
   ),
   BuiltInService(
-    id: 'amazon',
-    label: 'Amazon',
+    id: 'youtube',
+    label: 'YouTube',
     qualityOptions: [
-      QualityOption(id: 'LOSSLESS', label: 'FLAC Lossless', description: '16-bit / 44.1kHz'),
-      QualityOption(id: 'HI_RES', label: 'Hi-Res FLAC', description: '24-bit / up to 96kHz'),
-      QualityOption(id: 'HI_RES_LOSSLESS', label: 'Hi-Res FLAC Max', description: '24-bit / up to 192kHz'),
+      QualityOption(id: 'opus_256', label: 'Opus 256kbps', description: 'Best quality lossy (~8MB per track)'),
+      QualityOption(id: 'mp3_320', label: 'MP3 320kbps', description: 'Best compatibility (~10MB per track)'),
     ],
-    isDisabled: true,
-    disabledReason: 'Fallback only',
+    isDisabled: false,
+    disabledReason: null,
   ),
 ];
 
@@ -211,11 +211,23 @@ Padding(
               ),
             ),
 
-            if (_builtInServices.any((s) => s.id == _selectedService))
+            if (_builtInServices.any((s) => s.id == _selectedService && s.id != 'youtube'))
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
                 child: Text(
                   context.l10n.qualityNote,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ),
+
+            if (_selectedService == 'youtube')
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+                child: Text(
+                  context.l10n.youtubeQualityNote,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
@@ -229,13 +241,8 @@ Padding(
                 subtitle: quality.description ?? '',
                 icon: _getQualityIcon(quality.id),
                 onTap: () {
-                  // For Tidal HIGH quality, show format picker first
-                  if (_selectedService == 'tidal' && quality.id == 'HIGH') {
-                    _showLossyFormatPicker(context);
-                  } else {
-                    Navigator.pop(context);
-                    widget.onSelect(quality.id, _selectedService);
-                  }
+                  Navigator.pop(context);
+                  widget.onSelect(quality.id, _selectedService);
                 },
               ),
 
@@ -254,135 +261,16 @@ Padding(
         return Icons.high_quality;
       case 'LOSSLESS':
         return Icons.music_note;
-      case 'HIGH':
-        return Icons.aod;
       case 'MP3_320':
       case 'MP3':
         return Icons.audiotrack;
       case 'OPUS':
       case 'OPUS_128':
+      case 'OPUS_256':
         return Icons.graphic_eq;
       default:
         return Icons.music_note;
     }
-  }
-
-  void _showLossyFormatPicker(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final settings = ref.read(settingsProvider);
-    final currentFormat = settings.tidalHighFormat;
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: colorScheme.surfaceContainerHigh,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (modalContext) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
-              child: Text(
-                'Select Lossy Format',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-              child: Text(
-                'Choose output format for 320kbps lossy download',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.audiotrack, color: colorScheme.onPrimaryContainer, size: 20),
-              ),
-              title: const Text('MP3 320kbps'),
-              subtitle: const Text('Best compatibility, ~10MB per track'),
-              trailing: currentFormat == 'mp3_320'
-                  ? Icon(Icons.check_circle, color: colorScheme.primary)
-                  : null,
-              onTap: () {
-                ref.read(settingsProvider.notifier).setTidalHighFormat('mp3_320');
-                Navigator.pop(modalContext); // Close format picker
-                Navigator.pop(context); // Close service picker
-                widget.onSelect('HIGH', _selectedService);
-              },
-            ),
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.graphic_eq, color: colorScheme.onPrimaryContainer, size: 20),
-              ),
-              title: const Text('Opus 256kbps'),
-              subtitle: const Text('Best quality Opus, ~8MB per track'),
-              trailing: currentFormat == 'opus_256'
-                  ? Icon(Icons.check_circle, color: colorScheme.primary)
-                  : null,
-              onTap: () {
-                ref.read(settingsProvider.notifier).setTidalHighFormat('opus_256');
-                Navigator.pop(modalContext); // Close format picker
-                Navigator.pop(context); // Close service picker
-                widget.onSelect('HIGH', _selectedService);
-              },
-            ),
-            ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 24),
-              leading: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(Icons.graphic_eq, color: colorScheme.onPrimaryContainer, size: 20),
-              ),
-              title: const Text('Opus 128kbps'),
-              subtitle: const Text('Smallest size, ~4MB per track'),
-              trailing: currentFormat == 'opus_128'
-                  ? Icon(Icons.check_circle, color: colorScheme.primary)
-                  : null,
-              onTap: () {
-                ref.read(settingsProvider.notifier).setTidalHighFormat('opus_128');
-                Navigator.pop(modalContext); // Close format picker
-                Navigator.pop(context); // Close service picker
-                widget.onSelect('HIGH', _selectedService);
-              },
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    );
   }
 }
 

@@ -1957,6 +1957,10 @@ class AppLocalizationsRu extends AppLocalizations {
       'Фактическое качество зависит от доступности треков в сервисе';
 
   @override
+  String get youtubeQualityNote =>
+      'YouTube provides lossy audio only. Not part of lossless fallback.';
+
+  @override
   String get downloadAskBeforeDownload => 'Спрашивать перед скачиванием';
 
   @override

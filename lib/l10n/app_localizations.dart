@@ -3502,6 +3502,12 @@ abstract class AppLocalizations {
   /// **'Actual quality depends on track availability from the service'**
   String get qualityNote;
 
+  /// Note for YouTube service explaining lossy-only quality
+  ///
+  /// In en, this message translates to:
+  /// **'YouTube provides lossy audio only. Not part of lossless fallback.'**
+  String get youtubeQualityNote;
+
   /// Setting - show quality picker
   ///
   /// In en, this message translates to:

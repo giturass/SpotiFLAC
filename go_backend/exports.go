@@ -267,6 +267,24 @@ func DownloadTrack(requestJSON string) (string, error) {
 			}
 		}
 		err = amazonErr
+	case "youtube":
+		youtubeResult, youtubeErr := downloadFromYouTube(req)
+		if youtubeErr == nil {
+			result = DownloadResult{
+				FilePath:    youtubeResult.FilePath,
+				BitDepth:    0, // Lossy format, no bit depth
+				SampleRate:  0, // Lossy format
+				Title:       youtubeResult.Title,
+				Artist:      youtubeResult.Artist,
+				Album:       youtubeResult.Album,
+				ReleaseDate: youtubeResult.ReleaseDate,
+				TrackNumber: youtubeResult.TrackNumber,
+				DiscNumber:  youtubeResult.DiscNumber,
+				ISRC:        youtubeResult.ISRC,
+				LyricsLRC:   youtubeResult.LyricsLRC,
+			}
+		}
+		err = youtubeErr
 	default:
 		return errorResponse("Unknown service: " + req.Service)
 	}
@@ -1072,6 +1090,63 @@ func errorResponse(msg string) (string, error) {
 	}
 	jsonBytes, _ := json.Marshal(resp)
 	return string(jsonBytes), nil
+}
+
+// ==================== YOUTUBE PROVIDER (LOSSY ONLY) ====================
+
+// DownloadFromYouTube downloads a track from YouTube via Cobalt API
+// This is a lossy-only provider (Opus 256kbps or MP3 320kbps)
+// It does NOT participate in the lossless fallback chain
+func DownloadFromYouTube(requestJSON string) (string, error) {
+	var req DownloadRequest
+	if err := json.Unmarshal([]byte(requestJSON), &req); err != nil {
+		return errorResponse("Invalid request: " + err.Error())
+	}
+
+	req.TrackName = strings.TrimSpace(req.TrackName)
+	req.ArtistName = strings.TrimSpace(req.ArtistName)
+	req.AlbumName = strings.TrimSpace(req.AlbumName)
+	req.AlbumArtist = strings.TrimSpace(req.AlbumArtist)
+	req.OutputDir = strings.TrimSpace(req.OutputDir)
+	req.OutputPath = strings.TrimSpace(req.OutputPath)
+	req.OutputExt = strings.TrimSpace(req.OutputExt)
+
+	if req.OutputPath == "" && req.OutputFD <= 0 && req.OutputDir != "" {
+		AddAllowedDownloadDir(req.OutputDir)
+	}
+
+	youtubeResult, err := downloadFromYouTube(req)
+	if err != nil {
+		return errorResponse(err.Error())
+	}
+
+	resp := DownloadResponse{
+		Success:     true,
+		Message:     "Downloaded from YouTube",
+		FilePath:    youtubeResult.FilePath,
+		Service:     "youtube",
+		Title:       youtubeResult.Title,
+		Artist:      youtubeResult.Artist,
+		Album:       youtubeResult.Album,
+		ReleaseDate: youtubeResult.ReleaseDate,
+		TrackNumber: youtubeResult.TrackNumber,
+		DiscNumber:  youtubeResult.DiscNumber,
+		ISRC:        youtubeResult.ISRC,
+		LyricsLRC:   youtubeResult.LyricsLRC,
+	}
+
+	jsonBytes, _ := json.Marshal(resp)
+	return string(jsonBytes), nil
+}
+
+// IsYouTubeURLExport checks if a URL is a YouTube URL (exported for Flutter)
+func IsYouTubeURLExport(urlStr string) bool {
+	return IsYouTubeURL(urlStr)
+}
+
+// ExtractYouTubeVideoIDExport extracts video ID from YouTube URL (exported for Flutter)
+func ExtractYouTubeVideoIDExport(urlStr string) (string, error) {
+	return ExtractYouTubeVideoID(urlStr)
 }
 
 // ==================== EXTENSION SYSTEM ====================

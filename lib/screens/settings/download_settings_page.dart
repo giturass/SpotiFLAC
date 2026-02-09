@@ -10,6 +10,7 @@ import 'package:spotiflac_android/providers/settings_provider.dart';
 import 'package:spotiflac_android/providers/extension_provider.dart';
 import 'package:spotiflac_android/services/platform_bridge.dart';
 import 'package:spotiflac_android/utils/app_bar_layout.dart';
+import 'package:spotiflac_android/utils/file_access.dart';
 import 'package:spotiflac_android/widgets/settings_group.dart';
 
 class DownloadSettingsPage extends ConsumerStatefulWidget {
@@ -917,17 +918,14 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                 // Note: iOS requires folder to have at least one file to be selectable
                 final result = await FilePicker.platform.getDirectoryPath();
                 if (result != null) {
-                  // iOS: Check if user selected iCloud Drive (not accessible by Go backend)
+                  // iOS: Validate the selected path is writable (not iCloud or container root)
                   if (Platform.isIOS) {
-                    final isICloudPath =
-                        result.contains('Mobile Documents') ||
-                        result.contains('CloudDocs') ||
-                        result.contains('com~apple~CloudDocs');
-                    if (isICloudPath) {
+                    final validation = validateIosPath(result);
+                    if (!validation.isValid) {
                       if (ctx.mounted) {
                         ScaffoldMessenger.of(ctx).showSnackBar(
                           SnackBar(
-                            content: Text(context.l10n.setupIcloudNotSupported),
+                            content: Text(validation.errorReason ?? context.l10n.setupIcloudNotSupported),
                             backgroundColor: Theme.of(ctx).colorScheme.error,
                             duration: const Duration(seconds: 4),
                           ),

@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.6.0] - 2026-02-09
+
+### Highlights
+
+- **YouTube Provider (Lossy)**: New download option via Cobalt API for tracks not available on lossless services
+  - Opus 256kbps (recommended) or MP3 320kbps quality options
+  - Full metadata embedding: cover art, title, artist, album, track/disc number, year, ISRC
+  - Lyrics fetching from lrclib.net with embed and external .lrc support
+  - Works as fallback when Tidal/Qobuz/Amazon downloads fail
+
+### Added
+
+- YouTube download provider using Cobalt API with SongLink/Odesli integration for Spotify/Deezer ID → YouTube URL conversion
+- YouTube video ID detection for YT Music extension compatibility
+- Parallel cover art and lyrics fetching during YouTube download
+- Queue progress now shows "X.X MB" instead of "0%" for streaming downloads where total size is unknown (Cobalt tunnel mode)
+- Full metadata pipeline for YouTube downloads: cover art, lyrics, title, artist, album, track#, disc#, year, ISRC
+
+### Changed
+
+- Removed Tidal HIGH (lossy AAC) quality option - use YouTube provider for lossy downloads instead
+- Simplified download service picker by removing dead lossy format code
+
+---
+
 ## [3.5.3] - 2026-02-09
 
 ### Added

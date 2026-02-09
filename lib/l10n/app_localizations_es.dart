@@ -1919,6 +1919,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Actual quality depends on track availability from the service';
 
   @override
+  String get youtubeQualityNote =>
+      'YouTube provides lossy audio only. Not part of lossless fallback.';
+
+  @override
   String get downloadAskBeforeDownload => 'Ask Before Download';
 
   @override

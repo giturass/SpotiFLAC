@@ -28,6 +28,7 @@ class DownloadItem {
   final DownloadStatus status;
   final double progress;
   final double speedMBps;
+  final int bytesReceived; // Bytes downloaded so far (for unknown size downloads)
   final String? filePath;
   final String? error;
   final DownloadErrorType? errorType;
@@ -41,6 +42,7 @@ class DownloadItem {
     this.status = DownloadStatus.queued,
     this.progress = 0.0,
     this.speedMBps = 0.0,
+    this.bytesReceived = 0,
     this.filePath,
     this.error,
     this.errorType,
@@ -55,6 +57,7 @@ class DownloadItem {
     DownloadStatus? status,
     double? progress,
     double? speedMBps,
+    int? bytesReceived,
     String? filePath,
     String? error,
     DownloadErrorType? errorType,
@@ -68,6 +71,7 @@ class DownloadItem {
       status: status ?? this.status,
       progress: progress ?? this.progress,
       speedMBps: speedMBps ?? this.speedMBps,
+      bytesReceived: bytesReceived ?? this.bytesReceived,
       filePath: filePath ?? this.filePath,
       error: error ?? this.error,
       errorType: errorType ?? this.errorType,

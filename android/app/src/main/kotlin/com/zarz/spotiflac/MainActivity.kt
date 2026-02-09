@@ -1927,6 +1927,15 @@ class MainActivity: FlutterFragmentActivity() {
                             }
                             result.success(response)
                         }
+                        "downloadFromYouTube" -> {
+                            val requestJson = call.arguments as String
+                            val response = withContext(Dispatchers.IO) {
+                                handleSafDownload(requestJson) { json ->
+                                    Gobackend.downloadFromYouTube(json)
+                                }
+                            }
+                            result.success(response)
+                        }
                         "enrichTrackWithExtension" -> {
                             val extensionId = call.argument<String>("extension_id") ?: ""
                             val trackJson = call.argument<String>("track") ?: "{}"

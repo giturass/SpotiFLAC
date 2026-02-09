@@ -1,8 +1,137 @@
 import 'dart:io';
 
 import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:spotiflac_android/services/platform_bridge.dart';
 import 'package:spotiflac_android/utils/mime_utils.dart';
+
+/// Regular expression to detect iOS app container paths.
+/// Matches paths like /var/mobile/Containers/Data/Application/{UUID}
+/// or /private/var/mobile/Containers/Data/Application/{UUID}
+final _iosContainerRootPattern = RegExp(
+  r'^(/private)?/var/mobile/Containers/Data/Application/[A-F0-9\-]+/?$',
+  caseSensitive: false,
+);
+
+/// Checks if a path is a valid writable directory on iOS.
+/// Returns false if:
+/// - The path is the app container root (not writable)
+/// - The path is an iCloud Drive path (not accessible by Go backend)
+/// - The path is outside the app sandbox
+bool isValidIosWritablePath(String path) {
+  if (!Platform.isIOS) return true;
+  if (path.isEmpty) return false;
+
+  // Check if it's the container root (without Documents/, tmp/, etc.)
+  if (_iosContainerRootPattern.hasMatch(path)) {
+    return false;
+  }
+
+  // Check for iCloud Drive paths
+  if (path.contains('Mobile Documents') ||
+      path.contains('CloudDocs') ||
+      path.contains('com~apple~CloudDocs')) {
+    return false;
+  }
+
+  // Ensure path contains a valid subdirectory (Documents, tmp, Library, etc.)
+  // This handles cases where FilePicker returns container root
+  final containerPattern = RegExp(
+    r'/var/mobile/Containers/Data/Application/[A-F0-9\-]+',
+    caseSensitive: false,
+  );
+  final match = containerPattern.firstMatch(path);
+  if (match != null) {
+    final remainingPath = path.substring(match.end);
+    // Valid paths should have something after the UUID
+    if (remainingPath.isEmpty || remainingPath == '/') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/// Validates and potentially corrects an iOS path.
+/// Returns a valid Documents subdirectory path if the input is invalid.
+Future<String> validateOrFixIosPath(String path, {String subfolder = 'SpotiFLAC'}) async {
+  if (!Platform.isIOS) return path;
+
+  if (isValidIosWritablePath(path)) {
+    return path;
+  }
+
+  // Fall back to app Documents directory
+  final dir = await getApplicationDocumentsDirectory();
+  final musicDir = Directory('${dir.path}/$subfolder');
+  if (!await musicDir.exists()) {
+    await musicDir.create(recursive: true);
+  }
+  return musicDir.path;
+}
+
+/// Detailed result for iOS path validation
+class IosPathValidationResult {
+  final bool isValid;
+  final String? correctedPath;
+  final String? errorReason;
+
+  const IosPathValidationResult({
+    required this.isValid,
+    this.correctedPath,
+    this.errorReason,
+  });
+}
+
+/// Validates an iOS path and returns detailed information about the result.
+IosPathValidationResult validateIosPath(String path) {
+  if (!Platform.isIOS) {
+    return const IosPathValidationResult(isValid: true);
+  }
+
+  if (path.isEmpty) {
+    return const IosPathValidationResult(
+      isValid: false,
+      errorReason: 'Path is empty',
+    );
+  }
+
+  // Check if it's the container root
+  if (_iosContainerRootPattern.hasMatch(path)) {
+    return const IosPathValidationResult(
+      isValid: false,
+      errorReason: 'Cannot write to app container root. Please choose a subfolder like Documents.',
+    );
+  }
+
+  // Check for iCloud Drive paths
+  if (path.contains('Mobile Documents') ||
+      path.contains('CloudDocs') ||
+      path.contains('com~apple~CloudDocs')) {
+    return const IosPathValidationResult(
+      isValid: false,
+      errorReason: 'iCloud Drive is not supported. Please choose a local folder.',
+    );
+  }
+
+  // Check for container root without subdirectory
+  final containerPattern = RegExp(
+    r'/var/mobile/Containers/Data/Application/[A-F0-9\-]+',
+    caseSensitive: false,
+  );
+  final match = containerPattern.firstMatch(path);
+  if (match != null) {
+    final remainingPath = path.substring(match.end);
+    if (remainingPath.isEmpty || remainingPath == '/') {
+      return const IosPathValidationResult(
+        isValid: false,
+        errorReason: 'Cannot write to app container root. Please use the default folder or choose a different location.',
+      );
+    }
+  }
+
+  return const IosPathValidationResult(isValid: true);
+}
 
 class FileAccessStat {
   final int? size;

@@ -15,18 +15,21 @@ type SongLinkClient struct {
 }
 
 type TrackAvailability struct {
-	SpotifyID string `json:"spotify_id"`
-	Tidal     bool   `json:"tidal"`
-	Amazon    bool   `json:"amazon"`
-	Qobuz     bool   `json:"qobuz"`
-	Deezer    bool   `json:"deezer"`
-	TidalURL  string `json:"tidal_url,omitempty"`
-	AmazonURL string `json:"amazon_url,omitempty"`
-	QobuzURL  string `json:"qobuz_url,omitempty"`
-	DeezerURL string `json:"deezer_url,omitempty"`
-	DeezerID  string `json:"deezer_id,omitempty"`
-	QobuzID   string `json:"qobuz_id,omitempty"`
-	TidalID   string `json:"tidal_id,omitempty"`
+	SpotifyID  string `json:"spotify_id"`
+	Tidal      bool   `json:"tidal"`
+	Amazon     bool   `json:"amazon"`
+	Qobuz      bool   `json:"qobuz"`
+	Deezer     bool   `json:"deezer"`
+	YouTube    bool   `json:"youtube"`
+	TidalURL   string `json:"tidal_url,omitempty"`
+	AmazonURL  string `json:"amazon_url,omitempty"`
+	QobuzURL   string `json:"qobuz_url,omitempty"`
+	DeezerURL  string `json:"deezer_url,omitempty"`
+	YouTubeURL string `json:"youtube_url,omitempty"`
+	DeezerID   string `json:"deezer_id,omitempty"`
+	QobuzID    string `json:"qobuz_id,omitempty"`
+	TidalID    string `json:"tidal_id,omitempty"`
+	YouTubeID  string `json:"youtube_id,omitempty"`
 }
 
 var (
@@ -117,6 +120,21 @@ func (s *SongLinkClient) CheckTrackAvailability(spotifyTrackID string, isrc stri
 		availability.Qobuz = true
 		availability.QobuzURL = qobuzLink.URL
 		availability.QobuzID = extractQobuzIDFromURL(qobuzLink.URL)
+	}
+
+	if youtubeLink, ok := songLinkResp.LinksByPlatform["youtube"]; ok && youtubeLink.URL != "" {
+		availability.YouTube = true
+		availability.YouTubeURL = youtubeLink.URL
+		availability.YouTubeID = extractYouTubeIDFromURL(youtubeLink.URL)
+	}
+
+	// Also check youtubeMusic as fallback
+	if !availability.YouTube {
+		if ytMusicLink, ok := songLinkResp.LinksByPlatform["youtubeMusic"]; ok && ytMusicLink.URL != "" {
+			availability.YouTube = true
+			availability.YouTubeURL = ytMusicLink.URL
+			availability.YouTubeID = extractYouTubeIDFromURL(ytMusicLink.URL)
+		}
 	}
 
 	return availability, nil
@@ -246,6 +264,52 @@ func extractTidalIDFromURL(tidalURL string) string {
 	return ""
 }
 
+// extractYouTubeIDFromURL extracts YouTube video ID from URL
+// URL formats:
+//   - https://www.youtube.com/watch?v=VIDEO_ID
+//   - https://youtu.be/VIDEO_ID
+//   - https://music.youtube.com/watch?v=VIDEO_ID
+func extractYouTubeIDFromURL(youtubeURL string) string {
+	if youtubeURL == "" {
+		return ""
+	}
+
+	// Handle youtu.be short URLs
+	if strings.Contains(youtubeURL, "youtu.be/") {
+		parts := strings.Split(youtubeURL, "youtu.be/")
+		if len(parts) >= 2 {
+			idPart := parts[1]
+			if idx := strings.Index(idPart, "?"); idx > 0 {
+				idPart = idPart[:idx]
+			}
+			if idx := strings.Index(idPart, "&"); idx > 0 {
+				idPart = idPart[:idx]
+			}
+			return strings.TrimSpace(idPart)
+		}
+	}
+
+	// Handle youtube.com URLs with ?v= parameter
+	parsed, err := url.Parse(youtubeURL)
+	if err != nil {
+		return ""
+	}
+
+	if v := parsed.Query().Get("v"); v != "" {
+		return v
+	}
+
+	// Handle /embed/ format
+	if strings.Contains(parsed.Path, "/embed/") {
+		parts := strings.Split(parsed.Path, "/embed/")
+		if len(parts) >= 2 {
+			return strings.Split(parts[1], "/")[0]
+		}
+	}
+
+	return ""
+}
+
 // isNumeric is defined in library_scan.go
 
 func (s *SongLinkClient) GetDeezerIDFromSpotify(spotifyTrackID string) (string, error) {
@@ -259,6 +323,20 @@ func (s *SongLinkClient) GetDeezerIDFromSpotify(spotifyTrackID string) (string, 
 	}
 
 	return availability.DeezerID, nil
+}
+
+// GetYouTubeURLFromSpotify converts a Spotify track ID to YouTube URL using SongLink
+func (s *SongLinkClient) GetYouTubeURLFromSpotify(spotifyTrackID string) (string, error) {
+	availability, err := s.CheckTrackAvailability(spotifyTrackID, "")
+	if err != nil {
+		return "", err
+	}
+
+	if !availability.YouTube || availability.YouTubeURL == "" {
+		return "", fmt.Errorf("track not found on YouTube")
+	}
+
+	return availability.YouTubeURL, nil
 }
 
 // AlbumAvailability represents album availability on different platforms
@@ -441,6 +519,19 @@ func (s *SongLinkClient) checkAvailabilityFromDeezerSongLink(deezerTrackID strin
 		availability.DeezerURL = deezerLink.URL
 	}
 
+	if youtubeLink, ok := songLinkResp.LinksByPlatform["youtube"]; ok && youtubeLink.URL != "" {
+		availability.YouTube = true
+		availability.YouTubeURL = youtubeLink.URL
+		availability.YouTubeID = extractYouTubeIDFromURL(youtubeLink.URL)
+	}
+	if !availability.YouTube {
+		if ytMusicLink, ok := songLinkResp.LinksByPlatform["youtubeMusic"]; ok && ytMusicLink.URL != "" {
+			availability.YouTube = true
+			availability.YouTubeURL = ytMusicLink.URL
+			availability.YouTubeID = extractYouTubeIDFromURL(ytMusicLink.URL)
+		}
+	}
+
 	return availability, nil
 }
 
@@ -528,6 +619,19 @@ func (s *SongLinkClient) CheckAvailabilityByPlatform(platform, entityType, entit
 		availability.DeezerID = extractDeezerIDFromURL(deezerLink.URL)
 	}
 
+	if youtubeLink, ok := songLinkResp.LinksByPlatform["youtube"]; ok && youtubeLink.URL != "" {
+		availability.YouTube = true
+		availability.YouTubeURL = youtubeLink.URL
+		availability.YouTubeID = extractYouTubeIDFromURL(youtubeLink.URL)
+	}
+	if !availability.YouTube {
+		if ytMusicLink, ok := songLinkResp.LinksByPlatform["youtubeMusic"]; ok && ytMusicLink.URL != "" {
+			availability.YouTube = true
+			availability.YouTubeURL = ytMusicLink.URL
+			availability.YouTubeID = extractYouTubeIDFromURL(ytMusicLink.URL)
+		}
+	}
+
 	return availability, nil
 }
 
@@ -582,6 +686,20 @@ func (s *SongLinkClient) GetAmazonURLFromDeezer(deezerTrackID string) (string, e
 	}
 
 	return availability.AmazonURL, nil
+}
+
+// GetYouTubeURLFromDeezer converts a Deezer track ID to YouTube URL using SongLink
+func (s *SongLinkClient) GetYouTubeURLFromDeezer(deezerTrackID string) (string, error) {
+	availability, err := s.CheckAvailabilityFromDeezer(deezerTrackID)
+	if err != nil {
+		return "", err
+	}
+
+	if !availability.YouTube || availability.YouTubeURL == "" {
+		return "", fmt.Errorf("track not found on YouTube")
+	}
+
+	return availability.YouTubeURL, nil
 }
 
 func (s *SongLinkClient) CheckAvailabilityFromURL(inputURL string) (*TrackAvailability, error) {
@@ -651,6 +769,18 @@ func (s *SongLinkClient) CheckAvailabilityFromURL(inputURL string) (*TrackAvaila
 		availability.Deezer = true
 		availability.DeezerURL = deezerLink.URL
 		availability.DeezerID = extractDeezerIDFromURL(deezerLink.URL)
+	}
+	if youtubeLink, ok := songLinkResp.LinksByPlatform["youtube"]; ok && youtubeLink.URL != "" {
+		availability.YouTube = true
+		availability.YouTubeURL = youtubeLink.URL
+		availability.YouTubeID = extractYouTubeIDFromURL(youtubeLink.URL)
+	}
+	if !availability.YouTube {
+		if ytMusicLink, ok := songLinkResp.LinksByPlatform["youtubeMusic"]; ok && ytMusicLink.URL != "" {
+			availability.YouTube = true
+			availability.YouTubeURL = ytMusicLink.URL
+			availability.YouTubeID = extractYouTubeIDFromURL(ytMusicLink.URL)
+		}
 	}
 
 	return availability, nil

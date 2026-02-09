@@ -9,6 +9,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:spotiflac_android/providers/settings_provider.dart';
 import 'package:spotiflac_android/l10n/l10n.dart';
 import 'package:spotiflac_android/services/platform_bridge.dart';
+import 'package:spotiflac_android/utils/file_access.dart';
 
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key});
@@ -322,6 +323,22 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 Navigator.pop(ctx);
                 final result = await FilePicker.platform.getDirectoryPath();
                 if (result != null) {
+                  // iOS: Validate the selected path is writable
+                  if (Platform.isIOS) {
+                    final validation = validateIosPath(result);
+                    if (!validation.isValid) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(validation.errorReason ?? 'Invalid folder selected'),
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                            duration: const Duration(seconds: 4),
+                          ),
+                        );
+                      }
+                      return;
+                    }
+                  }
                   setState(() => _selectedDirectory = result);
                 }
               },

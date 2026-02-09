@@ -1117,4 +1117,67 @@ static Future<Map<String, dynamic>> downloadWithExtensions({
     _log.d('clearStoreCache');
     await _channel.invokeMethod('clearStoreCache');
   }
+
+  // ==================== YOUTUBE / COBALT ====================
+
+  /// Download a track from YouTube using the Cobalt API.
+  /// YouTube is a lossy-only provider (Opus 256kbps or MP3 320kbps).
+  /// It does NOT participate in the lossless fallback chain.
+  static Future<Map<String, dynamic>> downloadFromYouTube({
+    required String trackName,
+    required String artistName,
+    required String albumName,
+    String? albumArtist,
+    String? coverUrl,
+    required String outputDir,
+    required String filenameFormat,
+    String quality = 'opus_256',
+    int trackNumber = 1,
+    int discNumber = 1,
+    String? releaseDate,
+    String? itemId,
+    int durationMs = 0,
+    String? isrc,
+    String? spotifyId,
+    String? deezerId,
+    String storageMode = 'app',
+    String safTreeUri = '',
+    String safRelativeDir = '',
+    String safFileName = '',
+    String safOutputExt = '',
+  }) async {
+    _log.i('downloadFromYouTube: "$trackName" by $artistName (quality: $quality)');
+    final request = jsonEncode({
+      'track_name': trackName,
+      'artist_name': artistName,
+      'album_name': albumName,
+      'album_artist': albumArtist ?? artistName,
+      'cover_url': coverUrl,
+      'output_dir': outputDir,
+      'filename_format': filenameFormat,
+      'quality': quality,
+      'track_number': trackNumber,
+      'disc_number': discNumber,
+      'release_date': releaseDate ?? '',
+      'item_id': itemId ?? '',
+      'duration_ms': durationMs,
+      'isrc': isrc ?? '',
+      'spotify_id': spotifyId ?? '',
+      'deezer_id': deezerId ?? '',
+      'storage_mode': storageMode,
+      'saf_tree_uri': safTreeUri,
+      'saf_relative_dir': safRelativeDir,
+      'saf_file_name': safFileName,
+      'saf_output_ext': safOutputExt,
+    });
+
+    final result = await _channel.invokeMethod('downloadFromYouTube', request);
+    final response = jsonDecode(result as String) as Map<String, dynamic>;
+    if (response['success'] == true) {
+      _log.i('YouTube download success: ${response['file_path']}');
+    } else {
+      _log.w('YouTube download failed: ${response['error']}');
+    }
+    return response;
+  }
 }

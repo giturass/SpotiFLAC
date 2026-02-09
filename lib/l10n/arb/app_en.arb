@@ -1414,6 +1414,8 @@
   "@lossyFormatOpusSubtitle": {"description": "Opus format description"},
   "qualityNote": "Actual quality depends on track availability from the service",
   "@qualityNote": {"description": "Note about quality availability"},
+  "youtubeQualityNote": "YouTube provides lossy audio only. Not part of lossless fallback.",
+  "@youtubeQualityNote": {"description": "Note for YouTube service explaining lossy-only quality"},
 
   "downloadAskBeforeDownload": "Ask Before Download",
   "@downloadAskBeforeDownload": {"description": "Setting - show quality picker"},

@@ -2942,9 +2942,17 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            item.speedMBps > 0
-                                ? '${(item.progress * 100).toStringAsFixed(0)}% • ${item.speedMBps.toStringAsFixed(1)} MB/s'
-                                : '${(item.progress * 100).toStringAsFixed(0)}%',
+                            // When progress is 0 (unknown size, e.g. YouTube tunnel mode),
+                            // show bytes downloaded instead of percentage
+                            item.progress > 0
+                                ? (item.speedMBps > 0
+                                    ? '${(item.progress * 100).toStringAsFixed(0)}% • ${item.speedMBps.toStringAsFixed(1)} MB/s'
+                                    : '${(item.progress * 100).toStringAsFixed(0)}%')
+                                : (item.bytesReceived > 0
+                                    ? '${(item.bytesReceived / (1024 * 1024)).toStringAsFixed(1)} MB • ${item.speedMBps.toStringAsFixed(1)} MB/s'
+                                    : (item.speedMBps > 0
+                                        ? 'Downloading • ${item.speedMBps.toStringAsFixed(1)} MB/s'
+                                        : 'Starting...')),
                             style: Theme.of(context).textTheme.labelSmall
                                 ?.copyWith(
                                   color: colorScheme.primary,
