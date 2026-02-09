@@ -604,7 +604,7 @@
   "@aboutSachinsenalDesc": {
     "description": "Credit description for sachinsenal0x64"
   },
-  "aboutSjdonadoDesc": "Creator of I Don't Have Spotify (IDHS). The fallback link resolver that saves the day!",
+  "aboutSjdonadoDesc": "Создатель I Don't Have Spotify (IDHS). Резервный резолвер ссылки",
   "@aboutSjdonadoDesc": {
     "description": "Credit description for sjdonado"
   },
@@ -628,7 +628,7 @@
   "@aboutSpotiSaver": {
     "description": "Name of SpotiSaver API service - DO NOT TRANSLATE"
   },
-  "aboutSpotiSaverDesc": "Tidal Hi-Res FLAC streaming endpoints. A key piece of the lossless puzzle!",
+  "aboutSpotiSaverDesc": "Потоковая передача Tidal Hi-Res FLAC. Ключевая часть lossless головоломки!",
   "@aboutSpotiSaverDesc": {
     "description": "Credit for SpotiSaver API"
   },
@@ -3022,7 +3022,7 @@
   "@libraryShowDuplicateIndicator": {
     "description": "Toggle for duplicate indicator in search"
   },
-  "libraryShowDuplicateIndicatorSubtitle": "Show when searching for existing tracks",
+  "libraryShowDuplicateIndicatorSubtitle": "Показать при поиске существующих треков",
   "@libraryShowDuplicateIndicatorSubtitle": {
     "description": "Subtitle for duplicate indicator toggle"
   },
@@ -3217,15 +3217,15 @@
   "@libraryFilterDateYear": {
     "description": "Filter option - this year"
   },
-  "libraryFilterSort": "Sort",
+  "libraryFilterSort": "Сортировка",
   "@libraryFilterSort": {
     "description": "Filter section - sort order"
   },
-  "libraryFilterSortLatest": "Latest",
+  "libraryFilterSortLatest": "Последние",
   "@libraryFilterSortLatest": {
     "description": "Sort option - newest first"
   },
-  "libraryFilterSortOldest": "Oldest",
+  "libraryFilterSortOldest": "Старые",
   "@libraryFilterSortOldest": {
     "description": "Sort option - oldest first"
   },
@@ -3242,7 +3242,7 @@
   "@timeJustNow": {
     "description": "Relative time - less than a minute ago"
   },
-  "timeMinutesAgo": "{count, plural, =1{1 minute ago} other{{count} minutes ago}}",
+  "timeMinutesAgo": "{count, plural, one {{count} минуту} few {{count} минуты} many {{count} минут} =1 {1 минуту} other {{count} минут}} назад",
   "@timeMinutesAgo": {
     "description": "Relative time - minutes ago",
     "placeholders": {
@@ -3251,7 +3251,7 @@
       }
     }
   },
-  "timeHoursAgo": "{count, plural, =1{1 hour ago} other{{count} hours ago}}",
+  "timeHoursAgo": "{count, plural, one {{count} час} few {{count} часа} many {{count} часов} =1 {1 час} other {{count} часов}} назад",
   "@timeHoursAgo": {
     "description": "Relative time - hours ago",
     "placeholders": {
@@ -3260,31 +3260,31 @@
       }
     }
   },
-  "storageSwitchTitle": "Switch Storage Mode",
+  "storageSwitchTitle": "Сменить режим хранения",
   "@storageSwitchTitle": {
     "description": "Dialog title when switching storage mode"
   },
-  "storageSwitchToSafTitle": "Switch to SAF Storage?",
+  "storageSwitchToSafTitle": "Переключиться на SAF хранилище?",
   "@storageSwitchToSafTitle": {
     "description": "Dialog title when switching to SAF"
   },
-  "storageSwitchToAppTitle": "Switch to App Storage?",
+  "storageSwitchToAppTitle": "Переключиться хранилище приложения?",
   "@storageSwitchToAppTitle": {
     "description": "Dialog title when switching to app storage"
   },
-  "storageSwitchToSafMessage": "Your existing downloads will remain in the current location and stay accessible.\n\nNew downloads will be saved to your selected SAF folder.",
+  "storageSwitchToSafMessage": "Ваши скачанные файлы останутся в текущем расположении и будут доступны.\n\nНовые файлы будут сохранены в выбранной вами папке SAF.",
   "@storageSwitchToSafMessage": {
     "description": "Explanation when switching to SAF"
   },
-  "storageSwitchToAppMessage": "Your existing downloads will remain in the current SAF location and stay accessible.\n\nNew downloads will be saved to Music/SpotiFLAC folder.",
+  "storageSwitchToAppMessage": "Ваши скачанные файлы останутся в текущем выбранной вами папке SAF.\n\nНовые файлы будут сохранены в папке Music/SpotiFLAC.",
   "@storageSwitchToAppMessage": {
     "description": "Explanation when switching to app storage"
   },
-  "storageSwitchExistingDownloads": "Existing Downloads",
+  "storageSwitchExistingDownloads": "Существующие загрузки",
   "@storageSwitchExistingDownloads": {
     "description": "Section header for existing downloads info"
   },
-  "storageSwitchExistingDownloadsInfo": "{count} tracks in {mode} storage",
+  "storageSwitchExistingDownloadsInfo": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} =1 {1 трек} other {{count} треков}} в {mode} хранилище",
   "@storageSwitchExistingDownloadsInfo": {
     "description": "Info about existing downloads count",
     "placeholders": {
@@ -3296,11 +3296,11 @@
       }
     }
   },
-  "storageSwitchNewDownloads": "New Downloads",
+  "storageSwitchNewDownloads": "Новые загрузки",
   "@storageSwitchNewDownloads": {
     "description": "Section header for new downloads info"
   },
-  "storageSwitchNewDownloadsLocation": "Will be saved to: {location}",
+  "storageSwitchNewDownloadsLocation": "Будет сохранено в: {location}",
   "@storageSwitchNewDownloadsLocation": {
     "description": "Shows where new downloads will go",
     "placeholders": {
@@ -3309,23 +3309,23 @@
       }
     }
   },
-  "storageSwitchContinue": "Continue",
+  "storageSwitchContinue": "Продолжить",
   "@storageSwitchContinue": {
     "description": "Button to proceed with storage switch"
   },
-  "storageSwitchSelectFolder": "Select SAF Folder",
+  "storageSwitchSelectFolder": "Выберите папку SAF",
   "@storageSwitchSelectFolder": {
     "description": "Button to select SAF folder"
   },
-  "storageAppStorage": "App Storage",
+  "storageAppStorage": "Хранилище приложения",
   "@storageAppStorage": {
     "description": "Label for app storage mode"
   },
-  "storageSafStorage": "SAF Storage",
+  "storageSafStorage": "Хранилище SAF",
   "@storageSafStorage": {
     "description": "Label for SAF storage mode"
   },
-  "storageModeBadge": "Storage: {mode}",
+  "storageModeBadge": "Хранилище: {mode}",
   "@storageModeBadge": {
     "description": "Badge showing storage mode for a track",
     "placeholders": {
@@ -3334,11 +3334,11 @@
       }
     }
   },
-  "storageStatsTitle": "Storage Statistics",
+  "storageStatsTitle": "Статистика хранилища",
   "@storageStatsTitle": {
     "description": "Section title for storage stats"
   },
-  "storageStatsAppCount": "{count} tracks in App Storage",
+  "storageStatsAppCount": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} =1 {1 трек} other {{count} треков}} в хранилище приложения",
   "@storageStatsAppCount": {
     "description": "Count of tracks in app storage",
     "placeholders": {
@@ -3347,7 +3347,7 @@
       }
     }
   },
-  "storageStatsSafCount": "{count} tracks in SAF Storage",
+  "storageStatsSafCount": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} =1 {1 трек} other {{count} треков}} в вашей папке в SAF",
   "@storageStatsSafCount": {
     "description": "Count of tracks in SAF storage",
     "placeholders": {
@@ -3356,75 +3356,75 @@
       }
     }
   },
-  "storageModeInfo": "Your files are stored in multiple locations",
+  "storageModeInfo": "Ваши файлы хранятся в нескольких местах",
   "@storageModeInfo": {
     "description": "Info when user has files in both storage modes"
   },
-  "tutorialWelcomeTitle": "Welcome to SpotiFLAC!",
+  "tutorialWelcomeTitle": "Добро пожаловать в SpotiFLAC!",
   "@tutorialWelcomeTitle": {
     "description": "Tutorial welcome page title"
   },
-  "tutorialWelcomeDesc": "Let's learn how to download your favorite music in lossless quality. This quick tutorial will show you the basics.",
+  "tutorialWelcomeDesc": "Давайте научимся скачивать свою любимую музыку в качестве без потерь. В этом кратком руководстве мы покажем вам основы.",
   "@tutorialWelcomeDesc": {
     "description": "Tutorial welcome page description"
   },
-  "tutorialWelcomeTip1": "Download music from Spotify, Deezer, or paste any supported URL",
+  "tutorialWelcomeTip1": "Скачивайте музыку из Spotify, Deezer, или вставьте любой поддерживаемый URL",
   "@tutorialWelcomeTip1": {
     "description": "Tutorial welcome tip 1"
   },
-  "tutorialWelcomeTip2": "Get FLAC quality audio from Tidal, Qobuz, or Amazon Music",
+  "tutorialWelcomeTip2": "Скачайте FLAC с Tidal, Qobuz или Amazon Music",
   "@tutorialWelcomeTip2": {
     "description": "Tutorial welcome tip 2"
   },
-  "tutorialWelcomeTip3": "Automatic metadata, cover art, and lyrics embedding",
+  "tutorialWelcomeTip3": "Автоматическое встраивание метаданных, обложек и текстов песен",
   "@tutorialWelcomeTip3": {
     "description": "Tutorial welcome tip 3"
   },
-  "tutorialSearchTitle": "Finding Music",
+  "tutorialSearchTitle": "Поиск музыки",
   "@tutorialSearchTitle": {
     "description": "Tutorial search page title"
   },
-  "tutorialSearchDesc": "There are two easy ways to find music you want to download.",
+  "tutorialSearchDesc": "Есть два простых способа найти музыку, которую вы хотите скачать.",
   "@tutorialSearchDesc": {
     "description": "Tutorial search page description"
   },
-  "tutorialSearchTip1": "Paste a Spotify or Deezer URL directly in the search box",
+  "tutorialSearchTip1": "Вставьте ссылку Spotify или Deezer прямо в поле поиска",
   "@tutorialSearchTip1": {
     "description": "Tutorial search tip 1"
   },
-  "tutorialSearchTip2": "Or type the song name, artist, or album to search",
+  "tutorialSearchTip2": "Или введите название песни, исполнителя или альбом для поиска",
   "@tutorialSearchTip2": {
     "description": "Tutorial search tip 2"
   },
-  "tutorialSearchTip3": "Supports tracks, albums, playlists, and artist pages",
+  "tutorialSearchTip3": "Поддержка треков, альбомов, плейлистов и страниц исполнителей",
   "@tutorialSearchTip3": {
     "description": "Tutorial search tip 3"
   },
-  "tutorialDownloadTitle": "Downloading Music",
+  "tutorialDownloadTitle": "Скачивание музыки",
   "@tutorialDownloadTitle": {
     "description": "Tutorial download page title"
   },
-  "tutorialDownloadDesc": "Downloading music is simple and fast. Here's how it works.",
+  "tutorialDownloadDesc": "Скачивание музыки просто и быстро. Вот как это работает.",
   "@tutorialDownloadDesc": {
     "description": "Tutorial download page description"
   },
-  "tutorialDownloadTip1": "Tap the download button next to any track to start downloading",
+  "tutorialDownloadTip1": "Нажмите кнопку скачать рядом с любым треком, чтобы начать скачивание",
   "@tutorialDownloadTip1": {
     "description": "Tutorial download tip 1"
   },
-  "tutorialDownloadTip2": "Choose your preferred quality (FLAC, Hi-Res, or MP3)",
+  "tutorialDownloadTip2": "Выберите предпочитаемое качество (FLAC, Hi-Res или MP3)",
   "@tutorialDownloadTip2": {
     "description": "Tutorial download tip 2"
   },
-  "tutorialDownloadTip3": "Download entire albums or playlists with one tap",
+  "tutorialDownloadTip3": "Скачать все альбомы или плейлисты одним нажатием",
   "@tutorialDownloadTip3": {
     "description": "Tutorial download tip 3"
   },
-  "tutorialLibraryTitle": "Your Library",
+  "tutorialLibraryTitle": "Ваша библиотека",
   "@tutorialLibraryTitle": {
     "description": "Tutorial library page title"
   },
-  "tutorialLibraryDesc": "All your downloaded music is organized in the Library tab.",
+  "tutorialLibraryDesc": "Вся скачанная музыка организована во вкладке Библиотека.",
   "@tutorialLibraryDesc": {
     "description": "Tutorial library page description"
   },
@@ -3432,19 +3432,19 @@
   "@tutorialLibraryTip1": {
     "description": "Tutorial library tip 1"
   },
-  "tutorialLibraryTip2": "Tap any track to play it with your music player",
+  "tutorialLibraryTip2": "Нажмите на любой трек, чтобы воспроизвести его с помощью вашего музыкального плеера",
   "@tutorialLibraryTip2": {
     "description": "Tutorial library tip 2"
   },
-  "tutorialLibraryTip3": "Switch between list and grid view for better browsing",
+  "tutorialLibraryTip3": "Переключение между списком и сеткой для лучшего просмотра",
   "@tutorialLibraryTip3": {
     "description": "Tutorial library tip 3"
   },
-  "tutorialExtensionsTitle": "Extensions",
+  "tutorialExtensionsTitle": "Расширения",
   "@tutorialExtensionsTitle": {
     "description": "Tutorial extensions page title"
   },
-  "tutorialExtensionsDesc": "Extend the app's capabilities with community extensions.",
+  "tutorialExtensionsDesc": "Расширьте возможности приложения с расширениями от сообщества.",
   "@tutorialExtensionsDesc": {
     "description": "Tutorial extensions page description"
   },
@@ -3452,7 +3452,7 @@
   "@tutorialExtensionsTip1": {
     "description": "Tutorial extensions tip 1"
   },
-  "tutorialExtensionsTip2": "Add new download providers or search sources",
+  "tutorialExtensionsTip2": "Добавить новых поставщиков загрузок или поиска",
   "@tutorialExtensionsTip2": {
     "description": "Tutorial extensions tip 2"
   },
@@ -3460,7 +3460,7 @@
   "@tutorialExtensionsTip3": {
     "description": "Tutorial extensions tip 3"
   },
-  "tutorialSettingsTitle": "Customize Your Experience",
+  "tutorialSettingsTitle": "Настройте приложение под себя",
   "@tutorialSettingsTitle": {
     "description": "Tutorial settings page title"
   },
@@ -3472,15 +3472,15 @@
   "@tutorialSettingsTip1": {
     "description": "Tutorial settings tip 1"
   },
-  "tutorialSettingsTip2": "Set default audio quality and format preferences",
+  "tutorialSettingsTip2": "Настройте качество и формата аудиофайла по умолчанию",
   "@tutorialSettingsTip2": {
     "description": "Tutorial settings tip 2"
   },
-  "tutorialSettingsTip3": "Customize app theme and appearance",
+  "tutorialSettingsTip3": "Настроить тему и внешний вид приложения",
   "@tutorialSettingsTip3": {
     "description": "Tutorial settings tip 3"
   },
-  "tutorialReadyMessage": "You're all set! Start downloading your favorite music now.",
+  "tutorialReadyMessage": "Всё готово! Начните загружать любимую музыку прямо сейчас.",
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
@@ -3488,11 +3488,11 @@
   "@tutorialExample": {
     "description": "Example label in tutorial"
   },
-  "libraryForceFullScan": "Force Full Scan",
+  "libraryForceFullScan": "Полное сканирование",
   "@libraryForceFullScan": {
     "description": "Button to force a complete rescan of library"
   },
-  "libraryForceFullScanSubtitle": "Rescan all files, ignoring cache",
+  "libraryForceFullScanSubtitle": "Пересканировать все файлы, игнорировать кэш",
   "@libraryForceFullScanSubtitle": {
     "description": "Subtitle for force full scan button"
   },
