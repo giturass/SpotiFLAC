@@ -13,7 +13,7 @@
   "@navHome": {
     "description": "Bottom navigation - Home tab"
   },
-  "navLibrary": "Library",
+  "navLibrary": "Archiv",
   "@navLibrary": {
     "description": "Bottom navigation - Library tab"
   },
@@ -429,6 +429,10 @@
   "optionsSpotifyWarning": "Spotify erfordert eigene API-Anmeldedaten. Kostenlos erhältlich auf developer.spotify.com",
   "@optionsSpotifyWarning": {
     "description": "Info about Spotify API requirement"
+  },
+  "optionsSpotifyDeprecationWarning": "Spotify search will be deprecated on March 3, 2026 due to Spotify API changes. Please switch to Deezer.",
+  "@optionsSpotifyDeprecationWarning": {
+    "description": "Warning about Spotify API deprecation"
   },
   "extensionsTitle": "Erweiterungen",
   "@extensionsTitle": {
@@ -879,7 +883,7 @@
   "@setupIosEmptyFolderWarning": {
     "description": "iOS folder selection warning"
   },
-  "setupIcloudNotSupported": "iCloud Drive is not supported. Please use the app Documents folder.",
+  "setupIcloudNotSupported": "iCloud Drive wird nicht unterstützt. Bitte verwenden Sie den Ordner \"Dokumente\".",
   "@setupIcloudNotSupported": {
     "description": "Error when user selects iCloud Drive on iOS"
   },
@@ -955,79 +959,79 @@
   "@setupSpotifyApiOptional": {
     "description": "Spotify API step title"
   },
-  "setupSpotifyApiDescription": "Add your Spotify API credentials for better search results and access to Spotify-exclusive content.",
+  "setupSpotifyApiDescription": "Fügen Sie Ihre Spotify-API-Zugangsdaten für bessere Suchergebnisse und den Zugriff auf Spotify-exklusive Inhalte hinzu.",
   "@setupSpotifyApiDescription": {
     "description": "Explanation for Spotify API"
   },
-  "setupUseSpotifyApi": "Use Spotify API",
+  "setupUseSpotifyApi": "Spotify-API verwenden",
   "@setupUseSpotifyApi": {
     "description": "Toggle to enable Spotify API"
   },
-  "setupEnterCredentialsBelow": "Enter your credentials below",
+  "setupEnterCredentialsBelow": "Gib deine Anmeldedaten unten ein",
   "@setupEnterCredentialsBelow": {
     "description": "Prompt to enter credentials"
   },
-  "setupUsingDeezer": "Using Deezer (no account needed)",
+  "setupUsingDeezer": "Deezer verwenden (kein Konto erforderlich)",
   "@setupUsingDeezer": {
     "description": "Status when using Deezer"
   },
-  "setupEnterClientId": "Enter Spotify Client ID",
+  "setupEnterClientId": "Spotify-Client-ID eingeben",
   "@setupEnterClientId": {
     "description": "Placeholder for client ID field"
   },
-  "setupEnterClientSecret": "Enter Spotify Client Secret",
+  "setupEnterClientSecret": "Spotify Client-Secret eingeben",
   "@setupEnterClientSecret": {
     "description": "Placeholder for client secret field"
   },
-  "setupGetFreeCredentials": "Get your free API credentials from the Spotify Developer Dashboard.",
+  "setupGetFreeCredentials": "Holen Sie sich Ihre kostenlosen API-Anmeldeinformationen aus dem Spotify-Entwickler-Dashboard.",
   "@setupGetFreeCredentials": {
     "description": "Info about getting Spotify credentials"
   },
-  "setupEnableNotifications": "Enable Notifications",
+  "setupEnableNotifications": "Benachrichtigungen aktivieren",
   "@setupEnableNotifications": {
     "description": "Button to enable notifications"
   },
-  "setupProceedToNextStep": "You can now proceed to the next step.",
+  "setupProceedToNextStep": "Sie können nun mit dem nächsten Schritt fortfahren.",
   "@setupProceedToNextStep": {
     "description": "Message after completing a step"
   },
-  "setupNotificationProgressDescription": "You will receive download progress notifications.",
+  "setupNotificationProgressDescription": "Sie erhalten Benachrichtigungen über den Download-Fortschritt.",
   "@setupNotificationProgressDescription": {
     "description": "Info about notification usage"
   },
-  "setupNotificationBackgroundDescription": "Get notified about download progress and completion. This helps you track downloads when the app is in background.",
+  "setupNotificationBackgroundDescription": "Werde benachrichtigt über Download-Fortschritt und -Fertigstellung. Dies hilft Ihnen, Downloads zu verfolgen, wenn die App im Hintergrund ist.",
   "@setupNotificationBackgroundDescription": {
     "description": "Detailed notification explanation"
   },
-  "setupSkipForNow": "Skip for now",
+  "setupSkipForNow": "Vorerst überspringen",
   "@setupSkipForNow": {
     "description": "Skip button text"
   },
-  "setupBack": "Back",
+  "setupBack": "Zurück",
   "@setupBack": {
     "description": "Back button text"
   },
-  "setupNext": "Next",
+  "setupNext": "Weiter",
   "@setupNext": {
     "description": "Next button text"
   },
-  "setupGetStarted": "Get Started",
+  "setupGetStarted": "Los geht‘s",
   "@setupGetStarted": {
     "description": "Final setup button"
   },
-  "setupSkipAndStart": "Skip & Start",
+  "setupSkipAndStart": "Überspringen & Starten",
   "@setupSkipAndStart": {
     "description": "Skip setup and start app"
   },
-  "setupAllowAccessToManageFiles": "Please enable \"Allow access to manage all files\" in the next screen.",
+  "setupAllowAccessToManageFiles": "Bitte aktivieren Sie \"Zugriff auf alle Dateien erlauben\" auf dem nächsten Bildschirm.",
   "@setupAllowAccessToManageFiles": {
     "description": "Instruction for file access permission"
   },
-  "setupGetCredentialsFromSpotify": "Get credentials from developer.spotify.com",
+  "setupGetCredentialsFromSpotify": "Zugangsdaten von developer.spotify.com erhalten",
   "@setupGetCredentialsFromSpotify": {
     "description": "Link text for Spotify developer portal"
   },
-  "dialogCancel": "Cancel",
+  "dialogCancel": "Abbrechen",
   "@dialogCancel": {
     "description": "Dialog button - cancel action"
   },
@@ -1035,107 +1039,107 @@
   "@dialogOk": {
     "description": "Dialog button - confirm/acknowledge"
   },
-  "dialogSave": "Save",
+  "dialogSave": "Speichern",
   "@dialogSave": {
     "description": "Dialog button - save changes"
   },
-  "dialogDelete": "Delete",
+  "dialogDelete": "Löschen",
   "@dialogDelete": {
     "description": "Dialog button - delete item"
   },
-  "dialogRetry": "Retry",
+  "dialogRetry": "Wiederholen",
   "@dialogRetry": {
     "description": "Dialog button - retry action"
   },
-  "dialogClose": "Close",
+  "dialogClose": "Schließen",
   "@dialogClose": {
     "description": "Dialog button - close dialog"
   },
-  "dialogYes": "Yes",
+  "dialogYes": "Ja",
   "@dialogYes": {
     "description": "Dialog button - confirm yes"
   },
-  "dialogNo": "No",
+  "dialogNo": "Nein",
   "@dialogNo": {
     "description": "Dialog button - confirm no"
   },
-  "dialogClear": "Clear",
+  "dialogClear": "Leeren",
   "@dialogClear": {
     "description": "Dialog button - clear items"
   },
-  "dialogConfirm": "Confirm",
+  "dialogConfirm": "Bestätigen",
   "@dialogConfirm": {
     "description": "Dialog button - confirm action"
   },
-  "dialogDone": "Done",
+  "dialogDone": "Fertig",
   "@dialogDone": {
     "description": "Dialog button - action completed"
   },
-  "dialogImport": "Import",
+  "dialogImport": "Importieren",
   "@dialogImport": {
     "description": "Dialog button - import data"
   },
-  "dialogDiscard": "Discard",
+  "dialogDiscard": "Verwerfen",
   "@dialogDiscard": {
     "description": "Dialog button - discard changes"
   },
-  "dialogRemove": "Remove",
+  "dialogRemove": "Entfernen",
   "@dialogRemove": {
     "description": "Dialog button - remove item"
   },
-  "dialogUninstall": "Uninstall",
+  "dialogUninstall": "Deinstallieren",
   "@dialogUninstall": {
     "description": "Dialog button - uninstall extension"
   },
-  "dialogDiscardChanges": "Discard Changes?",
+  "dialogDiscardChanges": "Änderungen verwerfen?",
   "@dialogDiscardChanges": {
     "description": "Dialog title - unsaved changes warning"
   },
-  "dialogUnsavedChanges": "You have unsaved changes. Do you want to discard them?",
+  "dialogUnsavedChanges": "Sie haben noch nicht alle Änderungen gespeichert. Möchten Sie Ihre Änderungen verwerfen?",
   "@dialogUnsavedChanges": {
     "description": "Dialog message - unsaved changes"
   },
-  "dialogDownloadFailed": "Download Failed",
+  "dialogDownloadFailed": "Download fehlgeschlagen",
   "@dialogDownloadFailed": {
     "description": "Dialog title - download error"
   },
-  "dialogTrackLabel": "Track:",
+  "dialogTrackLabel": "Titel:",
   "@dialogTrackLabel": {
     "description": "Label for track name in error dialog"
   },
-  "dialogArtistLabel": "Artist:",
+  "dialogArtistLabel": "Künstler:",
   "@dialogArtistLabel": {
     "description": "Label for artist name in error dialog"
   },
-  "dialogErrorLabel": "Error:",
+  "dialogErrorLabel": "Fehler:",
   "@dialogErrorLabel": {
     "description": "Label for error message"
   },
-  "dialogClearAll": "Clear All",
+  "dialogClearAll": "Alles löschen",
   "@dialogClearAll": {
     "description": "Dialog title - clear all items"
   },
-  "dialogClearAllDownloads": "Are you sure you want to clear all downloads?",
+  "dialogClearAllDownloads": "Sind Sie sicher, dass Sie die Downloads löschen möchten?",
   "@dialogClearAllDownloads": {
     "description": "Dialog message - clear downloads confirmation"
   },
-  "dialogRemoveFromDevice": "Remove from device?",
+  "dialogRemoveFromDevice": "Vom Gerät entfernen?",
   "@dialogRemoveFromDevice": {
     "description": "Dialog title - delete file confirmation"
   },
-  "dialogRemoveExtension": "Remove Extension",
+  "dialogRemoveExtension": "Erweiterung entfernen",
   "@dialogRemoveExtension": {
     "description": "Dialog title - uninstall extension"
   },
-  "dialogRemoveExtensionMessage": "Are you sure you want to remove this extension? This cannot be undone.",
+  "dialogRemoveExtensionMessage": "Bist Du sicher, dass Du diese Erweiterung entfernen möchtest? Diese Aktion kann nicht rückgängig gemacht werden.",
   "@dialogRemoveExtensionMessage": {
     "description": "Dialog message - uninstall confirmation"
   },
-  "dialogUninstallExtension": "Uninstall Extension?",
+  "dialogUninstallExtension": "Erweiterung deinstallieren?",
   "@dialogUninstallExtension": {
     "description": "Dialog title - uninstall extension"
   },
-  "dialogUninstallExtensionMessage": "Are you sure you want to remove {extensionName}?",
+  "dialogUninstallExtensionMessage": "Sind Sie sicher, dass Sie {extensionName} entfernen möchten?",
   "@dialogUninstallExtensionMessage": {
     "description": "Dialog message - uninstall specific extension",
     "placeholders": {
@@ -1144,19 +1148,19 @@
       }
     }
   },
-  "dialogClearHistoryTitle": "Clear History",
+  "dialogClearHistoryTitle": "Verlauf löschen",
   "@dialogClearHistoryTitle": {
     "description": "Dialog title - clear download history"
   },
-  "dialogClearHistoryMessage": "Are you sure you want to clear all download history? This cannot be undone.",
+  "dialogClearHistoryMessage": "Sind Sie sicher, dass Sie den gesamten Download verlauf löschen möchten? Dies kann nicht rückgängig gemacht werden!",
   "@dialogClearHistoryMessage": {
     "description": "Dialog message - clear history confirmation"
   },
-  "dialogDeleteSelectedTitle": "Delete Selected",
+  "dialogDeleteSelectedTitle": "Ausgewählte löschen",
   "@dialogDeleteSelectedTitle": {
     "description": "Dialog title - delete selected items"
   },
-  "dialogDeleteSelectedMessage": "Delete {count} {count, plural, =1{track} other{tracks}} from history?\n\nThis will also delete the files from storage.",
+  "dialogDeleteSelectedMessage": "Lösche {count} {count, plural, one {}=1{Track} other{Tracks}} aus dem Verlauf?\n\nDies löscht auch die Dateien aus dem Speicher.",
   "@dialogDeleteSelectedMessage": {
     "description": "Dialog message - delete selected tracks",
     "placeholders": {
@@ -1165,11 +1169,11 @@
       }
     }
   },
-  "dialogImportPlaylistTitle": "Import Playlist",
+  "dialogImportPlaylistTitle": "Wiedergabeliste importieren",
   "@dialogImportPlaylistTitle": {
     "description": "Dialog title - import CSV playlist"
   },
-  "dialogImportPlaylistMessage": "Found {count} tracks in CSV. Add them to download queue?",
+  "dialogImportPlaylistMessage": "{count} Titel in CSV gefunden. Zur Warteschlange hinzufügen?",
   "csvImportTracks": "{count} tracks from CSV",
   "@csvImportTracks": {
     "description": "Label shown in quality picker for CSV import",
@@ -2498,6 +2502,10 @@
   "@qualityNote": {
     "description": "Note about quality availability"
   },
+  "youtubeQualityNote": "YouTube provides lossy audio only. Not part of lossless fallback.",
+  "@youtubeQualityNote": {
+    "description": "Note for YouTube service explaining lossy-only quality"
+  },
   "downloadAskBeforeDownload": "Ask Before Download",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
@@ -2513,6 +2521,18 @@
   "downloadAlbumFolderStructure": "Album Folder Structure",
   "@downloadAlbumFolderStructure": {
     "description": "Setting - album folder organization"
+  },
+  "downloadUseAlbumArtistForFolders": "Use Album Artist for folders",
+  "@downloadUseAlbumArtistForFolders": {
+    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
+  },
+  "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Artist folders use Album Artist when available",
+  "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
+    "description": "Subtitle when Album Artist is used for folder naming"
+  },
+  "downloadUseAlbumArtistForFoldersTrackSubtitle": "Artist folders use Track Artist only",
+  "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
+    "description": "Subtitle when Track Artist is used for folder naming"
   },
   "downloadSaveFormat": "Save Format",
   "@downloadSaveFormat": {
@@ -2816,6 +2836,14 @@
   "@recentTypePlaylist": {
     "description": "Recent access item type - playlist"
   },
+  "recentEmpty": "No recent items yet",
+  "@recentEmpty": {
+    "description": "Empty state text for recent access list"
+  },
+  "recentShowAllDownloads": "Show All Downloads",
+  "@recentShowAllDownloads": {
+    "description": "Button label to unhide hidden downloads in recent access"
+  },
   "recentPlaylistInfo": "Playlist: {name}",
   "@recentPlaylistInfo": {
     "description": "Snackbar message when tapping playlist in recent access",
@@ -2989,6 +3017,14 @@
   "settingsLocalLibrarySubtitle": "Scan music & detect duplicates",
   "@settingsLocalLibrarySubtitle": {
     "description": "Subtitle for local library settings"
+  },
+  "settingsCache": "Storage & Cache",
+  "@settingsCache": {
+    "description": "Settings menu item - cache management"
+  },
+  "settingsCacheSubtitle": "View size and clear cached data",
+  "@settingsCacheSubtitle": {
+    "description": "Subtitle for cache management menu"
   },
   "libraryTitle": "Local Library",
   "@libraryTitle": {
@@ -3516,5 +3552,257 @@
   "cleanupOrphanedDownloadsNone": "No orphaned entries found",
   "@cleanupOrphanedDownloadsNone": {
     "description": "Snackbar when no orphans found"
+  },
+  "cacheTitle": "Storage & Cache",
+  "@cacheTitle": {
+    "description": "Cache management page title"
+  },
+  "cacheSummaryTitle": "Cache overview",
+  "@cacheSummaryTitle": {
+    "description": "Heading for cache summary card"
+  },
+  "cacheSummarySubtitle": "Clearing cache will not remove downloaded music files.",
+  "@cacheSummarySubtitle": {
+    "description": "Helper text for cache summary card"
+  },
+  "cacheEstimatedTotal": "Estimated cache usage: {size}",
+  "@cacheEstimatedTotal": {
+    "description": "Total cache size shown in summary",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "cacheSectionStorage": "Cached Data",
+  "@cacheSectionStorage": {
+    "description": "Section header for cache entries"
+  },
+  "cacheSectionMaintenance": "Maintenance",
+  "@cacheSectionMaintenance": {
+    "description": "Section header for cleanup actions"
+  },
+  "cacheAppDirectory": "App cache directory",
+  "@cacheAppDirectory": {
+    "description": "Cache item title for app cache directory"
+  },
+  "cacheAppDirectoryDesc": "HTTP responses, WebView data, and other temporary app data.",
+  "@cacheAppDirectoryDesc": {
+    "description": "Description of what app cache directory contains"
+  },
+  "cacheTempDirectory": "Temporary directory",
+  "@cacheTempDirectory": {
+    "description": "Cache item title for temporary files directory"
+  },
+  "cacheTempDirectoryDesc": "Temporary files from downloads and audio conversion.",
+  "@cacheTempDirectoryDesc": {
+    "description": "Description of what temporary directory contains"
+  },
+  "cacheCoverImage": "Cover image cache",
+  "@cacheCoverImage": {
+    "description": "Cache item title for persistent cover images"
+  },
+  "cacheCoverImageDesc": "Downloaded album and track cover art. Will re-download when viewed.",
+  "@cacheCoverImageDesc": {
+    "description": "Description of what cover image cache contains"
+  },
+  "cacheLibraryCover": "Library cover cache",
+  "@cacheLibraryCover": {
+    "description": "Cache item title for local library cover art images"
+  },
+  "cacheLibraryCoverDesc": "Cover art extracted from local music files. Will re-extract on next scan.",
+  "@cacheLibraryCoverDesc": {
+    "description": "Description of what library cover cache contains"
+  },
+  "cacheExploreFeed": "Explore feed cache",
+  "@cacheExploreFeed": {
+    "description": "Cache item title for explore home feed cache"
+  },
+  "cacheExploreFeedDesc": "Explore tab content (new releases, trending). Will refresh on next visit.",
+  "@cacheExploreFeedDesc": {
+    "description": "Description of what explore feed cache contains"
+  },
+  "cacheTrackLookup": "Track lookup cache",
+  "@cacheTrackLookup": {
+    "description": "Cache item title for track ID lookup cache"
+  },
+  "cacheTrackLookupDesc": "Spotify/Deezer track ID lookups. Clearing may slow next few searches.",
+  "@cacheTrackLookupDesc": {
+    "description": "Description of what track lookup cache contains"
+  },
+  "cacheCleanupUnusedDesc": "Remove orphaned download history and library entries for missing files.",
+  "@cacheCleanupUnusedDesc": {
+    "description": "Description of what cleanup unused data does"
+  },
+  "cacheNoData": "No cached data",
+  "@cacheNoData": {
+    "description": "Label when cache category has no data"
+  },
+  "cacheSizeWithFiles": "{size} in {count} files",
+  "@cacheSizeWithFiles": {
+    "description": "Cache size and file count",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cacheSizeOnly": "{size}",
+  "@cacheSizeOnly": {
+    "description": "Cache size only",
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "cacheEntries": "{count} entries",
+  "@cacheEntries": {
+    "description": "Track cache entry count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "cacheClearSuccess": "Cleared: {target}",
+  "@cacheClearSuccess": {
+    "description": "Snackbar after clearing selected cache",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cacheClearConfirmTitle": "Clear cache?",
+  "@cacheClearConfirmTitle": {
+    "description": "Dialog title before clearing one cache category"
+  },
+  "cacheClearConfirmMessage": "This will clear cached data for {target}. Downloaded music files will not be deleted.",
+  "@cacheClearConfirmMessage": {
+    "description": "Dialog message before clearing selected cache",
+    "placeholders": {
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "cacheClearAllConfirmTitle": "Clear all cache?",
+  "@cacheClearAllConfirmTitle": {
+    "description": "Dialog title before clearing all caches"
+  },
+  "cacheClearAllConfirmMessage": "This will clear all cache categories on this page. Downloaded music files will not be deleted.",
+  "@cacheClearAllConfirmMessage": {
+    "description": "Dialog message before clearing all caches"
+  },
+  "cacheClearAll": "Clear all cache",
+  "@cacheClearAll": {
+    "description": "Button label to clear all caches"
+  },
+  "cacheCleanupUnused": "Cleanup unused data",
+  "@cacheCleanupUnused": {
+    "description": "Action title for cleaning unused entries"
+  },
+  "cacheCleanupUnusedSubtitle": "Remove orphaned download history and missing library entries",
+  "@cacheCleanupUnusedSubtitle": {
+    "description": "Subtitle for cleanup unused data action"
+  },
+  "cacheCleanupResult": "Cleanup completed: {downloadCount} orphaned downloads, {libraryCount} missing library entries",
+  "@cacheCleanupResult": {
+    "description": "Snackbar after unused data cleanup",
+    "placeholders": {
+      "downloadCount": {
+        "type": "int"
+      },
+      "libraryCount": {
+        "type": "int"
+      }
+    }
+  },
+  "cacheRefreshStats": "Refresh stats",
+  "@cacheRefreshStats": {
+    "description": "Button label to refresh cache statistics"
+  },
+  "trackSaveCoverArt": "Save Cover Art",
+  "@trackSaveCoverArt": {
+    "description": "Menu action - save album cover art as file"
+  },
+  "trackSaveCoverArtSubtitle": "Save album art as .jpg file",
+  "@trackSaveCoverArtSubtitle": {
+    "description": "Subtitle for save cover art action"
+  },
+  "trackSaveLyrics": "Save Lyrics (.lrc)",
+  "@trackSaveLyrics": {
+    "description": "Menu action - save lyrics as .lrc file"
+  },
+  "trackSaveLyricsSubtitle": "Fetch and save lyrics as .lrc file",
+  "@trackSaveLyricsSubtitle": {
+    "description": "Subtitle for save lyrics action"
+  },
+  "trackReEnrich": "Re-enrich Metadata",
+  "@trackReEnrich": {
+    "description": "Menu action - re-embed metadata into audio file"
+  },
+  "trackReEnrichSubtitle": "Re-embed metadata without re-downloading",
+  "@trackReEnrichSubtitle": {
+    "description": "Subtitle for re-enrich metadata action"
+  },
+  "trackReEnrichOnlineSubtitle": "Search metadata online and embed into file",
+  "@trackReEnrichOnlineSubtitle": {
+    "description": "Subtitle for re-enrich metadata action for local items"
+  },
+  "trackEditMetadata": "Edit Metadata",
+  "@trackEditMetadata": {
+    "description": "Menu action - edit embedded metadata"
+  },
+  "trackCoverSaved": "Cover art saved to {fileName}",
+  "@trackCoverSaved": {
+    "description": "Snackbar after cover art saved",
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "trackCoverNoSource": "No cover art source available",
+  "@trackCoverNoSource": {
+    "description": "Snackbar when no cover art URL or embedded cover"
+  },
+  "trackLyricsSaved": "Lyrics saved to {fileName}",
+  "@trackLyricsSaved": {
+    "description": "Snackbar after lyrics saved",
+    "placeholders": {
+      "fileName": {
+        "type": "String"
+      }
+    }
+  },
+  "trackReEnrichProgress": "Re-enriching metadata...",
+  "@trackReEnrichProgress": {
+    "description": "Snackbar while re-enriching metadata"
+  },
+  "trackReEnrichSearching": "Searching metadata online...",
+  "@trackReEnrichSearching": {
+    "description": "Snackbar while searching metadata from internet for local items"
+  },
+  "trackReEnrichSuccess": "Metadata re-enriched successfully",
+  "@trackReEnrichSuccess": {
+    "description": "Snackbar after successful re-enrichment"
+  },
+  "trackReEnrichFfmpegFailed": "FFmpeg metadata embed failed",
+  "@trackReEnrichFfmpegFailed": {
+    "description": "Snackbar when FFmpeg embed fails for MP3/Opus"
+  },
+  "trackSaveFailed": "Failed: {error}",
+  "@trackSaveFailed": {
+    "description": "Snackbar when save operation fails",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   }
 }
