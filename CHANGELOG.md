@@ -5,7 +5,7 @@
 ### Added
 
 - "Filter Contributing Artists in Album Artist" setting - strips featured/contributing artists from Album Artist metadata tag
-- Library scan notifications (Android) - shows progress, completion, failure, and cancellation status
+- Library scan notifications (Android and iOS) - shows progress, completion, failure, and cancellation status
 - Collapsible "Artist Name Filters" section in download settings UI
 
 ### Fixed

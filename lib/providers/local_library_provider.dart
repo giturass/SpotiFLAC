@@ -578,7 +578,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
     required int totalFiles,
     required String? currentFile,
   }) async {
-    if (!Platform.isAndroid) return;
     try {
       await _notificationService.showLibraryScanProgress(
         progress: progress,
@@ -596,7 +595,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
     required int excludedDownloadedCount,
     required int errorCount,
   }) async {
-    if (!Platform.isAndroid) return;
     try {
       await _notificationService.showLibraryScanComplete(
         totalTracks: totalTracks,
@@ -609,7 +607,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
   }
 
   Future<void> _showScanFailedNotification(String message) async {
-    if (!Platform.isAndroid) return;
     try {
       await _notificationService.showLibraryScanFailed(message);
     } catch (e) {
@@ -618,7 +615,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
   }
 
   Future<void> _showScanCancelledNotification() async {
-    if (!Platform.isAndroid) return;
     try {
       await _notificationService.showLibraryScanCancelled();
     } catch (e) {
