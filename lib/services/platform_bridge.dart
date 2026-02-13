@@ -332,6 +332,44 @@ class PlatformBridge {
     return jsonDecode(result as String) as Map<String, dynamic>;
   }
 
+  // ==================== LYRICS PROVIDER SETTINGS ====================
+
+  /// Sets the lyrics provider order. Providers not in the list are disabled.
+  static Future<void> setLyricsProviders(List<String> providers) async {
+    final providersJSON = jsonEncode(providers);
+    await _channel.invokeMethod('setLyricsProviders', {
+      'providers_json': providersJSON,
+    });
+  }
+
+  /// Returns the current lyrics provider order.
+  static Future<List<String>> getLyricsProviders() async {
+    final result = await _channel.invokeMethod('getLyricsProviders');
+    final List<dynamic> decoded = jsonDecode(result as String) as List<dynamic>;
+    return decoded.cast<String>();
+  }
+
+  /// Returns metadata about all available lyrics providers.
+  static Future<List<Map<String, dynamic>>> getAvailableLyricsProviders() async {
+    final result = await _channel.invokeMethod('getAvailableLyricsProviders');
+    final List<dynamic> decoded = jsonDecode(result as String) as List<dynamic>;
+    return decoded.cast<Map<String, dynamic>>();
+  }
+
+  /// Sets advanced lyrics fetch options used by provider-specific integrations.
+  static Future<void> setLyricsFetchOptions(Map<String, dynamic> options) async {
+    final optionsJSON = jsonEncode(options);
+    await _channel.invokeMethod('setLyricsFetchOptions', {
+      'options_json': optionsJSON,
+    });
+  }
+
+  /// Returns current advanced lyrics fetch options.
+  static Future<Map<String, dynamic>> getLyricsFetchOptions() async {
+    final result = await _channel.invokeMethod('getLyricsFetchOptions');
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
   static Future<Map<String, dynamic>> reEnrichFile(
     Map<String, dynamic> request,
   ) async {

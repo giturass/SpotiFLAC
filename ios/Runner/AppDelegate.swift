@@ -783,6 +783,36 @@ import Gobackend  // Import Go framework
             if let error = error { throw error }
             return response
             
+        // Lyrics Provider Settings
+        case "setLyricsProviders":
+            let args = call.arguments as! [String: Any]
+            let providersJson = args["providers_json"] as? String ?? "[]"
+            GobackendSetLyricsProvidersJSON(providersJson, &error)
+            if let error = error { throw error }
+            return "{\"success\":true}"
+            
+        case "getLyricsProviders":
+            let response = GobackendGetLyricsProvidersJSON(&error)
+            if let error = error { throw error }
+            return response
+            
+        case "getAvailableLyricsProviders":
+            let response = GobackendGetAvailableLyricsProvidersJSON(&error)
+            if let error = error { throw error }
+            return response
+            
+        case "setLyricsFetchOptions":
+            let args = call.arguments as! [String: Any]
+            let optionsJson = args["options_json"] as? String ?? "{}"
+            GobackendSetLyricsFetchOptionsJSON(optionsJson, &error)
+            if let error = error { throw error }
+            return "{\"success\":true}"
+            
+        case "getLyricsFetchOptions":
+            let response = GobackendGetLyricsFetchOptionsJSON(&error)
+            if let error = error { throw error }
+            return response
+            
         default:
             throw NSError(
                 domain: "SpotiFLAC",

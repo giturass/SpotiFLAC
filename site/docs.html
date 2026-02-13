@@ -638,6 +638,7 @@
 <li><a class="section-link level-3" data-level="3" href="#track-enrichment">Track Enrichment</a></li>
 <li><a class="section-link level-3" data-level="3" href="#custom-track-matching">Custom Track Matching</a></li>
 <li><a class="section-link level-3" data-level="3" href="#post-processing-hooks">Post-Processing Hooks</a></li>
+<li><a class="section-link level-3" data-level="3" href="#lyrics-provider">Lyrics Provider</a></li>
 </ul>
 </li>
 <li><a class="section-link level-2" data-level="2" href="#main-script">Main Script</a>
@@ -667,6 +668,7 @@
 <ul class="section-sub-list">
 <li><a class="section-link level-3" data-level="3" href="#example-1-simple-metadata-provider">Example 1: Simple Metadata Provider</a></li>
 <li><a class="section-link level-3" data-level="3" href="#example-2-download-provider-with-auth">Example 2: Download Provider with Auth</a></li>
+<li><a class="section-link level-3" data-level="3" href="#example-3-lyrics-provider">Example 3: Lyrics Provider</a></li>
 </ul>
 </li>
 <li><a class="section-link level-2" data-level="2" href="#packaging--distribution">Packaging &amp; Distribution</a>
@@ -723,6 +725,7 @@
 <li><a class="section-link level-3" data-level="3" href="#album-object">Album Object</a></li>
 <li><a class="section-link level-3" data-level="3" href="#artist-object">Artist Object</a></li>
 <li><a class="section-link level-3" data-level="3" href="#download-result-object">Download Result Object</a></li>
+<li><a class="section-link level-3" data-level="3" href="#lyrics-result-object">Lyrics Result Object</a></li>
 <li><a class="section-link level-3" data-level="3" href="#skip-metadata-enrichment">Skip Metadata Enrichment</a></li>
 </ul>
 </li>
@@ -754,6 +757,7 @@
 <li><a href="#track-enrichment">Track Enrichment</a></li>
 <li><a href="#custom-track-matching">Custom Track Matching</a></li>
 <li><a href="#post-processing-hooks">Post-Processing Hooks</a></li>
+<li><a href="#lyrics-provider">Lyrics Provider</a></li>
 </ul>
 </li>
 <li><a href="#main-script">Main Script</a></li>
@@ -791,6 +795,7 @@
 <ul>
 <li><strong>Metadata Provider</strong>: New track/album/artist search sources</li>
 <li><strong>Download Provider</strong>: New audio download sources</li>
+<li><strong>Lyrics Provider</strong>: Custom lyrics sources (synced or plain text)</li>
 </ul>
 <p>Extensions are written in <strong>JavaScript</strong> and run in a secure sandbox.</p>
 <h3 id="requirements">Requirements</h3>
@@ -936,7 +941,7 @@
 <td><code>type</code></td>
 <td>array</td>
 <td>Yes</td>
-<td>Extension type (<code>metadata_provider</code>, <code>download_provider</code>)</td>
+<td>Extension type (<code>metadata_provider</code>, <code>download_provider</code>, <code>lyrics_provider</code>)</td>
 </tr>
 <tr>
 <td><code>settings</code></td>
@@ -1224,7 +1229,8 @@
 <p>Specify the features provided by the extension through the <code>type</code> field:</p>
 <pre><code class="language-json">&quot;type&quot;: [
   &quot;metadata_provider&quot;,   // Provides search/metadata
-  &quot;download_provider&quot;    // Provides downloads
+  &quot;download_provider&quot;,   // Provides downloads
+  &quot;lyrics_provider&quot;      // Provides lyrics (synced or plain)
 ]
 </code></pre>
 <h3 id="settings">Settings</h3>
@@ -2832,6 +2838,171 @@ If present, it will be called before <code>postProcess</code>.</p>
 <li><code>postProcessV2</code> is designed for SAF (Android 10+) and content URIs.</li>
 <li><code>postProcess</code> (v1) remains supported but will be deprecated in a future release.</li>
 </ul>
+<h3 id="lyrics-provider">Lyrics Provider</h3>
+<p>Extensions can provide lyrics for tracks by declaring <code>"lyrics_provider"</code> in the <code>type</code> array. Lyrics provider extensions are called <strong>before</strong> built-in providers (LRCLIB, Musixmatch, Netease, Apple Music, QQ Music), giving extensions the highest priority in the lyrics cascade.</p>
+<p><strong>Manifest configuration:</strong></p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;my-lyrics-source&quot;,
+  &quot;displayName&quot;: &quot;My Lyrics Source&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;Fetch lyrics from My Lyrics API&quot;,
+  &quot;author&quot;: &quot;Developer&quot;,
+  &quot;type&quot;: [&quot;lyrics_provider&quot;],
+  &quot;permissions&quot;: {
+    &quot;network&quot;: [&quot;api.my-lyrics.com&quot;],
+    &quot;storage&quot;: true
+  }
+}
+</code></pre>
+<p><strong>Implement the <code>fetchLyrics</code> function:</strong></p>
+<pre><code class="language-javascript">/**
+ * Fetch lyrics for a track
+ * @param {string} trackName - Track title
+ * @param {string} artistName - Artist name
+ * @param {string} albumName - Album name (may be empty)
+ * @param {number} durationSec - Track duration in seconds
+ * @returns {Object|null} Lyrics result object, or null if not found
+ */
+function fetchLyrics(trackName, artistName, albumName, durationSec) {
+  var query = encodeURIComponent(trackName + &quot; &quot; + artistName);
+  var resp = http.get(&quot;https://api.my-lyrics.com/search?q=&quot; + query, {});
+
+  if (!resp.ok) {
+    return null;  // Return null to let the next provider try
+  }
+
+  var data = JSON.parse(resp.body);
+  if (!data || !data.lyrics) {
+    return null;
+  }
+
+  // For synced lyrics (LRC / timed lines)
+  if (data.syncedLines) {
+    var lines = [];
+    for (var i = 0; i &lt; data.syncedLines.length; i++) {
+      var line = data.syncedLines[i];
+      lines.push({
+        startTimeMs: line.startMs,
+        words: line.text,
+        endTimeMs: line.endMs || 0
+      });
+    }
+    return {
+      lines: lines,
+      syncType: &quot;LINE_SYNCED&quot;,
+      instrumental: false,
+      plainLyrics: &quot;&quot;,
+      provider: &quot;My Lyrics Source&quot;
+    };
+  }
+
+  // For plain/unsynced lyrics
+  return {
+    lines: [],
+    syncType: &quot;UNSYNCED&quot;,
+    instrumental: false,
+    plainLyrics: data.lyrics,
+    provider: &quot;My Lyrics Source&quot;
+  };
+}
+
+// Register extension
+registerExtension({
+  initialize: function(config) { return true; },
+  cleanup: function() {},
+  fetchLyrics: fetchLyrics
+});
+</code></pre>
+<p><strong>Return schema for <code>fetchLyrics</code>:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lines</code></td>
+<td>array</td>
+<td>No</td>
+<td>Array of synced lyric line objects (see below)</td>
+</tr>
+<tr>
+<td><code>syncType</code></td>
+<td>string</td>
+<td>Yes</td>
+<td><code>"LINE_SYNCED"</code>, <code>"WORD_SYNCED"</code>, or <code>"UNSYNCED"</code></td>
+</tr>
+<tr>
+<td><code>instrumental</code></td>
+<td>boolean</td>
+<td>No</td>
+<td>If <code>true</code>, track is instrumental (no lyrics)</td>
+</tr>
+<tr>
+<td><code>plainLyrics</code></td>
+<td>string</td>
+<td>No</td>
+<td>Plain text lyrics (fallback when no synced lines)</td>
+</tr>
+<tr>
+<td><code>provider</code></td>
+<td>string</td>
+<td>No</td>
+<td>Provider name for attribution (defaults to extension <code>displayName</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Lyrics line object:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>startTimeMs</code></td>
+<td>number</td>
+<td>Start time in milliseconds</td>
+</tr>
+<tr>
+<td><code>words</code></td>
+<td>string</td>
+<td>The lyric text for this line</td>
+</tr>
+<tr>
+<td><code>endTimeMs</code></td>
+<td>number</td>
+<td>End time in milliseconds (optional, 0 if unknown)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sync types explained:</strong></p>
+<ul>
+<li><code>LINE_SYNCED</code> &mdash; Each line has a start timestamp (standard LRC format). Most common for karaoke-style lyrics.</li>
+<li><code>WORD_SYNCED</code> &mdash; Each word has individual timestamps. Used by Apple Music and some premium services.</li>
+<li><code>UNSYNCED</code> &mdash; Plain text without timestamps. Used as a last resort fallback.</li>
+</ul>
+<p><strong>Returning <code>null</code> vs empty result:</strong></p>
+<ul>
+<li>Return <code>null</code> to signal &ldquo;not found&rdquo; &mdash; the next provider in the cascade will be tried.</li>
+<li>Return an object with <code>instrumental: true</code> to indicate an instrumental track (stops the cascade).</li>
+<li>Return an object with <code>plainLyrics</code> as a fallback when synced lines are unavailable &mdash; the runtime will auto-split plain text into unsynced lines.</li>
+</ul>
+<p><strong>Lyrics provider cascade order:</strong></p>
+<ol>
+<li><strong>Extension lyrics providers</strong> (highest priority, tried first)</li>
+<li><strong>Built-in providers</strong> in user-configured order (default: LRCLIB &rarr; Musixmatch &rarr; Netease &rarr; Apple Music &rarr; QQ Music)</li>
+</ol>
+<blockquote>
+<strong>Note:</strong> If multiple lyrics extensions are installed, they are sorted alphabetically by extension ID and tried in that order.
+</blockquote>
 <hr />
 <h2 id="main-script">Main Script</h2>
 <p>The <code>main.js</code> file (or <code>index.js</code>) contains the extension's JavaScript code.</p>
@@ -4303,6 +4474,113 @@ registerExtension({
 
 console.log(&quot;Premium Music extension loaded!&quot;);
 </code></pre>
+<h3 id="example-3-lyrics-provider">Example 3: Lyrics Provider</h3>
+<p>Extension that fetches synced lyrics from a public lyrics API.</p>
+<p><strong>manifest.json:</strong></p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;open-lyrics&quot;,
+  &quot;displayName&quot;: &quot;Open Lyrics&quot;,
+  &quot;version&quot;: &quot;1.0.0&quot;,
+  &quot;description&quot;: &quot;Fetch synced and plain lyrics from Open Lyrics API&quot;,
+  &quot;author&quot;: &quot;Developer&quot;,
+  &quot;permissions&quot;: {
+    &quot;network&quot;: [&quot;api.open-lyrics.com&quot;]
+  },
+  &quot;type&quot;: [&quot;lyrics_provider&quot;]
+}
+</code></pre>
+<p><strong>index.js:</strong></p>
+<pre><code class="language-javascript">function initialize(config) {
+  log.info(&quot;Open Lyrics extension initialized&quot;);
+  return true;
+}
+
+function cleanup() {}
+
+/**
+ * Fetch lyrics for a track.
+ * Called by the runtime with track metadata.
+ * Return null if no lyrics are found (next provider will be tried).
+ */
+function fetchLyrics(trackName, artistName, albumName, durationSec) {
+  // Search for the track
+  var query = encodeURIComponent(trackName + &quot; &quot; + artistName);
+  var resp = http.get(&quot;https://api.open-lyrics.com/v1/search?q=&quot; + query + &quot;&amp;duration=&quot; + Math.round(durationSec), {});
+
+  if (!resp.ok) {
+    log.warn(&quot;Search failed with status &quot; + resp.statusCode);
+    return null;
+  }
+
+  var data = JSON.parse(resp.body);
+  if (!data.results || data.results.length === 0) {
+    return null;
+  }
+
+  var trackId = data.results[0].id;
+
+  // Fetch lyrics by ID
+  var lyricsResp = http.get(&quot;https://api.open-lyrics.com/v1/lyrics/&quot; + trackId, {});
+  if (!lyricsResp.ok) {
+    return null;
+  }
+
+  var lyricsData = JSON.parse(lyricsResp.body);
+
+  // Instrumental track
+  if (lyricsData.instrumental) {
+    return {
+      lines: [],
+      syncType: &quot;LINE_SYNCED&quot;,
+      instrumental: true,
+      plainLyrics: &quot;&quot;,
+      provider: &quot;Open Lyrics&quot;
+    };
+  }
+
+  // Synced lyrics available
+  if (lyricsData.syncedLines &amp;&amp; lyricsData.syncedLines.length &gt; 0) {
+    var lines = [];
+    for (var i = 0; i &lt; lyricsData.syncedLines.length; i++) {
+      var line = lyricsData.syncedLines[i];
+      lines.push({
+        startTimeMs: line.timeMs,
+        words: line.text,
+        endTimeMs: (i + 1 &lt; lyricsData.syncedLines.length)
+          ? lyricsData.syncedLines[i + 1].timeMs
+          : line.timeMs + 5000
+      });
+    }
+    return {
+      lines: lines,
+      syncType: &quot;LINE_SYNCED&quot;,
+      instrumental: false,
+      plainLyrics: &quot;&quot;,
+      provider: &quot;Open Lyrics&quot;
+    };
+  }
+
+  // Fallback: plain text lyrics only
+  if (lyricsData.plainText) {
+    return {
+      lines: [],
+      syncType: &quot;UNSYNCED&quot;,
+      instrumental: false,
+      plainLyrics: lyricsData.plainText,
+      provider: &quot;Open Lyrics&quot;
+    };
+  }
+
+  return null;
+}
+
+// REQUIRED: Register the extension
+registerExtension({
+  initialize: initialize,
+  cleanup: cleanup,
+  fetchLyrics: fetchLyrics
+});
+</code></pre>
 <hr />
 <h2 id="packaging--distribution">Packaging &amp; Distribution</h2>
 <h3 id="project-structure">Project Structure</h3>
@@ -5124,6 +5402,65 @@ registerExtension({
   error_type: &quot;not_found&quot; | &quot;stream_error&quot; | &quot;download_error&quot; | &quot;auth_error&quot;
 }
 </code></pre>
+<h3 id="lyrics-result-object">Lyrics Result Object</h3>
+<p>Returned by the <code>fetchLyrics()</code> function in lyrics provider extensions.</p>
+<pre><code class="language-javascript">// Synced lyrics
+{
+  lines: [
+    { startTimeMs: 1200, words: &quot;First line of lyrics&quot;, endTimeMs: 4500 },
+    { startTimeMs: 4500, words: &quot;Second line of lyrics&quot;, endTimeMs: 8200 }
+  ],
+  syncType: &quot;LINE_SYNCED&quot;,   // &quot;LINE_SYNCED&quot;, &quot;WORD_SYNCED&quot;, or &quot;UNSYNCED&quot;
+  instrumental: false,
+  plainLyrics: &quot;&quot;,
+  provider: &quot;My Lyrics Source&quot;
+}
+
+// Plain text lyrics (no timestamps)
+{
+  lines: [],
+  syncType: &quot;UNSYNCED&quot;,
+  instrumental: false,
+  plainLyrics: &quot;Line one\nLine two\nLine three&quot;,
+  provider: &quot;My Lyrics Source&quot;
+}
+
+// Instrumental track
+{
+  lines: [],
+  syncType: &quot;LINE_SYNCED&quot;,
+  instrumental: true,
+  plainLyrics: &quot;&quot;,
+  provider: &quot;My Lyrics Source&quot;
+}
+</code></pre>
+<p><strong>Lyrics line fields:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>startTimeMs</code></td>
+<td>number</td>
+<td>Line start time in milliseconds</td>
+</tr>
+<tr>
+<td><code>words</code></td>
+<td>string</td>
+<td>The lyric text for this line</td>
+</tr>
+<tr>
+<td><code>endTimeMs</code></td>
+<td>number</td>
+<td>Line end time in milliseconds (0 if unknown; auto-computed from next line)</td>
+</tr>
+</tbody>
+</table>
 <h3 id="skip-metadata-enrichment">Skip Metadata Enrichment</h3>
 <p>When <code>skipMetadataEnrichment</code> is set to <code>true</code> in the manifest, SpotiFLAC will use the metadata returned by the extension's <code>download()</code> function instead of enriching from Deezer/Spotify. This is useful for:</p>
 <ul>
@@ -5153,6 +5490,7 @@ registerExtension({
 <hr />
 <h2 id="changelog">Changelog</h2>
 <ul>
+<li><strong>v1.3</strong> - Added <code>lyrics_provider</code> extension type, <code>fetchLyrics</code> API, lyrics result schema, and Lyrics Provider example</li>
 <li><strong>v1.2</strong> - Added thumbnail ratio customization (<code>thumbnailRatio</code>, <code>thumbnailWidth</code>, <code>thumbnailHeight</code>)</li>
 <li><strong>v1.1</strong> - Added extension upgrade support (no downgrade), improved documentation</li>
 <li><strong>v1.0</strong> - Initial release</li>
@@ -5213,7 +5551,7 @@ registerExtension({
 </footer>
 
 <script>
-const sectionsData = [{"id": "table-of-contents", "title": "Table of Contents", "children": [], "items": [{"id": "table-of-contents", "title": "Table of Contents", "level": 2}]}, {"id": "introduction", "title": "Introduction", "children": [{"id": "requirements", "title": "Requirements", "level": 3}], "items": [{"id": "introduction", "title": "Introduction", "level": 2}, {"id": "requirements", "title": "Requirements", "level": 3}]}, {"id": "extension-structure", "title": "Extension Structure", "children": [], "items": [{"id": "extension-structure", "title": "Extension Structure", "level": 2}]}, {"id": "manifest-file", "title": "Manifest File", "children": [{"id": "complete-manifest-example", "title": "Complete Manifest Example", "level": 3}, {"id": "manifest-fields", "title": "Manifest Fields", "level": 3}, {"id": "quality-options", "title": "Quality Options", "level": 3}, {"id": "quality-specific-settings", "title": "Quality-Specific Settings", "level": 3}, {"id": "permissions", "title": "Permissions", "level": 3}, {"id": "extension-types", "title": "Extension Types", "level": 3}, {"id": "settings", "title": "Settings", "level": 3}, {"id": "button-setting-type", "title": "Button Setting Type", "level": 3}, {"id": "custom-search-behavior", "title": "Custom Search Behavior", "level": 3}, {"id": "custom-url-handler", "title": "Custom URL Handler", "level": 3}, {"id": "album--playlist-functions-v301", "title": "Album & Playlist Functions (v3.0.1+)", "level": 3}, {"id": "artist-support", "title": "Artist Support", "level": 3}, {"id": "home-feed-support", "title": "Home Feed Support", "level": 3}, {"id": "track-enrichment", "title": "Track Enrichment", "level": 3}, {"id": "custom-track-matching", "title": "Custom Track Matching", "level": 3}, {"id": "post-processing-hooks", "title": "Post-Processing Hooks", "level": 3}], "items": [{"id": "manifest-file", "title": "Manifest File", "level": 2}, {"id": "complete-manifest-example", "title": "Complete Manifest Example", "level": 3}, {"id": "manifest-fields", "title": "Manifest Fields", "level": 3}, {"id": "quality-options", "title": "Quality Options", "level": 3}, {"id": "quality-specific-settings", "title": "Quality-Specific Settings", "level": 3}, {"id": "permissions", "title": "Permissions", "level": 3}, {"id": "extension-types", "title": "Extension Types", "level": 3}, {"id": "settings", "title": "Settings", "level": 3}, {"id": "button-setting-type", "title": "Button Setting Type", "level": 3}, {"id": "custom-search-behavior", "title": "Custom Search Behavior", "level": 3}, {"id": "thumbnail-ratio-presets", "title": "Thumbnail Ratio Presets", "level": 4}, {"id": "custom-url-handler", "title": "Custom URL Handler", "level": 3}, {"id": "album--playlist-functions-v301", "title": "Album & Playlist Functions (v3.0.1+)", "level": 3}, {"id": "artist-support", "title": "Artist Support", "level": 3}, {"id": "home-feed-support", "title": "Home Feed Support", "level": 3}, {"id": "track-enrichment", "title": "Track Enrichment", "level": 3}, {"id": "custom-track-matching", "title": "Custom Track Matching", "level": 3}, {"id": "post-processing-hooks", "title": "Post-Processing Hooks", "level": 3}, {"id": "post-process-api-v2-recommended", "title": "Post-Process API v2 (Recommended)", "level": 4}]}, {"id": "main-script", "title": "Main Script", "children": [{"id": "basic-structure", "title": "Basic Structure", "level": 3}, {"id": "important-registerextension", "title": "Important: registerExtension()", "level": 3}], "items": [{"id": "main-script", "title": "Main Script", "level": 2}, {"id": "basic-structure", "title": "Basic Structure", "level": 3}, {"id": "important-registerextension", "title": "Important: registerExtension()", "level": 3}]}, {"id": "api-reference", "title": "API Reference", "children": [{"id": "http-api", "title": "HTTP API", "level": 3}, {"id": "browser-like-polyfills", "title": "Browser-like Polyfills", "level": 3}, {"id": "storage-api", "title": "Storage API", "level": 3}, {"id": "file-api", "title": "File API", "level": 3}, {"id": "logging-api", "title": "Logging API", "level": 3}, {"id": "utility-api", "title": "Utility API", "level": 3}, {"id": "go-backend-api", "title": "Go Backend API", "level": 3}, {"id": "credentials-api-encrypted", "title": "Credentials API (Encrypted)", "level": 3}, {"id": "auth-api-oauth-support", "title": "Auth API (OAuth Support)", "level": 3}, {"id": "pkce-oauth-flow-recommended", "title": "PKCE OAuth Flow (Recommended)", "level": 3}, {"id": "crypto-utilities", "title": "Crypto Utilities", "level": 3}, {"id": "ffmpeg-api-post-processing", "title": "FFmpeg API (Post-Processing)", "level": 3}, {"id": "track-matching-api", "title": "Track Matching API", "level": 3}], "items": [{"id": "api-reference", "title": "API Reference", "level": 2}, {"id": "http-api", "title": "HTTP API", "level": 3}, {"id": "request-headers", "title": "Request Headers", "level": 4}, {"id": "response-object", "title": "Response Object", "level": 4}, {"id": "form-encoded-post-applicationx-www-form-urlencoded", "title": "Form-Encoded POST (application/x-www-form-urlencoded)", "level": 4}, {"id": "cookie-jar", "title": "Cookie Jar", "level": 4}, {"id": "youtube-music--innertube-api-example", "title": "YouTube Music / Innertube API Example", "level": 4}, {"id": "browser-like-polyfills", "title": "Browser-like Polyfills", "level": 3}, {"id": "fetch-api", "title": "fetch() API", "level": 4}, {"id": "atob--btoa", "title": "atob() / btoa()", "level": 4}, {"id": "textencoder--textdecoder", "title": "TextEncoder / TextDecoder", "level": 4}, {"id": "url--urlsearchparams", "title": "URL / URLSearchParams", "level": 4}, {"id": "porting-browser-libraries", "title": "Porting Browser Libraries", "level": 4}, {"id": "storage-api", "title": "Storage API", "level": 3}, {"id": "file-api", "title": "File API", "level": 3}, {"id": "logging-api", "title": "Logging API", "level": 3}, {"id": "utility-api", "title": "Utility API", "level": 3}, {"id": "hmac-sha1-for-totp", "title": "HMAC-SHA1 for TOTP", "level": 4}, {"id": "hmac-sha256-example-api-signing", "title": "HMAC-SHA256 Example (API Signing)", "level": 4}, {"id": "go-backend-api", "title": "Go Backend API", "level": 3}, {"id": "using-getlocaltime-for-time-based-greeting", "title": "Using `getLocalTime()` for Time-Based Greeting", "level": 4}, {"id": "using-getlocaltime-for-timezone-in-api-calls", "title": "Using `getLocalTime()` for Timezone in API Calls", "level": 4}, {"id": "credentials-api-encrypted", "title": "Credentials API (Encrypted)", "level": 3}, {"id": "auth-api-oauth-support", "title": "Auth API (OAuth Support)", "level": 3}, {"id": "pkce-oauth-flow-recommended", "title": "PKCE OAuth Flow (Recommended)", "level": 3}, {"id": "quick-start-high-level-api", "title": "Quick Start (High-Level API)", "level": 4}, {"id": "low-level-api-manual-control", "title": "Low-Level API (Manual Control)", "level": 4}, {"id": "pkce-api-reference", "title": "PKCE API Reference", "level": 4}, {"id": "complete-oauth-example", "title": "Complete OAuth Example", "level": 4}, {"id": "crypto-utilities", "title": "Crypto Utilities", "level": 3}, {"id": "ffmpeg-api-post-processing", "title": "FFmpeg API (Post-Processing)", "level": 3}, {"id": "track-matching-api", "title": "Track Matching API", "level": 3}]}, {"id": "extension-examples", "title": "Extension Examples", "children": [{"id": "example-1-simple-metadata-provider", "title": "Example 1: Simple Metadata Provider", "level": 3}, {"id": "example-2-download-provider-with-auth", "title": "Example 2: Download Provider with Auth", "level": 3}], "items": [{"id": "extension-examples", "title": "Extension Examples", "level": 2}, {"id": "example-1-simple-metadata-provider", "title": "Example 1: Simple Metadata Provider", "level": 3}, {"id": "example-2-download-provider-with-auth", "title": "Example 2: Download Provider with Auth", "level": 3}]}, {"id": "packaging--distribution", "title": "Packaging & Distribution", "children": [{"id": "project-structure", "title": "Project Structure", "level": 3}, {"id": "module-system-limitation", "title": "Module System Limitation", "level": 3}, {"id": "creating-extension-file", "title": "Creating Extension File", "level": 3}, {"id": "installing-extension", "title": "Installing Extension", "level": 3}, {"id": "upgrading-extension", "title": "Upgrading Extension", "level": 3}], "items": [{"id": "packaging--distribution", "title": "Packaging & Distribution", "level": 2}, {"id": "project-structure", "title": "Project Structure", "level": 3}, {"id": "module-system-limitation", "title": "Module System Limitation", "level": 3}, {"id": "creating-extension-file", "title": "Creating Extension File", "level": 3}, {"id": "installing-extension", "title": "Installing Extension", "level": 3}, {"id": "upgrading-extension", "title": "Upgrading Extension", "level": 3}]}, {"id": "troubleshooting", "title": "Troubleshooting", "children": [{"id": "error-extension-did-not-call-registerextension", "title": "Error: \"extension did not call registerExtension()\"", "level": 3}, {"id": "error-permission-denied-for-domain-x--network-access-denied", "title": "Error: \"Permission denied for domain X\" / \"network access denied\"", "level": 3}, {"id": "error-post-body-is-object-object", "title": "Error: \"POST body is [object Object]\"", "level": 3}, {"id": "error-function-x-is-not-defined", "title": "Error: \"Function X is not defined\"", "level": 3}, {"id": "error-invalid-manifest", "title": "Error: \"Invalid manifest\"", "level": 3}, {"id": "extension-doesnt-appear-after-install", "title": "Extension doesn't appear after install", "level": 3}, {"id": "http-request-fails", "title": "HTTP request fails", "level": 3}, {"id": "download-fails", "title": "Download fails", "level": 3}, {"id": "error-file-access-denied-extension-does-not-have-file-permission", "title": "Error: \"file access denied: extension does not have 'file' permission\"", "level": 3}, {"id": "error-file-access-denied-absolute-paths-are-not-allowed", "title": "Error: \"file access denied: absolute paths are not allowed\"", "level": 3}, {"id": "error-file-access-denied-path-x-is-outside-sandbox", "title": "Error: \"file access denied: path 'X' is outside sandbox\"", "level": 3}, {"id": "error-cannot-downgrade-extension", "title": "Error: \"Cannot downgrade extension\"", "level": 3}, {"id": "error-extension-is-already-installed", "title": "Error: \"Extension is already installed\"", "level": 3}, {"id": "error-timeout-extension-took-too-long-to-respond", "title": "Error: \"timeout: extension took too long to respond\"", "level": 3}, {"id": "thumbnails-not-showing-correctly-in-search-results", "title": "Thumbnails not showing correctly in search results", "level": 3}], "items": [{"id": "troubleshooting", "title": "Troubleshooting", "level": 2}, {"id": "error-extension-did-not-call-registerextension", "title": "Error: \"extension did not call registerExtension()\"", "level": 3}, {"id": "error-permission-denied-for-domain-x--network-access-denied", "title": "Error: \"Permission denied for domain X\" / \"network access denied\"", "level": 3}, {"id": "error-post-body-is-object-object", "title": "Error: \"POST body is [object Object]\"", "level": 3}, {"id": "error-function-x-is-not-defined", "title": "Error: \"Function X is not defined\"", "level": 3}, {"id": "error-invalid-manifest", "title": "Error: \"Invalid manifest\"", "level": 3}, {"id": "extension-doesnt-appear-after-install", "title": "Extension doesn't appear after install", "level": 3}, {"id": "http-request-fails", "title": "HTTP request fails", "level": 3}, {"id": "download-fails", "title": "Download fails", "level": 3}, {"id": "error-file-access-denied-extension-does-not-have-file-permission", "title": "Error: \"file access denied: extension does not have 'file' permission\"", "level": 3}, {"id": "error-file-access-denied-absolute-paths-are-not-allowed", "title": "Error: \"file access denied: absolute paths are not allowed\"", "level": 3}, {"id": "error-file-access-denied-path-x-is-outside-sandbox", "title": "Error: \"file access denied: path 'X' is outside sandbox\"", "level": 3}, {"id": "error-cannot-downgrade-extension", "title": "Error: \"Cannot downgrade extension\"", "level": 3}, {"id": "error-extension-is-already-installed", "title": "Error: \"Extension is already installed\"", "level": 3}, {"id": "error-timeout-extension-took-too-long-to-respond", "title": "Error: \"timeout: extension took too long to respond\"", "level": 3}, {"id": "thumbnails-not-showing-correctly-in-search-results", "title": "Thumbnails not showing correctly in search results", "level": 3}]}, {"id": "technical-details--behavior", "title": "Technical Details & Behavior", "children": [{"id": "token-refresh-handling", "title": "Token Refresh Handling", "level": 3}, {"id": "storage-limits", "title": "Storage Limits", "level": 3}, {"id": "file-api-path-resolution", "title": "File API Path Resolution", "level": 3}, {"id": "http-redirect-handling", "title": "HTTP Redirect Handling", "level": 3}, {"id": "standard-error-types", "title": "Standard Error Types", "level": 3}, {"id": "http-timeout", "title": "HTTP Timeout", "level": 3}], "items": [{"id": "technical-details--behavior", "title": "Technical Details & Behavior", "level": 2}, {"id": "token-refresh-handling", "title": "Token Refresh Handling", "level": 3}, {"id": "storage-limits", "title": "Storage Limits", "level": 3}, {"id": "file-api-path-resolution", "title": "File API Path Resolution", "level": 3}, {"id": "http-redirect-handling", "title": "HTTP Redirect Handling", "level": 3}, {"id": "standard-error-types", "title": "Standard Error Types", "level": 3}, {"id": "http-timeout", "title": "HTTP Timeout", "level": 3}]}, {"id": "tips--best-practices", "title": "Tips & Best Practices", "children": [], "items": [{"id": "tips--best-practices", "title": "Tips & Best Practices", "level": 2}]}, {"id": "authentication-api", "title": "Authentication API", "children": [{"id": "auth-api-reference", "title": "Auth API Reference", "level": 3}, {"id": "credentials-api-encrypted-storage", "title": "Credentials API (Encrypted Storage)", "level": 3}, {"id": "crypto-utilities-1", "title": "Crypto Utilities", "level": 3}, {"id": "oauth-flow-example", "title": "OAuth Flow Example", "level": 3}], "items": [{"id": "authentication-api", "title": "Authentication API", "level": 2}, {"id": "auth-api-reference", "title": "Auth API Reference", "level": 3}, {"id": "credentials-api-encrypted-storage", "title": "Credentials API (Encrypted Storage)", "level": 3}, {"id": "crypto-utilities-1", "title": "Crypto Utilities", "level": 3}, {"id": "oauth-flow-example", "title": "OAuth Flow Example", "level": 3}]}, {"id": "data-schema-reference", "title": "Data Schema Reference", "children": [{"id": "track-object", "title": "Track Object", "level": 3}, {"id": "album-object", "title": "Album Object", "level": 3}, {"id": "artist-object", "title": "Artist Object", "level": 3}, {"id": "download-result-object", "title": "Download Result Object", "level": 3}, {"id": "skip-metadata-enrichment", "title": "Skip Metadata Enrichment", "level": 3}], "items": [{"id": "data-schema-reference", "title": "Data Schema Reference", "level": 2}, {"id": "track-object", "title": "Track Object", "level": 3}, {"id": "album-object", "title": "Album Object", "level": 3}, {"id": "artist-object", "title": "Artist Object", "level": 3}, {"id": "download-result-object", "title": "Download Result Object", "level": 3}, {"id": "skip-metadata-enrichment", "title": "Skip Metadata Enrichment", "level": 3}]}, {"id": "changelog", "title": "Changelog", "children": [], "items": [{"id": "changelog", "title": "Changelog", "level": 2}]}, {"id": "support", "title": "Support", "children": [], "items": [{"id": "support", "title": "Support", "level": 2}]}];
+const sectionsData = [{"id": "table-of-contents", "title": "Table of Contents", "children": [], "items": [{"id": "table-of-contents", "title": "Table of Contents", "level": 2}]}, {"id": "introduction", "title": "Introduction", "children": [{"id": "requirements", "title": "Requirements", "level": 3}], "items": [{"id": "introduction", "title": "Introduction", "level": 2}, {"id": "requirements", "title": "Requirements", "level": 3}]}, {"id": "extension-structure", "title": "Extension Structure", "children": [], "items": [{"id": "extension-structure", "title": "Extension Structure", "level": 2}]}, {"id": "manifest-file", "title": "Manifest File", "children": [{"id": "complete-manifest-example", "title": "Complete Manifest Example", "level": 3}, {"id": "manifest-fields", "title": "Manifest Fields", "level": 3}, {"id": "quality-options", "title": "Quality Options", "level": 3}, {"id": "quality-specific-settings", "title": "Quality-Specific Settings", "level": 3}, {"id": "permissions", "title": "Permissions", "level": 3}, {"id": "extension-types", "title": "Extension Types", "level": 3}, {"id": "settings", "title": "Settings", "level": 3}, {"id": "button-setting-type", "title": "Button Setting Type", "level": 3}, {"id": "custom-search-behavior", "title": "Custom Search Behavior", "level": 3}, {"id": "custom-url-handler", "title": "Custom URL Handler", "level": 3}, {"id": "album--playlist-functions-v301", "title": "Album & Playlist Functions (v3.0.1+)", "level": 3}, {"id": "artist-support", "title": "Artist Support", "level": 3}, {"id": "home-feed-support", "title": "Home Feed Support", "level": 3}, {"id": "track-enrichment", "title": "Track Enrichment", "level": 3}, {"id": "custom-track-matching", "title": "Custom Track Matching", "level": 3}, {"id": "post-processing-hooks", "title": "Post-Processing Hooks", "level": 3}, {"id": "lyrics-provider", "title": "Lyrics Provider", "level": 3}], "items": [{"id": "manifest-file", "title": "Manifest File", "level": 2}, {"id": "complete-manifest-example", "title": "Complete Manifest Example", "level": 3}, {"id": "manifest-fields", "title": "Manifest Fields", "level": 3}, {"id": "quality-options", "title": "Quality Options", "level": 3}, {"id": "quality-specific-settings", "title": "Quality-Specific Settings", "level": 3}, {"id": "permissions", "title": "Permissions", "level": 3}, {"id": "extension-types", "title": "Extension Types", "level": 3}, {"id": "settings", "title": "Settings", "level": 3}, {"id": "button-setting-type", "title": "Button Setting Type", "level": 3}, {"id": "custom-search-behavior", "title": "Custom Search Behavior", "level": 3}, {"id": "thumbnail-ratio-presets", "title": "Thumbnail Ratio Presets", "level": 4}, {"id": "custom-url-handler", "title": "Custom URL Handler", "level": 3}, {"id": "album--playlist-functions-v301", "title": "Album & Playlist Functions (v3.0.1+)", "level": 3}, {"id": "artist-support", "title": "Artist Support", "level": 3}, {"id": "home-feed-support", "title": "Home Feed Support", "level": 3}, {"id": "track-enrichment", "title": "Track Enrichment", "level": 3}, {"id": "custom-track-matching", "title": "Custom Track Matching", "level": 3}, {"id": "post-processing-hooks", "title": "Post-Processing Hooks", "level": 3}, {"id": "post-process-api-v2-recommended", "title": "Post-Process API v2 (Recommended)", "level": 4}, {"id": "lyrics-provider", "title": "Lyrics Provider", "level": 3}]}, {"id": "main-script", "title": "Main Script", "children": [{"id": "basic-structure", "title": "Basic Structure", "level": 3}, {"id": "important-registerextension", "title": "Important: registerExtension()", "level": 3}], "items": [{"id": "main-script", "title": "Main Script", "level": 2}, {"id": "basic-structure", "title": "Basic Structure", "level": 3}, {"id": "important-registerextension", "title": "Important: registerExtension()", "level": 3}]}, {"id": "api-reference", "title": "API Reference", "children": [{"id": "http-api", "title": "HTTP API", "level": 3}, {"id": "browser-like-polyfills", "title": "Browser-like Polyfills", "level": 3}, {"id": "storage-api", "title": "Storage API", "level": 3}, {"id": "file-api", "title": "File API", "level": 3}, {"id": "logging-api", "title": "Logging API", "level": 3}, {"id": "utility-api", "title": "Utility API", "level": 3}, {"id": "go-backend-api", "title": "Go Backend API", "level": 3}, {"id": "credentials-api-encrypted", "title": "Credentials API (Encrypted)", "level": 3}, {"id": "auth-api-oauth-support", "title": "Auth API (OAuth Support)", "level": 3}, {"id": "pkce-oauth-flow-recommended", "title": "PKCE OAuth Flow (Recommended)", "level": 3}, {"id": "crypto-utilities", "title": "Crypto Utilities", "level": 3}, {"id": "ffmpeg-api-post-processing", "title": "FFmpeg API (Post-Processing)", "level": 3}, {"id": "track-matching-api", "title": "Track Matching API", "level": 3}], "items": [{"id": "api-reference", "title": "API Reference", "level": 2}, {"id": "http-api", "title": "HTTP API", "level": 3}, {"id": "request-headers", "title": "Request Headers", "level": 4}, {"id": "response-object", "title": "Response Object", "level": 4}, {"id": "form-encoded-post-applicationx-www-form-urlencoded", "title": "Form-Encoded POST (application/x-www-form-urlencoded)", "level": 4}, {"id": "cookie-jar", "title": "Cookie Jar", "level": 4}, {"id": "youtube-music--innertube-api-example", "title": "YouTube Music / Innertube API Example", "level": 4}, {"id": "browser-like-polyfills", "title": "Browser-like Polyfills", "level": 3}, {"id": "fetch-api", "title": "fetch() API", "level": 4}, {"id": "atob--btoa", "title": "atob() / btoa()", "level": 4}, {"id": "textencoder--textdecoder", "title": "TextEncoder / TextDecoder", "level": 4}, {"id": "url--urlsearchparams", "title": "URL / URLSearchParams", "level": 4}, {"id": "porting-browser-libraries", "title": "Porting Browser Libraries", "level": 4}, {"id": "storage-api", "title": "Storage API", "level": 3}, {"id": "file-api", "title": "File API", "level": 3}, {"id": "logging-api", "title": "Logging API", "level": 3}, {"id": "utility-api", "title": "Utility API", "level": 3}, {"id": "hmac-sha1-for-totp", "title": "HMAC-SHA1 for TOTP", "level": 4}, {"id": "hmac-sha256-example-api-signing", "title": "HMAC-SHA256 Example (API Signing)", "level": 4}, {"id": "go-backend-api", "title": "Go Backend API", "level": 3}, {"id": "using-getlocaltime-for-time-based-greeting", "title": "Using `getLocalTime()` for Time-Based Greeting", "level": 4}, {"id": "using-getlocaltime-for-timezone-in-api-calls", "title": "Using `getLocalTime()` for Timezone in API Calls", "level": 4}, {"id": "credentials-api-encrypted", "title": "Credentials API (Encrypted)", "level": 3}, {"id": "auth-api-oauth-support", "title": "Auth API (OAuth Support)", "level": 3}, {"id": "pkce-oauth-flow-recommended", "title": "PKCE OAuth Flow (Recommended)", "level": 3}, {"id": "quick-start-high-level-api", "title": "Quick Start (High-Level API)", "level": 4}, {"id": "low-level-api-manual-control", "title": "Low-Level API (Manual Control)", "level": 4}, {"id": "pkce-api-reference", "title": "PKCE API Reference", "level": 4}, {"id": "complete-oauth-example", "title": "Complete OAuth Example", "level": 4}, {"id": "crypto-utilities", "title": "Crypto Utilities", "level": 3}, {"id": "ffmpeg-api-post-processing", "title": "FFmpeg API (Post-Processing)", "level": 3}, {"id": "track-matching-api", "title": "Track Matching API", "level": 3}]}, {"id": "extension-examples", "title": "Extension Examples", "children": [{"id": "example-1-simple-metadata-provider", "title": "Example 1: Simple Metadata Provider", "level": 3}, {"id": "example-2-download-provider-with-auth", "title": "Example 2: Download Provider with Auth", "level": 3}, {"id": "example-3-lyrics-provider", "title": "Example 3: Lyrics Provider", "level": 3}], "items": [{"id": "extension-examples", "title": "Extension Examples", "level": 2}, {"id": "example-1-simple-metadata-provider", "title": "Example 1: Simple Metadata Provider", "level": 3}, {"id": "example-2-download-provider-with-auth", "title": "Example 2: Download Provider with Auth", "level": 3}, {"id": "example-3-lyrics-provider", "title": "Example 3: Lyrics Provider", "level": 3}]}, {"id": "packaging--distribution", "title": "Packaging & Distribution", "children": [{"id": "project-structure", "title": "Project Structure", "level": 3}, {"id": "module-system-limitation", "title": "Module System Limitation", "level": 3}, {"id": "creating-extension-file", "title": "Creating Extension File", "level": 3}, {"id": "installing-extension", "title": "Installing Extension", "level": 3}, {"id": "upgrading-extension", "title": "Upgrading Extension", "level": 3}], "items": [{"id": "packaging--distribution", "title": "Packaging & Distribution", "level": 2}, {"id": "project-structure", "title": "Project Structure", "level": 3}, {"id": "module-system-limitation", "title": "Module System Limitation", "level": 3}, {"id": "creating-extension-file", "title": "Creating Extension File", "level": 3}, {"id": "installing-extension", "title": "Installing Extension", "level": 3}, {"id": "upgrading-extension", "title": "Upgrading Extension", "level": 3}]}, {"id": "troubleshooting", "title": "Troubleshooting", "children": [{"id": "error-extension-did-not-call-registerextension", "title": "Error: \"extension did not call registerExtension()\"", "level": 3}, {"id": "error-permission-denied-for-domain-x--network-access-denied", "title": "Error: \"Permission denied for domain X\" / \"network access denied\"", "level": 3}, {"id": "error-post-body-is-object-object", "title": "Error: \"POST body is [object Object]\"", "level": 3}, {"id": "error-function-x-is-not-defined", "title": "Error: \"Function X is not defined\"", "level": 3}, {"id": "error-invalid-manifest", "title": "Error: \"Invalid manifest\"", "level": 3}, {"id": "extension-doesnt-appear-after-install", "title": "Extension doesn't appear after install", "level": 3}, {"id": "http-request-fails", "title": "HTTP request fails", "level": 3}, {"id": "download-fails", "title": "Download fails", "level": 3}, {"id": "error-file-access-denied-extension-does-not-have-file-permission", "title": "Error: \"file access denied: extension does not have 'file' permission\"", "level": 3}, {"id": "error-file-access-denied-absolute-paths-are-not-allowed", "title": "Error: \"file access denied: absolute paths are not allowed\"", "level": 3}, {"id": "error-file-access-denied-path-x-is-outside-sandbox", "title": "Error: \"file access denied: path 'X' is outside sandbox\"", "level": 3}, {"id": "error-cannot-downgrade-extension", "title": "Error: \"Cannot downgrade extension\"", "level": 3}, {"id": "error-extension-is-already-installed", "title": "Error: \"Extension is already installed\"", "level": 3}, {"id": "error-timeout-extension-took-too-long-to-respond", "title": "Error: \"timeout: extension took too long to respond\"", "level": 3}, {"id": "thumbnails-not-showing-correctly-in-search-results", "title": "Thumbnails not showing correctly in search results", "level": 3}], "items": [{"id": "troubleshooting", "title": "Troubleshooting", "level": 2}, {"id": "error-extension-did-not-call-registerextension", "title": "Error: \"extension did not call registerExtension()\"", "level": 3}, {"id": "error-permission-denied-for-domain-x--network-access-denied", "title": "Error: \"Permission denied for domain X\" / \"network access denied\"", "level": 3}, {"id": "error-post-body-is-object-object", "title": "Error: \"POST body is [object Object]\"", "level": 3}, {"id": "error-function-x-is-not-defined", "title": "Error: \"Function X is not defined\"", "level": 3}, {"id": "error-invalid-manifest", "title": "Error: \"Invalid manifest\"", "level": 3}, {"id": "extension-doesnt-appear-after-install", "title": "Extension doesn't appear after install", "level": 3}, {"id": "http-request-fails", "title": "HTTP request fails", "level": 3}, {"id": "download-fails", "title": "Download fails", "level": 3}, {"id": "error-file-access-denied-extension-does-not-have-file-permission", "title": "Error: \"file access denied: extension does not have 'file' permission\"", "level": 3}, {"id": "error-file-access-denied-absolute-paths-are-not-allowed", "title": "Error: \"file access denied: absolute paths are not allowed\"", "level": 3}, {"id": "error-file-access-denied-path-x-is-outside-sandbox", "title": "Error: \"file access denied: path 'X' is outside sandbox\"", "level": 3}, {"id": "error-cannot-downgrade-extension", "title": "Error: \"Cannot downgrade extension\"", "level": 3}, {"id": "error-extension-is-already-installed", "title": "Error: \"Extension is already installed\"", "level": 3}, {"id": "error-timeout-extension-took-too-long-to-respond", "title": "Error: \"timeout: extension took too long to respond\"", "level": 3}, {"id": "thumbnails-not-showing-correctly-in-search-results", "title": "Thumbnails not showing correctly in search results", "level": 3}]}, {"id": "technical-details--behavior", "title": "Technical Details & Behavior", "children": [{"id": "token-refresh-handling", "title": "Token Refresh Handling", "level": 3}, {"id": "storage-limits", "title": "Storage Limits", "level": 3}, {"id": "file-api-path-resolution", "title": "File API Path Resolution", "level": 3}, {"id": "http-redirect-handling", "title": "HTTP Redirect Handling", "level": 3}, {"id": "standard-error-types", "title": "Standard Error Types", "level": 3}, {"id": "http-timeout", "title": "HTTP Timeout", "level": 3}], "items": [{"id": "technical-details--behavior", "title": "Technical Details & Behavior", "level": 2}, {"id": "token-refresh-handling", "title": "Token Refresh Handling", "level": 3}, {"id": "storage-limits", "title": "Storage Limits", "level": 3}, {"id": "file-api-path-resolution", "title": "File API Path Resolution", "level": 3}, {"id": "http-redirect-handling", "title": "HTTP Redirect Handling", "level": 3}, {"id": "standard-error-types", "title": "Standard Error Types", "level": 3}, {"id": "http-timeout", "title": "HTTP Timeout", "level": 3}]}, {"id": "tips--best-practices", "title": "Tips & Best Practices", "children": [], "items": [{"id": "tips--best-practices", "title": "Tips & Best Practices", "level": 2}]}, {"id": "authentication-api", "title": "Authentication API", "children": [{"id": "auth-api-reference", "title": "Auth API Reference", "level": 3}, {"id": "credentials-api-encrypted-storage", "title": "Credentials API (Encrypted Storage)", "level": 3}, {"id": "crypto-utilities-1", "title": "Crypto Utilities", "level": 3}, {"id": "oauth-flow-example", "title": "OAuth Flow Example", "level": 3}], "items": [{"id": "authentication-api", "title": "Authentication API", "level": 2}, {"id": "auth-api-reference", "title": "Auth API Reference", "level": 3}, {"id": "credentials-api-encrypted-storage", "title": "Credentials API (Encrypted Storage)", "level": 3}, {"id": "crypto-utilities-1", "title": "Crypto Utilities", "level": 3}, {"id": "oauth-flow-example", "title": "OAuth Flow Example", "level": 3}]}, {"id": "data-schema-reference", "title": "Data Schema Reference", "children": [{"id": "track-object", "title": "Track Object", "level": 3}, {"id": "album-object", "title": "Album Object", "level": 3}, {"id": "artist-object", "title": "Artist Object", "level": 3}, {"id": "download-result-object", "title": "Download Result Object", "level": 3}, {"id": "lyrics-result-object", "title": "Lyrics Result Object", "level": 3}, {"id": "skip-metadata-enrichment", "title": "Skip Metadata Enrichment", "level": 3}], "items": [{"id": "data-schema-reference", "title": "Data Schema Reference", "level": 2}, {"id": "track-object", "title": "Track Object", "level": 3}, {"id": "album-object", "title": "Album Object", "level": 3}, {"id": "artist-object", "title": "Artist Object", "level": 3}, {"id": "download-result-object", "title": "Download Result Object", "level": 3}, {"id": "lyrics-result-object", "title": "Lyrics Result Object", "level": 3}, {"id": "skip-metadata-enrichment", "title": "Skip Metadata Enrichment", "level": 3}]}, {"id": "changelog", "title": "Changelog", "children": [], "items": [{"id": "changelog", "title": "Changelog", "level": 2}]}, {"id": "support", "title": "Support", "children": [], "items": [{"id": "support", "title": "Support", "level": 2}]}];
 const sectionMap = new Map(sectionsData.map(section => [section.id, section]));
 const headingToSection = new Map();
 for (const section of sectionsData) {

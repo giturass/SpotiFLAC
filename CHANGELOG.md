@@ -16,6 +16,20 @@
 - Project website with GitHub Pages deployment workflow
   - Mobile burger menu navigation for all site pages
 - Go filename template test suite
+- "Lyrics Provider" extension type - extensions can now provide lyrics (synced or plain text) via `fetchLyrics()` function
+  - Lyrics provider extensions are called before built-in providers, giving extensions highest priority
+  - New `lyrics_provider` manifest type alongside `metadata_provider` and `download_provider`
+  - Shows "Lyrics Provider" capability badge on extension detail page
+- "Lyrics Providers" settings - configurable provider cascade order and per-provider options
+  - Reorderable provider list: LRCLIB, Musixmatch, Netease, Apple Music, QQ Music
+  - Netease: toggle translated/romanized lyrics appending
+  - Apple Music / QQ Music: multi-person word-by-word speaker tags
+  - Musixmatch: selectable language code for localized lyrics
+- "Documentation Search" - global search modal on all site pages
+  - Opens with Ctrl+K / Cmd+K / `/` keyboard shortcuts on every page
+  - Search button with bordered pill styling in desktop nav and mobile hamburger menu
+  - On non-docs pages, search results navigate to the docs page at the matching section
+  - Full keyboard navigation: arrow keys, Enter to select, Esc to close
 
 ### Fixed
 

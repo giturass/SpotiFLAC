@@ -1756,6 +1756,60 @@ class MainActivity: FlutterFragmentActivity() {
                             }
                             result.success(response)
                         }
+                        "setLyricsProviders" -> {
+                            val providersJson = call.argument<String>("providers_json") ?: "[]"
+                            val response = withContext(Dispatchers.IO) {
+                                try {
+                                    Gobackend.setLyricsProvidersJSON(providersJson)
+                                    """{"success":true}"""
+                                } catch (e: Exception) {
+                                    """{"success":false,"error":"${e.message?.replace("\"", "'")}"}"""
+                                }
+                            }
+                            result.success(response)
+                        }
+                        "getLyricsProviders" -> {
+                            val response = withContext(Dispatchers.IO) {
+                                try {
+                                    Gobackend.getLyricsProvidersJSON()
+                                } catch (e: Exception) {
+                                    "[]"
+                                }
+                            }
+                            result.success(response)
+                        }
+                        "getAvailableLyricsProviders" -> {
+                            val response = withContext(Dispatchers.IO) {
+                                try {
+                                    Gobackend.getAvailableLyricsProvidersJSON()
+                                } catch (e: Exception) {
+                                    "[]"
+                                }
+                            }
+                            result.success(response)
+                        }
+                        "setLyricsFetchOptions" -> {
+                            val optionsJson = call.argument<String>("options_json") ?: "{}"
+                            val response = withContext(Dispatchers.IO) {
+                                try {
+                                    Gobackend.setLyricsFetchOptionsJSON(optionsJson)
+                                    """{"success":true}"""
+                                } catch (e: Exception) {
+                                    """{"success":false,"error":"${e.message?.replace("\"", "'")}"}"""
+                                }
+                            }
+                            result.success(response)
+                        }
+                        "getLyricsFetchOptions" -> {
+                            val response = withContext(Dispatchers.IO) {
+                                try {
+                                    Gobackend.getLyricsFetchOptionsJSON()
+                                } catch (e: Exception) {
+                                    "{}"
+                                }
+                            }
+                            result.success(response)
+                        }
                         "reEnrichFile" -> {
                             val requestJson = call.argument<String>("request_json") ?: "{}"
                             val response = withContext(Dispatchers.IO) {

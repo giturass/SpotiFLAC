@@ -279,6 +279,61 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
                       ref,
                       settings.lyricsMode,
                     ),
+                  ),
+                  SettingsItem(
+                    icon: Icons.source_outlined,
+                    title: 'Lyrics Providers',
+                    subtitle: _getLyricsProvidersSubtitle(settings.lyricsProviders),
+                    onTap: () => _showLyricsProvidersPicker(
+                      context,
+                      ref,
+                      settings.lyricsProviders,
+                    ),
+                  ),
+                  SettingsSwitchItem(
+                    icon: Icons.translate_outlined,
+                    title: 'Netease: Include Translation',
+                    subtitle: settings.lyricsIncludeTranslationNetease
+                        ? 'Append translated lyrics when available'
+                        : 'Use original lyrics only',
+                    value: settings.lyricsIncludeTranslationNetease,
+                    onChanged: (value) => ref
+                        .read(settingsProvider.notifier)
+                        .setLyricsIncludeTranslationNetease(value),
+                  ),
+                  SettingsSwitchItem(
+                    icon: Icons.text_fields_outlined,
+                    title: 'Netease: Include Romanization',
+                    subtitle: settings.lyricsIncludeRomanizationNetease
+                        ? 'Append romanized lyrics when available'
+                        : 'Disabled',
+                    value: settings.lyricsIncludeRomanizationNetease,
+                    onChanged: (value) => ref
+                        .read(settingsProvider.notifier)
+                        .setLyricsIncludeRomanizationNetease(value),
+                  ),
+                  SettingsSwitchItem(
+                    icon: Icons.record_voice_over_outlined,
+                    title: 'Apple/QQ Multi-Person Word-by-Word',
+                    subtitle: settings.lyricsMultiPersonWordByWord
+                        ? 'Enable v1/v2 speaker and [bg:] tags'
+                        : 'Simplified word-by-word formatting',
+                    value: settings.lyricsMultiPersonWordByWord,
+                    onChanged: (value) => ref
+                        .read(settingsProvider.notifier)
+                        .setLyricsMultiPersonWordByWord(value),
+                  ),
+                  SettingsItem(
+                    icon: Icons.language_outlined,
+                    title: 'Musixmatch Language',
+                    subtitle: settings.musixmatchLanguage.isEmpty
+                        ? 'Auto (original)'
+                        : settings.musixmatchLanguage.toUpperCase(),
+                    onTap: () => _showMusixmatchLanguagePicker(
+                      context,
+                      ref,
+                      settings.musixmatchLanguage,
+                    ),
                     showDivider: false,
                   ),
                 ],
@@ -1177,6 +1232,278 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
               },
             ),
             const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static const _providerDisplayNames = <String, String>{
+    'lrclib': 'LRCLIB',
+    'netease': 'Netease',
+    'musixmatch': 'Musixmatch',
+    'apple_music': 'Apple Music',
+    'qqmusic': 'QQ Music',
+  };
+
+  static const _providerDescriptions = <String, String>{
+    'lrclib': 'Open-source synced lyrics database',
+    'netease': 'NetEase Cloud Music (good for Asian songs)',
+    'musixmatch': 'Largest lyrics database (multi-language)',
+    'apple_music': 'Word-by-word synced lyrics (via proxy)',
+    'qqmusic': 'QQ Music (good for Chinese songs, via proxy)',
+  };
+
+  String _getLyricsProvidersSubtitle(List<String> providers) {
+    if (providers.isEmpty) return 'None enabled';
+    return providers
+        .map((p) => _providerDisplayNames[p] ?? p)
+        .join(' > ');
+  }
+
+  void _showLyricsProvidersPicker(
+    BuildContext context,
+    WidgetRef ref,
+    List<String> currentProviders,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final allProviders = ['lrclib', 'netease', 'musixmatch', 'apple_music', 'qqmusic'];
+
+    // Work with a mutable copy
+    final selectedProviders = List<String>.from(currentProviders);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorScheme.surfaceContainerHigh,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setLocalState) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                child: Text(
+                  'Lyrics Providers',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+                child: Text(
+                  'Enable/disable and reorder lyrics sources. Providers are tried top-to-bottom until lyrics are found.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              // Reorderable list of providers
+              ...allProviders.map((providerId) {
+                final isEnabled = selectedProviders.contains(providerId);
+                final displayName = _providerDisplayNames[providerId] ?? providerId;
+                final description = _providerDescriptions[providerId] ?? '';
+                final orderIndex = selectedProviders.indexOf(providerId);
+
+                return CheckboxListTile(
+                  title: Row(
+                    children: [
+                      if (isEnabled)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: CircleAvatar(
+                            radius: 12,
+                            backgroundColor: colorScheme.primaryContainer,
+                            child: Text(
+                              '${orderIndex + 1}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ),
+                        ),
+                      Text(displayName),
+                    ],
+                  ),
+                  subtitle: Text(description),
+                  value: isEnabled,
+                  onChanged: (bool? value) {
+                    setLocalState(() {
+                      if (value == true) {
+                        selectedProviders.add(providerId);
+                      } else {
+                        selectedProviders.remove(providerId);
+                      }
+                    });
+                    ref.read(settingsProvider.notifier).setLyricsProviders(
+                      List<String>.from(selectedProviders),
+                    );
+                  },
+                );
+              }),
+              // Move up/down hint
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 4),
+                child: Text(
+                  'Priority order (tap to move):',
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              // Show enabled providers with move controls
+              ...selectedProviders.asMap().entries.map((entry) {
+                final index = entry.key;
+                final providerId = entry.value;
+                final displayName = _providerDisplayNames[providerId] ?? providerId;
+
+                return ListTile(
+                  dense: true,
+                  leading: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: colorScheme.primary,
+                    child: Text(
+                      '${index + 1}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onPrimary,
+                      ),
+                    ),
+                  ),
+                  title: Text(displayName),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (index > 0)
+                        IconButton(
+                          icon: const Icon(Icons.arrow_upward, size: 20),
+                          onPressed: () {
+                            setLocalState(() {
+                              selectedProviders.removeAt(index);
+                              selectedProviders.insert(index - 1, providerId);
+                            });
+                            ref.read(settingsProvider.notifier).setLyricsProviders(
+                              List<String>.from(selectedProviders),
+                            );
+                          },
+                        ),
+                      if (index < selectedProviders.length - 1)
+                        IconButton(
+                          icon: const Icon(Icons.arrow_downward, size: 20),
+                          onPressed: () {
+                            setLocalState(() {
+                              selectedProviders.removeAt(index);
+                              selectedProviders.insert(index + 1, providerId);
+                            });
+                            ref.read(settingsProvider.notifier).setLyricsProviders(
+                              List<String>.from(selectedProviders),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
+                );
+              }),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _normalizeMusixmatchLanguage(String value) {
+    final normalized = value.trim().toLowerCase();
+    return normalized.replaceAll(RegExp(r'[^a-z0-9\-_]'), '');
+  }
+
+  void _showMusixmatchLanguagePicker(
+    BuildContext context,
+    WidgetRef ref,
+    String currentLanguage,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final controller = TextEditingController(text: currentLanguage);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: colorScheme.surfaceContainerHigh,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      isScrollControlled: true,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 24,
+          bottom: 24 + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Musixmatch Language',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Set preferred language code (example: en, es, ja). Leave empty for auto.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: controller,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                labelText: 'Language code',
+                hintText: 'auto / en / es / ja',
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(context.l10n.dialogCancel),
+                ),
+                const SizedBox(width: 8),
+                TextButton(
+                  onPressed: () {
+                    ref.read(settingsProvider.notifier).setMusixmatchLanguage('');
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Auto'),
+                ),
+                const SizedBox(width: 8),
+                FilledButton(
+                  onPressed: () {
+                    final normalized = _normalizeMusixmatchLanguage(
+                      controller.text,
+                    );
+                    ref
+                        .read(settingsProvider.notifier)
+                        .setMusixmatchLanguage(normalized);
+                    Navigator.pop(context);
+                  },
+                  child: Text(context.l10n.dialogSave),
+                ),
+              ],
+            ),
           ],
         ),
       ),

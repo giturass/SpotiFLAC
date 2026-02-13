@@ -1599,6 +1599,62 @@ func FetchAndSaveLyrics(trackName, artistName, spotifyID string, durationMs int6
 	return nil
 }
 
+// ==================== LYRICS PROVIDER SETTINGS ====================
+
+// SetLyricsProvidersJSON sets the lyrics provider order from a JSON array of provider IDs.
+func SetLyricsProvidersJSON(providersJSON string) error {
+	var providers []string
+	if err := json.Unmarshal([]byte(providersJSON), &providers); err != nil {
+		return err
+	}
+
+	SetLyricsProviderOrder(providers)
+	return nil
+}
+
+// GetLyricsProvidersJSON returns the current lyrics provider order as JSON.
+func GetLyricsProvidersJSON() (string, error) {
+	providers := GetLyricsProviderOrder()
+	jsonBytes, err := json.Marshal(providers)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonBytes), nil
+}
+
+// GetAvailableLyricsProvidersJSON returns metadata about all available lyrics providers.
+func GetAvailableLyricsProvidersJSON() (string, error) {
+	providers := GetAvailableLyricsProviders()
+	jsonBytes, err := json.Marshal(providers)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonBytes), nil
+}
+
+// SetLyricsFetchOptionsJSON sets lyrics provider fetch options.
+func SetLyricsFetchOptionsJSON(optionsJSON string) error {
+	opts := GetLyricsFetchOptions()
+	if strings.TrimSpace(optionsJSON) != "" {
+		if err := json.Unmarshal([]byte(optionsJSON), &opts); err != nil {
+			return err
+		}
+	}
+
+	SetLyricsFetchOptions(opts)
+	return nil
+}
+
+// GetLyricsFetchOptionsJSON returns current lyrics provider fetch options.
+func GetLyricsFetchOptionsJSON() (string, error) {
+	opts := GetLyricsFetchOptions()
+	jsonBytes, err := json.Marshal(opts)
+	if err != nil {
+		return "", err
+	}
+	return string(jsonBytes), nil
+}
+
 // ReEnrichFile re-embeds metadata, cover art, and lyrics into an existing audio file.
 // When search_online is true, searches Spotify/Deezer by track name + artist to fetch
 // complete metadata from the internet before embedding.
