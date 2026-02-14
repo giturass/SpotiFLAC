@@ -10,7 +10,7 @@
 - **Dedicated Lyrics Provider Priority Page**: Lyrics providers can now be configured from a dedicated settings page with full-screen reorderable list
   - Replaced inline bottom sheet with `LyricsProviderPriorityPage`
   - Cleaner UI with provider descriptions and priority ordering
-- **Paxsenix Partner Integration**: Added Paxsenix as official lyrics proxy partner for Apple Music and QQ Music sources
+- **Paxsenix Integration**: Added Paxsenix API as official lyrics proxy partner for Apple Music, QQ Music, Musixmatch, and Netease sources
   - Listed in About page and Partners page on project site
   - README updated with partner attribution
 
