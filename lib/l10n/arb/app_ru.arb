@@ -308,11 +308,11 @@
   "@optionsAutoFallbackSubtitle": {
     "description": "Subtitle for auto fallback"
   },
-  "optionsAutoSkipUnavailableTracks": "Auto Skip Unavailable Tracks",
+  "optionsAutoSkipUnavailableTracks": "Автопропуск недоступных треков",
   "@optionsAutoSkipUnavailableTracks": {
     "description": "Toggle to skip to the next queue track when current track stream resolution fails"
   },
-  "optionsAutoSkipUnavailableTracksSubtitleOn": "Automatically skip to the next queue track when a stream cannot be resolved.",
+  "optionsAutoSkipUnavailableTracksSubtitleOn": "Автоматически переходить к следующему треку в очереди, когда поток не может быть решен.",
   "@optionsAutoSkipUnavailableTracksSubtitleOn": {
     "description": "Subtitle when auto skip on resolve failure is enabled"
   },
@@ -320,23 +320,23 @@
   "@optionsAutoSkipUnavailableTracksSubtitleOff": {
     "description": "Subtitle when auto skip on resolve failure is disabled"
   },
-  "optionsInteractionMode": "Interaction Mode",
+  "optionsInteractionMode": "Режим взаимодействия",
   "@optionsInteractionMode": {
     "description": "Tap behavior mode for track lists"
   },
-  "modeDownloader": "Downloader Mode",
+  "modeDownloader": "Режим загрузчика",
   "@modeDownloader": {
     "description": "Interaction mode where taps queue downloads"
   },
-  "modeDownloaderSubtitle": "Tap tracks to add them to download queue",
+  "modeDownloaderSubtitle": "Нажмите на треки, чтобы добавить их в очередь скачивания",
   "@modeDownloaderSubtitle": {
     "description": "Subtitle for downloader interaction mode"
   },
-  "modeStreaming": "Streaming Mode",
+  "modeStreaming": "Режим трансляции",
   "@modeStreaming": {
     "description": "Interaction mode where taps start playback"
   },
-  "modeStreamingSubtitle": "Tap tracks to play instantly",
+  "modeStreamingSubtitle": "Коснитесь треков для мгновенного воспроизведения",
   "@modeStreamingSubtitle": {
     "description": "Subtitle for streaming interaction mode"
   },
@@ -1372,7 +1372,7 @@
   "@errorNoTracksFound": {
     "description": "Error - search returned no results"
   },
-  "errorSeekNotSupported": "Seeking is not supported for this live stream",
+  "errorSeekNotSupported": "Поиск не поддерживается для этой трансляции",
   "@errorSeekNotSupported": {
     "description": "Error - seek disabled for live decrypted stream"
   },
@@ -1572,7 +1572,7 @@
   "@filenameShowAdvancedTags": {
     "description": "Toggle label for showing advanced filename tags"
   },
-  "filenameShowAdvancedTagsDescription": "Enable formatted tags for track padding and date patterns",
+  "filenameShowAdvancedTagsDescription": "Включить форматированные теги для отслеживания заполнения и шаблонов дат",
   "@filenameShowAdvancedTagsDescription": {
     "description": "Description for advanced filename tag toggle"
   },
@@ -2058,7 +2058,7 @@
       }
     }
   },
-  "playAllCount": "Play All ({count})",
+  "playAllCount": "Скачать все ({count})",
   "@playAllCount": {
     "description": "Play all button with count",
     "placeholders": {
@@ -2976,7 +2976,7 @@
   "@discographyDownload": {
     "description": "Button - download artist discography"
   },
-  "discographyPlay": "Play Discography",
+  "discographyPlay": "Воспроизвести дискографию",
   "@discographyPlay": {
     "description": "Button - play artist discography"
   },
@@ -2984,7 +2984,7 @@
   "@discographyDownloadAll": {
     "description": "Option - download entire discography"
   },
-  "discographyPlayAll": "Play All",
+  "discographyPlayAll": "Воспроизвести все",
   "@discographyPlayAll": {
     "description": "Option - play entire discography"
   },
@@ -3069,7 +3069,7 @@
   "@discographyDownloadSelected": {
     "description": "Button - download selected albums"
   },
-  "discographyPlaySelected": "Play Selected",
+  "discographyPlaySelected": "Воспроизвести выбранное",
   "@discographyPlaySelected": {
     "description": "Button - play selected albums"
   },
@@ -3239,7 +3239,7 @@
       }
     }
   },
-  "libraryTracksUnit": "{count, plural, =1{track} other{tracks}}",
+  "libraryTracksUnit": "{count, plural, one {трек} few {трека} many {треков} =1{трек} other{треков}}",
   "@libraryTracksUnit": {
     "description": "Unit label for tracks count (without the number itself)",
     "placeholders": {
@@ -3613,7 +3613,7 @@
   "@tutorialExtensionsDesc": {
     "description": "Tutorial extensions page description"
   },
-  "tutorialExtensionsTip1": "Browse the Store tab to discover useful extensions",
+  "tutorialExtensionsTip1": "Просмотрите вкладку Магазина, чтобы найти полезные расширения",
   "@tutorialExtensionsTip1": {
     "description": "Tutorial extensions tip 1"
   },
@@ -3649,7 +3649,7 @@
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
   },
-  "tutorialExample": "EXAMPLE",
+  "tutorialExample": "ПРИМЕР",
   "@tutorialExample": {
     "description": "Example label in tutorial"
   },
@@ -3715,7 +3715,7 @@
   "@cacheAppDirectory": {
     "description": "Cache item title for app cache directory"
   },
-  "cacheAppDirectoryDesc": "HTTP responses, WebView data, and other temporary app data.",
+  "cacheAppDirectoryDesc": "HTTP-ответы, данные WebView и другие временные данные приложения.",
   "@cacheAppDirectoryDesc": {
     "description": "Description of what app cache directory contains"
   },
@@ -3747,7 +3747,7 @@
   "@cacheExploreFeed": {
     "description": "Cache item title for explore home feed cache"
   },
-  "cacheExploreFeedDesc": "Explore tab content (new releases, trending). Will refresh on next visit.",
+  "cacheExploreFeedDesc": "Изучите содержимое вкладки (новые релизы, тренды). Они обновятся при следующем посещении.",
   "@cacheExploreFeedDesc": {
     "description": "Description of what explore feed cache contains"
   },
@@ -3755,7 +3755,7 @@
   "@cacheTrackLookup": {
     "description": "Cache item title for track ID lookup cache"
   },
-  "cacheTrackLookupDesc": "Spotify/Deezer track ID lookups. Clearing may slow next few searches.",
+  "cacheTrackLookupDesc": "Поиск ID трека в Spotify/Deezer. Очистка может замедлить следующие несколько поисков.",
   "@cacheTrackLookupDesc": {
     "description": "Description of what track lookup cache contains"
   },
@@ -3875,15 +3875,15 @@
   "@trackSaveLyricsProgress": {
     "description": "Snackbar while saving lyrics to file"
   },
-  "trackReEnrich": "Re-enrich",
+  "trackReEnrich": "Обновить",
   "@trackReEnrich": {
     "description": "Menu action - re-embed metadata into audio file"
   },
-  "trackReEnrichSubtitle": "Re-embed metadata without re-downloading",
+  "trackReEnrichSubtitle": "Повторно встраивать метаданные без повторного скачивания",
   "@trackReEnrichSubtitle": {
     "description": "Subtitle for re-enrich metadata action"
   },
-  "trackReEnrichOnlineSubtitle": "Search metadata online and embed into file",
+  "trackReEnrichOnlineSubtitle": "Поиск в сети метаданных и встраивание в файл",
   "@trackReEnrichOnlineSubtitle": {
     "description": "Subtitle for re-enrich metadata action for local items"
   },
@@ -3913,7 +3913,7 @@
       }
     }
   },
-  "trackReEnrichProgress": "Re-enriching metadata...",
+  "trackReEnrichProgress": "Обновление метаданных...",
   "@trackReEnrichProgress": {
     "description": "Snackbar while re-enriching metadata"
   },
@@ -3921,7 +3921,7 @@
   "@trackReEnrichSearching": {
     "description": "Snackbar while searching metadata from internet for local items"
   },
-  "trackReEnrichSuccess": "Metadata re-enriched successfully",
+  "trackReEnrichSuccess": "Метаданные успешно обновлены",
   "@trackReEnrichSuccess": {
     "description": "Snackbar after successful re-enrichment"
   },
@@ -3994,47 +3994,47 @@
   "@trackConvertFailed": {
     "description": "Snackbar when conversion fails"
   },
-  "actionCreate": "Create",
+  "actionCreate": "Создать",
   "@actionCreate": {
     "description": "Generic action button - create"
   },
-  "collectionFoldersTitle": "My folders",
+  "collectionFoldersTitle": "Мои папки",
   "@collectionFoldersTitle": {
     "description": "Library section title for custom folders"
   },
-  "collectionWishlist": "Wishlist",
+  "collectionWishlist": "Список желаемого",
   "@collectionWishlist": {
     "description": "Custom folder for saved tracks to download later"
   },
-  "collectionLoved": "Loved",
+  "collectionLoved": "Любимые",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
   },
-  "collectionPlaylists": "Playlists",
+  "collectionPlaylists": "Плейлисты",
   "@collectionPlaylists": {
     "description": "Custom user playlists folder"
   },
-  "collectionPlaylist": "Playlist",
+  "collectionPlaylist": "Плейлист",
   "@collectionPlaylist": {
     "description": "Single playlist label"
   },
-  "collectionAddToPlaylist": "Add to playlist",
+  "collectionAddToPlaylist": "Добавить в плейлист",
   "@collectionAddToPlaylist": {
     "description": "Action to add a track to user playlist"
   },
-  "collectionCreatePlaylist": "Create playlist",
+  "collectionCreatePlaylist": "Создать плейлист",
   "@collectionCreatePlaylist": {
     "description": "Action to create a new playlist"
   },
-  "collectionNoPlaylistsYet": "No playlists yet",
+  "collectionNoPlaylistsYet": "Плейлисты отсутствуют",
   "@collectionNoPlaylistsYet": {
     "description": "Empty state title when user has no playlists"
   },
-  "collectionNoPlaylistsSubtitle": "Create a playlist to start categorizing tracks",
+  "collectionNoPlaylistsSubtitle": "Создайте плейлист, чтобы начать классифицировать треки",
   "@collectionNoPlaylistsSubtitle": {
     "description": "Empty state subtitle when user has no playlists"
   },
-  "collectionPlaylistTracks": "{count, plural, =1{1 track} other{{count} tracks}}",
+  "collectionPlaylistTracks": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} =1 {1 трек} other {{count} треков}}",
   "@collectionPlaylistTracks": {
     "description": "Track count label for custom playlists",
     "placeholders": {
@@ -4043,7 +4043,7 @@
       }
     }
   },
-  "collectionAddedToPlaylist": "Added to \"{playlistName}\"",
+  "collectionAddedToPlaylist": "Добавлено в \"{playlistName}\"",
   "@collectionAddedToPlaylist": {
     "description": "Snackbar after adding track to playlist",
     "placeholders": {
@@ -4052,7 +4052,7 @@
       }
     }
   },
-  "collectionAlreadyInPlaylist": "Already in \"{playlistName}\"",
+  "collectionAlreadyInPlaylist": "Уже в \"{playlistName}\"",
   "@collectionAlreadyInPlaylist": {
     "description": "Snackbar when track already exists in playlist",
     "placeholders": {
@@ -4061,27 +4061,27 @@
       }
     }
   },
-  "collectionPlaylistCreated": "Playlist created",
+  "collectionPlaylistCreated": "Плейлист создан",
   "@collectionPlaylistCreated": {
     "description": "Snackbar after creating playlist"
   },
-  "collectionPlaylistNameHint": "Playlist name",
+  "collectionPlaylistNameHint": "Название плейлиста",
   "@collectionPlaylistNameHint": {
     "description": "Hint text for playlist name input"
   },
-  "collectionPlaylistNameRequired": "Playlist name is required",
+  "collectionPlaylistNameRequired": "Имя плейлиста обязательно",
   "@collectionPlaylistNameRequired": {
     "description": "Validation error for empty playlist name"
   },
-  "collectionRenamePlaylist": "Rename playlist",
+  "collectionRenamePlaylist": "Переименовать плейлист",
   "@collectionRenamePlaylist": {
     "description": "Action to rename playlist"
   },
-  "collectionDeletePlaylist": "Delete playlist",
+  "collectionDeletePlaylist": "Удалить плейлист",
   "@collectionDeletePlaylist": {
     "description": "Action to delete playlist"
   },
-  "collectionDeletePlaylistMessage": "Delete \"{playlistName}\" and all tracks inside it?",
+  "collectionDeletePlaylistMessage": "Удалить \"{playlistName}\" и все треки внутри него?",
   "@collectionDeletePlaylistMessage": {
     "description": "Confirmation message for deleting playlist",
     "placeholders": {
@@ -4090,47 +4090,47 @@
       }
     }
   },
-  "collectionPlaylistDeleted": "Playlist deleted",
+  "collectionPlaylistDeleted": "Плейлист удалён",
   "@collectionPlaylistDeleted": {
     "description": "Snackbar after deleting playlist"
   },
-  "collectionPlaylistRenamed": "Playlist renamed",
+  "collectionPlaylistRenamed": "Плейлист переименован",
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "Wishlist is empty",
+  "collectionWishlistEmptyTitle": "Список желаний пуст",
   "@collectionWishlistEmptyTitle": {
     "description": "Wishlist empty state title"
   },
-  "collectionWishlistEmptySubtitle": "Tap + on tracks to save what you want to download later",
+  "collectionWishlistEmptySubtitle": "Нажмите + на треках, чтобы сохранить то, что вы хотите скачать позже",
   "@collectionWishlistEmptySubtitle": {
     "description": "Wishlist empty state subtitle"
   },
-  "collectionLovedEmptyTitle": "Loved folder is empty",
+  "collectionLovedEmptyTitle": "Папка Любимые пуста",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
   },
-  "collectionLovedEmptySubtitle": "Tap love on tracks to keep your favorites",
+  "collectionLovedEmptySubtitle": "Нажмите \"любовь\" на треках, чтобы сохранить ваши избранные",
   "@collectionLovedEmptySubtitle": {
     "description": "Loved empty state subtitle"
   },
-  "collectionPlaylistEmptyTitle": "Playlist is empty",
+  "collectionPlaylistEmptyTitle": "Плейлист пуст",
   "@collectionPlaylistEmptyTitle": {
     "description": "Playlist empty state title"
   },
-  "collectionPlaylistEmptySubtitle": "Long-press + on any track to add it here",
+  "collectionPlaylistEmptySubtitle": "Удерживайте + на любом треке, чтобы добавить его сюда",
   "@collectionPlaylistEmptySubtitle": {
     "description": "Playlist empty state subtitle"
   },
-  "collectionRemoveFromPlaylist": "Remove from playlist",
+  "collectionRemoveFromPlaylist": "Удалить из плейлиста",
   "@collectionRemoveFromPlaylist": {
     "description": "Tooltip for removing track from playlist"
   },
-  "collectionRemoveFromFolder": "Remove from folder",
+  "collectionRemoveFromFolder": "Убрать из папки",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
   },
-  "collectionRemoved": "\"{trackName}\" removed",
+  "collectionRemoved": "\"{trackName}\" удалён",
   "@collectionRemoved": {
     "description": "Snackbar after removing a track from a collection",
     "placeholders": {
@@ -4139,7 +4139,7 @@
       }
     }
   },
-  "collectionAddedToLoved": "\"{trackName}\" added to Loved",
+  "collectionAddedToLoved": "\"{trackName}\" добавлен в Любимые",
   "@collectionAddedToLoved": {
     "description": "Snackbar after adding track to loved folder",
     "placeholders": {
@@ -4148,7 +4148,7 @@
       }
     }
   },
-  "collectionRemovedFromLoved": "\"{trackName}\" removed from Loved",
+  "collectionRemovedFromLoved": "\"{trackName}\" удалено из Любимых",
   "@collectionRemovedFromLoved": {
     "description": "Snackbar after removing track from loved folder",
     "placeholders": {
@@ -4157,7 +4157,7 @@
       }
     }
   },
-  "collectionAddedToWishlist": "\"{trackName}\" added to Wishlist",
+  "collectionAddedToWishlist": "\"{trackName}\" добавлен в список желаний",
   "@collectionAddedToWishlist": {
     "description": "Snackbar after adding track to wishlist",
     "placeholders": {
@@ -4166,7 +4166,7 @@
       }
     }
   },
-  "collectionRemovedFromWishlist": "\"{trackName}\" removed from Wishlist",
+  "collectionRemovedFromWishlist": "\"{trackName}\" удалён из списка желаний",
   "@collectionRemovedFromWishlist": {
     "description": "Snackbar after removing track from wishlist",
     "placeholders": {
@@ -4175,31 +4175,31 @@
       }
     }
   },
-  "trackOptionAddToLoved": "Add to Loved",
+  "trackOptionAddToLoved": "Добавить в Любимые",
   "@trackOptionAddToLoved": {
     "description": "Bottom sheet action label - add track to loved folder"
   },
-  "trackOptionRemoveFromLoved": "Remove from Loved",
+  "trackOptionRemoveFromLoved": "Исключить из Любимых",
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
-  "trackOptionAddToWishlist": "Add to Wishlist",
+  "trackOptionAddToWishlist": "Добавить в список желаний",
   "@trackOptionAddToWishlist": {
     "description": "Bottom sheet action label - add track to wishlist"
   },
-  "trackOptionRemoveFromWishlist": "Remove from Wishlist",
+  "trackOptionRemoveFromWishlist": "Удалить из списка желаний",
   "@trackOptionRemoveFromWishlist": {
     "description": "Bottom sheet action label - remove track from wishlist"
   },
-  "collectionPlaylistChangeCover": "Change cover image",
+  "collectionPlaylistChangeCover": "Изменить обложку",
   "@collectionPlaylistChangeCover": {
     "description": "Bottom sheet action to pick a custom cover image for a playlist"
   },
-  "collectionPlaylistRemoveCover": "Remove cover image",
+  "collectionPlaylistRemoveCover": "Удалить обложку",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
   },
-  "selectionShareCount": "Share {count} {count, plural, =1{track} other{tracks}}",
+  "selectionShareCount": "Отправить {count} {count, plural, one {трек} few {трека} many {треков} =1{трек} other{треков}}",
   "@selectionShareCount": {
     "description": "Share button text with count in selection mode",
     "placeholders": {
@@ -4212,7 +4212,7 @@
   "@selectionShareNoFiles": {
     "description": "Snackbar when no selected files exist on disk"
   },
-  "selectionConvertCount": "Convert {count} {count, plural, =1{track} other{tracks}}",
+  "selectionConvertCount": "Конвертировать {count} {count, plural, one {трек} few {трека} many {треков} =1{трек} other{треков}}",
   "@selectionConvertCount": {
     "description": "Convert button text with count in selection mode",
     "placeholders": {
@@ -4221,11 +4221,11 @@
       }
     }
   },
-  "selectionConvertNoConvertible": "No convertible tracks selected",
+  "selectionConvertNoConvertible": "Не выбраны конвертируемые треки",
   "@selectionConvertNoConvertible": {
     "description": "Snackbar when no selected tracks support conversion"
   },
-  "selectionBatchConvertConfirmTitle": "Batch Convert",
+  "selectionBatchConvertConfirmTitle": "Пакетная конвертация",
   "@selectionBatchConvertConfirmTitle": {
     "description": "Confirmation dialog title for batch conversion"
   },
@@ -4244,7 +4244,7 @@
       }
     }
   },
-  "selectionBatchConvertProgress": "Converting {current} of {total}...",
+  "selectionBatchConvertProgress": "Конвертация {current} из {total}...",
   "@selectionBatchConvertProgress": {
     "description": "Snackbar during batch conversion progress",
     "placeholders": {
@@ -4256,7 +4256,7 @@
       }
     }
   },
-  "selectionBatchConvertSuccess": "Converted {success} of {total} tracks to {format}",
+  "selectionBatchConvertSuccess": "Конвертировано {success} треков {total} в {format}",
   "@selectionBatchConvertSuccess": {
     "description": "Snackbar after batch conversion completes",
     "placeholders": {
@@ -4271,39 +4271,39 @@
       }
     }
   },
-  "setupModeSelectionTitle": "Choose Your Mode",
+  "setupModeSelectionTitle": "Выберите свой режим",
   "@setupModeSelectionTitle": {
     "description": "Title for mode selection step in setup wizard"
   },
-  "setupModeSelectionDescription": "How would you like to use SpotiFLAC? You can always change this later in Settings.",
+  "setupModeSelectionDescription": "Как вы хотите использовать SpotiFLAC? Вы всегда можете изменить это позже в настройках.",
   "@setupModeSelectionDescription": {
     "description": "Description for mode selection step"
   },
-  "setupModeDownloaderTitle": "Downloader",
+  "setupModeDownloaderTitle": "Загрузчик",
   "@setupModeDownloaderTitle": {
     "description": "Title for downloader mode option"
   },
-  "setupModeDownloaderFeature1": "Download tracks in lossless FLAC quality",
+  "setupModeDownloaderFeature1": "Скачать треки в FLAC формате без потерь",
   "@setupModeDownloaderFeature1": {
     "description": "Downloader mode feature 1"
   },
-  "setupModeDownloaderFeature2": "Save music to your device for offline listening",
+  "setupModeDownloaderFeature2": "Скачать музыку на ваше устройство для оффлайн прослушивания",
   "@setupModeDownloaderFeature2": {
     "description": "Downloader mode feature 2"
   },
-  "setupModeDownloaderFeature3": "Manage your local music library",
+  "setupModeDownloaderFeature3": "Управление вашей музыкальной библиотекой",
   "@setupModeDownloaderFeature3": {
     "description": "Downloader mode feature 3"
   },
-  "setupModeStreamingTitle": "Streaming",
+  "setupModeStreamingTitle": "Трансляция",
   "@setupModeStreamingTitle": {
     "description": "Title for streaming mode option"
   },
-  "setupModeStreamingFeature1": "Stream tracks instantly without downloading",
+  "setupModeStreamingFeature1": "Трансляция треков мгновенно без скачивания",
   "@setupModeStreamingFeature1": {
     "description": "Streaming mode feature 1"
   },
-  "setupModeStreamingFeature2": "Smart Queue auto-discovers new music for you",
+  "setupModeStreamingFeature2": "Умная Очередь автоматически открывает новую музыку для вас",
   "@setupModeStreamingFeature2": {
     "description": "Streaming mode feature 2"
   },
@@ -4311,23 +4311,23 @@
   "@setupModeStreamingFeature3": {
     "description": "Streaming mode feature 3"
   },
-  "setupModeChangeableLater": "You can switch between modes anytime in Settings.",
+  "setupModeChangeableLater": "Вы можете переключаться между режимами в любое время в Настройках.",
   "@setupModeChangeableLater": {
     "description": "Hint that mode can be changed later"
   },
-  "settingsSmartQueueTitle": "Smart Queue",
+  "settingsSmartQueueTitle": "Умная очередь",
   "@settingsSmartQueueTitle": {
     "description": "Title for Smart Queue toggle in settings"
   },
-  "settingsSmartQueueSubtitle": "Automatically discover and add similar tracks to your queue",
+  "settingsSmartQueueSubtitle": "Автоматически искать и добавлять похожие треки в очередь",
   "@settingsSmartQueueSubtitle": {
     "description": "Subtitle for Smart Queue toggle in settings"
   },
-  "whatsNewTitle": "What's New in 4.0",
+  "whatsNewTitle": "Что нового в 4.0",
   "@whatsNewTitle": {
     "description": "Title for the What's New screen"
   },
-  "whatsNewSubtitle": "SpotiFLAC has evolved — here's what changed since 3.x",
+  "whatsNewSubtitle": "В SpotiFLAC развивается — вот что изменилось с 3.x",
   "@whatsNewSubtitle": {
     "description": "Subtitle for the What's New screen"
   },
@@ -4335,31 +4335,31 @@
   "@whatsNewWelcomeTitle": {
     "description": "Welcome page title in What's New screen"
   },
-  "whatsNewWelcomeDesc": "Welcome back! This is a major update packed with new features. Swipe through to see what's changed.",
+  "whatsNewWelcomeDesc": "С возвращением! Это крупное обновление с новыми возможностями. Смахните влево для того, чтобы увидеть, что изменилось.",
   "@whatsNewWelcomeDesc": {
     "description": "Welcome page description in What's New screen"
   },
-  "whatsNewWelcomeTip1": "New streaming mode with instant playback",
+  "whatsNewWelcomeTip1": "Новый режим трансляции с мгновенным воспроизведением",
   "@whatsNewWelcomeTip1": {
     "description": "Welcome page tip 1"
   },
-  "whatsNewWelcomeTip2": "Redesigned library and full-screen player",
+  "whatsNewWelcomeTip2": "Переработанный дизайн библиотеки и полноэкранный плеер",
   "@whatsNewWelcomeTip2": {
     "description": "Welcome page tip 2"
   },
-  "whatsNewWelcomeTip3": "Batch tools, performance boosts, and more",
+  "whatsNewWelcomeTip3": "Пакетные инструменты, повышение производительности и многое другое",
   "@whatsNewWelcomeTip3": {
     "description": "Welcome page tip 3"
   },
-  "whatsNewStreamingTitle": "Streaming Mode",
+  "whatsNewStreamingTitle": "Режим трансляции",
   "@whatsNewStreamingTitle": {
     "description": "What's New feature: Streaming Mode title"
   },
-  "whatsNewStreamingDesc": "Tap any track to play instantly — no download needed. Full-screen player with synced lyrics and media controls.",
+  "whatsNewStreamingDesc": "Коснитесь трека для мгновенного воспроизведения — загрузка не требуется. Полноэкранный проигрыватель с синхронизированными текстами и мультимедиа элементами.",
   "@whatsNewStreamingDesc": {
     "description": "What's New feature: Streaming Mode description"
   },
-  "whatsNewSmartQueueTitle": "Smart Queue",
+  "whatsNewSmartQueueTitle": "Умная очередь",
   "@whatsNewSmartQueueTitle": {
     "description": "What's New feature: Smart Queue title"
   },
@@ -4367,15 +4367,15 @@
   "@whatsNewSmartQueueDesc": {
     "description": "What's New feature: Smart Queue description"
   },
-  "whatsNewDualModeTitle": "Dual Mode",
+  "whatsNewDualModeTitle": "Двойной режим",
   "@whatsNewDualModeTitle": {
     "description": "What's New feature: Dual Mode title"
   },
-  "whatsNewDualModeDesc": "Switch between Downloader and Streaming modes anytime. All buttons adapt automatically.",
+  "whatsNewDualModeDesc": "Переключение между режимами загрузчика и стриминга в любое время. Все кнопки адаптируются автоматически.",
   "@whatsNewDualModeDesc": {
     "description": "What's New feature: Dual Mode description"
   },
-  "whatsNewLibraryTitle": "Redesigned Library",
+  "whatsNewLibraryTitle": "Переработанная библиотека",
   "@whatsNewLibraryTitle": {
     "description": "What's New feature: Library redesign title"
   },
@@ -4383,31 +4383,31 @@
   "@whatsNewLibraryDesc": {
     "description": "What's New feature: Library redesign description"
   },
-  "whatsNewPlayerTitle": "Full-Screen Player",
+  "whatsNewPlayerTitle": "Полноэкранный плеер",
   "@whatsNewPlayerTitle": {
     "description": "What's New feature: Full-Screen Player title"
   },
-  "whatsNewPlayerDesc": "Cover art parallax, synced lyrics, playback persistence across restarts, and download button in player.",
+  "whatsNewPlayerDesc": "Параллакс обложки, синхронизированные тексты, сохранение воспроизведения при перезапуске и кнопка скачать в плеере.",
   "@whatsNewPlayerDesc": {
     "description": "What's New feature: Full-Screen Player description"
   },
-  "whatsNewContextMenuTitle": "Long-Press Menus",
+  "whatsNewContextMenuTitle": "Меню длинного нажатия",
   "@whatsNewContextMenuTitle": {
     "description": "What's New feature: Context Menus title"
   },
-  "whatsNewContextMenuDesc": "Long-press any track for quick actions — add to playlist, share, convert, or re-enrich metadata.",
+  "whatsNewContextMenuDesc": "Долгое нажатие на трек для быстрых действий — добавить в плейлист, поделиться, конвертировать или обновить метаданные.",
   "@whatsNewContextMenuDesc": {
     "description": "What's New feature: Context Menus description"
   },
-  "whatsNewPerformanceTitle": "Performance",
+  "whatsNewPerformanceTitle": "Производительность",
   "@whatsNewPerformanceTitle": {
     "description": "What's New feature: Performance title"
   },
-  "whatsNewPerformanceDesc": "Faster startup, reduced memory usage, SQLite-backed persistence, and granular UI updates.",
+  "whatsNewPerformanceDesc": "Более быстрый запуск, меньшее использование памяти, поддержка SQLite и детальное обновление пользовательского интерфейса.",
   "@whatsNewPerformanceDesc": {
     "description": "What's New feature: Performance description"
   },
-  "whatsNewBatchToolsTitle": "Batch Tools",
+  "whatsNewBatchToolsTitle": "Пакетные инструменты",
   "@whatsNewBatchToolsTitle": {
     "description": "What's New feature: Batch Tools title"
   },
@@ -4415,111 +4415,111 @@
   "@whatsNewBatchToolsDesc": {
     "description": "What's New feature: Batch Tools description"
   },
-  "whatsNewStreamingTip1": "Tap any track to start playing instantly",
+  "whatsNewStreamingTip1": "Коснитесь трека, чтобы мгновенно его воспроизвести",
   "@whatsNewStreamingTip1": {
     "description": "What's New tip: streaming instant play"
   },
-  "whatsNewStreamingTip2": "Synced lyrics in the full-screen player",
+  "whatsNewStreamingTip2": "Синхронизированные тексты песен в полноэкранном плеере",
   "@whatsNewStreamingTip2": {
     "description": "What's New tip: streaming synced lyrics"
   },
-  "whatsNewStreamingTip3": "Download tracks directly from the player",
+  "whatsNewStreamingTip3": "Скачивайте треки прямо из плеера",
   "@whatsNewStreamingTip3": {
     "description": "What's New tip: streaming download from player"
   },
-  "whatsNewSmartQueueTip1": "Queue auto-fills with related tracks",
+  "whatsNewSmartQueueTip1": "Автозаполнение очереди соответствующими треками",
   "@whatsNewSmartQueueTip1": {
     "description": "What's New tip: smart queue auto-fill"
   },
-  "whatsNewSmartQueueTip2": "Discover new artists as you listen",
+  "whatsNewSmartQueueTip2": "Откройте для себя новых исполнителей слушая музыку",
   "@whatsNewSmartQueueTip2": {
     "description": "What's New tip: smart queue artist discovery"
   },
-  "whatsNewSmartQueueTip3": "Never run out of music to play",
+  "whatsNewSmartQueueTip3": "Музыка для прослушивания никогда не закончится",
   "@whatsNewSmartQueueTip3": {
     "description": "What's New tip: smart queue endless"
   },
-  "whatsNewDualModeTip1": "Switch modes anytime in Settings",
+  "whatsNewDualModeTip1": "Переключайте режимы в любое время в настройках",
   "@whatsNewDualModeTip1": {
     "description": "What's New tip: dual mode switch"
   },
-  "whatsNewDualModeTip2": "UI buttons adapt to your current mode",
+  "whatsNewDualModeTip2": "Кнопки интерфейса адаптируются к текущему режиму",
   "@whatsNewDualModeTip2": {
     "description": "What's New tip: dual mode adaptive UI"
   },
-  "whatsNewDualModeTip3": "Download for offline, stream for instant play",
+  "whatsNewDualModeTip3": "Скачать для автономной трансляции и мгновенного воспроизведения",
   "@whatsNewDualModeTip3": {
     "description": "What's New tip: dual mode use cases"
   },
-  "whatsNewLibraryTip1": "Drag and drop to organize playlists",
+  "whatsNewLibraryTip1": "Перетащите для организации плейлистов",
   "@whatsNewLibraryTip1": {
     "description": "What's New tip: library drag and drop"
   },
-  "whatsNewLibraryTip2": "Set custom cover images for playlists",
+  "whatsNewLibraryTip2": "Установить пользовательские обложки для плейлистов",
   "@whatsNewLibraryTip2": {
     "description": "What's New tip: library custom covers"
   },
-  "whatsNewLibraryTip3": "Multi-select tracks for batch actions",
+  "whatsNewLibraryTip3": "Мульти-выбор треков для пакетных действий",
   "@whatsNewLibraryTip3": {
     "description": "What's New tip: library multi-select"
   },
-  "whatsNewPlayerTip1": "Cover art with parallax scrolling effect",
+  "whatsNewPlayerTip1": "Обложки с эффектом параллакса",
   "@whatsNewPlayerTip1": {
     "description": "What's New tip: player parallax"
   },
-  "whatsNewPlayerTip2": "Playback persists across app restarts",
+  "whatsNewPlayerTip2": "Воспроизведение продолжится после перезапуска приложения",
   "@whatsNewPlayerTip2": {
     "description": "What's New tip: player persistence"
   },
-  "whatsNewPlayerTip3": "Synced lyrics while you listen",
+  "whatsNewPlayerTip3": "Синхронизированные тексты песен во время прослушивания",
   "@whatsNewPlayerTip3": {
     "description": "What's New tip: player lyrics"
   },
-  "whatsNewContextMenuTip1": "Add tracks to any playlist instantly",
+  "whatsNewContextMenuTip1": "Мгновенно добавляйте треки в любой плейлист",
   "@whatsNewContextMenuTip1": {
     "description": "What's New tip: context menu add to playlist"
   },
-  "whatsNewContextMenuTip2": "Share or convert with one tap",
+  "whatsNewContextMenuTip2": "Поделиться или конвертировать одним нажатием",
   "@whatsNewContextMenuTip2": {
     "description": "What's New tip: context menu share/convert"
   },
-  "whatsNewContextMenuTip3": "Re-enrich metadata when needed",
+  "whatsNewContextMenuTip3": "При необходимости восстановить метаданные",
   "@whatsNewContextMenuTip3": {
     "description": "What's New tip: context menu re-enrich"
   },
-  "whatsNewBatchToolsTip1": "Share multiple tracks at once",
+  "whatsNewBatchToolsTip1": "Поделиться сразу несколькими треками",
   "@whatsNewBatchToolsTip1": {
     "description": "What's New tip: batch share"
   },
-  "whatsNewBatchToolsTip2": "Batch convert to MP3 or Opus format",
+  "whatsNewBatchToolsTip2": "Пакетное конвертирование в формат MP3 или Opus",
   "@whatsNewBatchToolsTip2": {
     "description": "What's New tip: batch convert"
   },
-  "whatsNewBatchToolsTip3": "Re-enrich metadata across your library",
+  "whatsNewBatchToolsTip3": "Повторное обновление метаданных в вашей библиотеке",
   "@whatsNewBatchToolsTip3": {
     "description": "What's New tip: batch re-enrich"
   },
-  "whatsNewPerformanceTip1": "Faster app startup time",
+  "whatsNewPerformanceTip1": "Быстрый запуск приложения",
   "@whatsNewPerformanceTip1": {
     "description": "What's New tip: performance startup"
   },
-  "whatsNewPerformanceTip2": "Reduced memory usage during playback",
+  "whatsNewPerformanceTip2": "Уменьшение использования памяти во время воспроизведения",
   "@whatsNewPerformanceTip2": {
     "description": "What's New tip: performance memory"
   },
-  "whatsNewPerformanceTip3": "SQLite-backed storage for reliability",
+  "whatsNewPerformanceTip3": "Надежное хранилище с поддержкой SQLite",
   "@whatsNewPerformanceTip3": {
     "description": "What's New tip: performance SQLite"
   },
-  "whatsNewReadyMessage": "You're all set — enjoy the new SpotiFLAC!",
+  "whatsNewReadyMessage": "Всё готово — наслаждайтесь новым SpotiFLAC!",
   "@whatsNewReadyMessage": {
     "description": "Ready card message on last What's New page"
   },
-  "whatsNewGetStarted": "Let's Go",
+  "whatsNewGetStarted": "Поехали",
   "@whatsNewGetStarted": {
     "description": "Button text to dismiss What's New screen"
   },
-  "whatsNewPageIndicator": "{current} of {total}",
+  "whatsNewPageIndicator": "{current} из {total}",
   "@whatsNewPageIndicator": {
     "description": "Page indicator text in What's New screen",
     "placeholders": {
