@@ -2058,7 +2058,7 @@
       }
     }
   },
-  "playAllCount": "Play All ({count})",
+  "playAllCount": "Alle abspielen ({count})",
   "@playAllCount": {
     "description": "Play all button with count",
     "placeholders": {
@@ -2523,7 +2523,7 @@
   "@enableLossyOptionSubtitleOn": {
     "description": "Subtitle when lossy is enabled"
   },
-  "enableLossyOptionSubtitleOff": "Downloads FLAC then converts to lossy format",
+  "enableLossyOptionSubtitleOff": "Lädt eine FLAC herunter und konvertiert sie dann in ein verlustbehaftetes Format",
   "@enableLossyOptionSubtitleOff": {
     "description": "Subtitle when lossy is disabled"
   },
@@ -2602,11 +2602,11 @@
       }
     }
   },
-  "downloadAskBeforeDownload": "Ask Before Download",
+  "downloadAskBeforeDownload": "Qualität vor Download fragen",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
   },
-  "downloadDirectory": "Download Directory",
+  "downloadDirectory": "Downloadverzeichnis",
   "@downloadDirectory": {
     "description": "Setting - download folder"
   },
@@ -2670,7 +2670,7 @@
   "@folderNone": {
     "description": "Folder option - no organization"
   },
-  "folderNoneSubtitle": "Save all files directly to download folder",
+  "folderNoneSubtitle": "Alle Dateien direkt im Download-Ordner speichern",
   "@folderNoneSubtitle": {
     "description": "Subtitle for no folder organization"
   },
@@ -2678,7 +2678,7 @@
   "@folderArtist": {
     "description": "Folder option - by artist"
   },
-  "folderArtistSubtitle": "Artist Name/filename",
+  "folderArtistSubtitle": "Künstler Name/Dateiname",
   "@folderArtistSubtitle": {
     "description": "Folder structure example"
   },
@@ -2686,7 +2686,7 @@
   "@folderAlbum": {
     "description": "Folder option - by album"
   },
-  "folderAlbumSubtitle": "Album Name/filename",
+  "folderAlbumSubtitle": "Album Name/Dateiname",
   "@folderAlbumSubtitle": {
     "description": "Folder structure example"
   },
@@ -2726,7 +2726,7 @@
   "@appearanceAmoledDarkSubtitle": {
     "description": "Subtitle for AMOLED dark"
   },
-  "appearanceChooseAccentColor": "Choose Accent Color",
+  "appearanceChooseAccentColor": "Akzentfarbe wählen",
   "@appearanceChooseAccentColor": {
     "description": "Color picker dialog title"
   },
@@ -2770,7 +2770,7 @@
   "@settingsAutoExportFailedSubtitle": {
     "description": "Subtitle for auto-export setting"
   },
-  "settingsDownloadNetwork": "Download Network",
+  "settingsDownloadNetwork": "Download Netzwerk",
   "@settingsDownloadNetwork": {
     "description": "Setting for network type preference"
   },
@@ -2838,7 +2838,7 @@
   "@albumFolderAlbumOnly": {
     "description": "Album folder option"
   },
-  "albumFolderAlbumOnlySubtitle": "Albums/Album Name/",
+  "albumFolderAlbumOnlySubtitle": "Alben/Album Name/",
   "@albumFolderAlbumOnlySubtitle": {
     "description": "Folder structure example"
   },
@@ -2875,7 +2875,7 @@
   "@downloadedAlbumTracksHeader": {
     "description": "Section header for tracks"
   },
-  "downloadedAlbumDownloadedCount": "{count} downloaded",
+  "downloadedAlbumDownloadedCount": "{count} heruntergeladen",
   "@downloadedAlbumDownloadedCount": {
     "description": "Downloaded tracks count badge",
     "placeholders": {
@@ -2893,11 +2893,11 @@
       }
     }
   },
-  "downloadedAlbumAllSelected": "All tracks selected",
+  "downloadedAlbumAllSelected": "Alle Titel sind ausgewählt",
   "@downloadedAlbumAllSelected": {
     "description": "Status - all items selected"
   },
-  "downloadedAlbumTapToSelect": "Tap tracks to select",
+  "downloadedAlbumTapToSelect": "Tippe auf Titel zum Auswählen",
   "@downloadedAlbumTapToSelect": {
     "description": "Selection hint"
   },
@@ -2944,11 +2944,11 @@
   "@recentTypePlaylist": {
     "description": "Recent access item type - playlist"
   },
-  "recentEmpty": "No recent items yet",
+  "recentEmpty": "Noch keine aktuellen Einträge",
   "@recentEmpty": {
     "description": "Empty state text for recent access list"
   },
-  "recentShowAllDownloads": "Show All Downloads",
+  "recentShowAllDownloads": "Alle Downloads anzeigen",
   "@recentShowAllDownloads": {
     "description": "Button label to unhide hidden downloads in recent access"
   },
@@ -2972,7 +2972,7 @@
       }
     }
   },
-  "discographyDownload": "Download Discography",
+  "discographyDownload": "Diskographie herunterladen",
   "@discographyDownload": {
     "description": "Button - download artist discography"
   },
@@ -3016,7 +3016,7 @@
       }
     }
   },
-  "discographySinglesOnly": "Singles & EPs Only",
+  "discographySinglesOnly": "Nur Singles & EPs",
   "@discographySinglesOnly": {
     "description": "Option - download only singles"
   },
@@ -3040,7 +3040,7 @@
   "@discographySelectAlbumsSubtitle": {
     "description": "Subtitle for select albums option"
   },
-  "discographyFetchingTracks": "Fetching tracks...",
+  "discographyFetchingTracks": "Lade Titel...",
   "@discographyFetchingTracks": {
     "description": "Progress - fetching album tracks"
   },
@@ -3082,7 +3082,7 @@
       }
     }
   },
-  "discographySkippedDownloaded": "{added} added, {skipped} already downloaded",
+  "discographySkippedDownloaded": "{added} hinzugefügt, {skipped} bereits heruntergeladen",
   "@discographySkippedDownloaded": {
     "description": "Snackbar - with skipped tracks count",
     "placeholders": {
@@ -3094,7 +3094,7 @@
       }
     }
   },
-  "discographyNoAlbums": "No albums available",
+  "discographyNoAlbums": "Es sind keine Alben verfügbar",
   "@discographyNoAlbums": {
     "description": "Error - no albums found for artist"
   },
@@ -3158,7 +3158,7 @@
   "@libraryScanSettings": {
     "description": "Section header for scan settings"
   },
-  "libraryEnableLocalLibrary": "Enable Local Library",
+  "libraryEnableLocalLibrary": "Lokale Bibliothek aktivieren",
   "@libraryEnableLocalLibrary": {
     "description": "Toggle to enable library scanning"
   },
@@ -3170,7 +3170,7 @@
   "@libraryFolder": {
     "description": "Folder selection setting"
   },
-  "libraryFolderHint": "Tap to select folder",
+  "libraryFolderHint": "Tippe um Ordner auszuwählen",
   "@libraryFolderHint": {
     "description": "Placeholder when no folder selected"
   },
@@ -3190,7 +3190,7 @@
   "@libraryScan": {
     "description": "Button to start library scan"
   },
-  "libraryScanSubtitle": "Scan for audio files",
+  "libraryScanSubtitle": "Suche nach Audiodateien",
   "@libraryScanSubtitle": {
     "description": "Subtitle for scan button"
   },
@@ -3222,7 +3222,7 @@
   "@libraryClearConfirmMessage": {
     "description": "Dialog message for clear confirmation"
   },
-  "libraryAbout": "About Local Library",
+  "libraryAbout": "Über die lokale Bibliothek",
   "@libraryAbout": {
     "description": "Section header for about info"
   },
@@ -3248,7 +3248,7 @@
       }
     }
   },
-  "libraryLastScanned": "Last scanned: {time}",
+  "libraryLastScanned": "Zuletzt gescannt: {time}",
   "@libraryLastScanned": {
     "description": "Last scan time display",
     "placeholders": {
@@ -3281,7 +3281,7 @@
   "@libraryInLibrary": {
     "description": "Badge shown on tracks that exist in local library"
   },
-  "libraryRemovedMissingFiles": "Removed {count} missing files from library",
+  "libraryRemovedMissingFiles": "Entfernte {count} fehlende Dateien aus der Bibliothek",
   "@libraryRemovedMissingFiles": {
     "description": "Snackbar after cleanup",
     "placeholders": {
@@ -3425,7 +3425,7 @@
       }
     }
   },
-  "storageSwitchTitle": "Switch Storage Mode",
+  "storageSwitchTitle": "Speichermodus wechseln",
   "@storageSwitchTitle": {
     "description": "Dialog title when switching storage mode"
   },
@@ -3445,7 +3445,7 @@
   "@storageSwitchToAppMessage": {
     "description": "Explanation when switching to app storage"
   },
-  "storageSwitchExistingDownloads": "Existing Downloads",
+  "storageSwitchExistingDownloads": "Vorhandene Downloads",
   "@storageSwitchExistingDownloads": {
     "description": "Section header for existing downloads info"
   },
@@ -3478,7 +3478,7 @@
   "@storageSwitchContinue": {
     "description": "Button to proceed with storage switch"
   },
-  "storageSwitchSelectFolder": "Select SAF Folder",
+  "storageSwitchSelectFolder": "SAF-Ordner wählen",
   "@storageSwitchSelectFolder": {
     "description": "Button to select SAF folder"
   },
@@ -3499,11 +3499,11 @@
       }
     }
   },
-  "storageStatsTitle": "Storage Statistics",
+  "storageStatsTitle": "Speicherstatistik",
   "@storageStatsTitle": {
     "description": "Section title for storage stats"
   },
-  "storageStatsAppCount": "{count} tracks in App Storage",
+  "storageStatsAppCount": "{count} Titel im App-Speicher",
   "@storageStatsAppCount": {
     "description": "Count of tracks in app storage",
     "placeholders": {
@@ -3521,7 +3521,7 @@
       }
     }
   },
-  "storageModeInfo": "Your files are stored in multiple locations",
+  "storageModeInfo": "Deine Dateien werden an mehreren Orten gespeichert",
   "@storageModeInfo": {
     "description": "Info when user has files in both storage modes"
   },
@@ -3565,7 +3565,7 @@
   "@tutorialSearchTip3": {
     "description": "Tutorial search tip 3"
   },
-  "tutorialDownloadTitle": "Downloading Music",
+  "tutorialDownloadTitle": "Musik wird heruntergeladen",
   "@tutorialDownloadTitle": {
     "description": "Tutorial download page title"
   },
@@ -3711,7 +3711,7 @@
   "@cacheSectionMaintenance": {
     "description": "Section header for cleanup actions"
   },
-  "cacheAppDirectory": "App cache directory",
+  "cacheAppDirectory": "App-Cache Verzeichnis",
   "@cacheAppDirectory": {
     "description": "Cache item title for app cache directory"
   },
@@ -3719,7 +3719,7 @@
   "@cacheAppDirectoryDesc": {
     "description": "Description of what app cache directory contains"
   },
-  "cacheTempDirectory": "Temporary directory",
+  "cacheTempDirectory": "Temporäres Verzeichnis",
   "@cacheTempDirectory": {
     "description": "Cache item title for temporary files directory"
   },
@@ -3727,7 +3727,7 @@
   "@cacheTempDirectoryDesc": {
     "description": "Description of what temporary directory contains"
   },
-  "cacheCoverImage": "Cover image cache",
+  "cacheCoverImage": "Cover-Cache",
   "@cacheCoverImage": {
     "description": "Cache item title for persistent cover images"
   },
@@ -3735,7 +3735,7 @@
   "@cacheCoverImageDesc": {
     "description": "Description of what cover image cache contains"
   },
-  "cacheLibraryCover": "Library cover cache",
+  "cacheLibraryCover": "Bibliotheks-Cover-Cache",
   "@cacheLibraryCover": {
     "description": "Cache item title for local library cover art images"
   },
@@ -3743,7 +3743,7 @@
   "@cacheLibraryCoverDesc": {
     "description": "Description of what library cover cache contains"
   },
-  "cacheExploreFeed": "Explore feed cache",
+  "cacheExploreFeed": "Feed-Cache entdecken",
   "@cacheExploreFeed": {
     "description": "Cache item title for explore home feed cache"
   },
@@ -3751,7 +3751,7 @@
   "@cacheExploreFeedDesc": {
     "description": "Description of what explore feed cache contains"
   },
-  "cacheTrackLookup": "Track lookup cache",
+  "cacheTrackLookup": "Titel Such-Cache",
   "@cacheTrackLookup": {
     "description": "Cache item title for track ID lookup cache"
   },
@@ -3797,7 +3797,7 @@
       }
     }
   },
-  "cacheClearSuccess": "Cleared: {target}",
+  "cacheClearSuccess": "Entfernt: {target}",
   "@cacheClearSuccess": {
     "description": "Snackbar after clearing selected cache",
     "placeholders": {
@@ -3831,7 +3831,7 @@
   "@cacheClearAll": {
     "description": "Button label to clear all caches"
   },
-  "cacheCleanupUnused": "Cleanup unused data",
+  "cacheCleanupUnused": "Unbenutzte Daten bereinigen",
   "@cacheCleanupUnused": {
     "description": "Action title for cleaning unused entries"
   },
@@ -3863,7 +3863,7 @@
   "@trackSaveCoverArtSubtitle": {
     "description": "Subtitle for save cover art action"
   },
-  "trackSaveLyrics": "Save Lyrics (.lrc)",
+  "trackSaveLyrics": "Lyrics als .lrc speichern",
   "@trackSaveLyrics": {
     "description": "Menu action - save lyrics as .lrc file"
   },
@@ -3883,7 +3883,7 @@
   "@trackReEnrichSubtitle": {
     "description": "Subtitle for re-enrich metadata action"
   },
-  "trackReEnrichOnlineSubtitle": "Search metadata online and embed into file",
+  "trackReEnrichOnlineSubtitle": "Metadaten online suchen und in Datei einbinden",
   "@trackReEnrichOnlineSubtitle": {
     "description": "Subtitle for re-enrich metadata action for local items"
   },
@@ -3958,7 +3958,7 @@
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
   },
-  "trackConvertConfirmTitle": "Confirm Conversion",
+  "trackConvertConfirmTitle": "Konvertierung bestätigen",
   "@trackConvertConfirmTitle": {
     "description": "Confirmation dialog title"
   },
@@ -3977,7 +3977,7 @@
       }
     }
   },
-  "trackConvertConverting": "Converting audio...",
+  "trackConvertConverting": "Konvertiere Audio...",
   "@trackConvertConverting": {
     "description": "Snackbar while converting"
   },
@@ -3990,7 +3990,7 @@
       }
     }
   },
-  "trackConvertFailed": "Conversion failed",
+  "trackConvertFailed": "Konvertierung fehlgeschlagen",
   "@trackConvertFailed": {
     "description": "Snackbar when conversion fails"
   },
@@ -4098,11 +4098,11 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "Wishlist is empty",
+  "collectionWishlistEmptyTitle": "Wunschliste ist leer",
   "@collectionWishlistEmptyTitle": {
     "description": "Wishlist empty state title"
   },
-  "collectionWishlistEmptySubtitle": "Tap + on tracks to save what you want to download later",
+  "collectionWishlistEmptySubtitle": "Tippe auf das + bei den Titeln, um sie zum späteren Herunterladen zu speichern",
   "@collectionWishlistEmptySubtitle": {
     "description": "Wishlist empty state subtitle"
   },
@@ -4110,11 +4110,11 @@
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
   },
-  "collectionLovedEmptySubtitle": "Tap love on tracks to keep your favorites",
+  "collectionLovedEmptySubtitle": "Tippe auf das Herz, um deine Favoriten zu behalten",
   "@collectionLovedEmptySubtitle": {
     "description": "Loved empty state subtitle"
   },
-  "collectionPlaylistEmptyTitle": "Playlist is empty",
+  "collectionPlaylistEmptyTitle": "Die Playlist ist leer",
   "@collectionPlaylistEmptyTitle": {
     "description": "Playlist empty state title"
   },
@@ -4122,11 +4122,11 @@
   "@collectionPlaylistEmptySubtitle": {
     "description": "Playlist empty state subtitle"
   },
-  "collectionRemoveFromPlaylist": "Remove from playlist",
+  "collectionRemoveFromPlaylist": "Von Playlist entfernen",
   "@collectionRemoveFromPlaylist": {
     "description": "Tooltip for removing track from playlist"
   },
-  "collectionRemoveFromFolder": "Remove from folder",
+  "collectionRemoveFromFolder": "Aus Ordner entfernen",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
   },
@@ -4179,7 +4179,7 @@
   "@trackOptionAddToLoved": {
     "description": "Bottom sheet action label - add track to loved folder"
   },
-  "trackOptionRemoveFromLoved": "Remove from Loved",
+  "trackOptionRemoveFromLoved": "Aus der Wunschliste entfernt",
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
@@ -4191,7 +4191,7 @@
   "@trackOptionRemoveFromWishlist": {
     "description": "Bottom sheet action label - remove track from wishlist"
   },
-  "collectionPlaylistChangeCover": "Change cover image",
+  "collectionPlaylistChangeCover": "Coverbild ändern",
   "@collectionPlaylistChangeCover": {
     "description": "Bottom sheet action to pick a custom cover image for a playlist"
   },
@@ -4299,7 +4299,7 @@
   "@setupModeStreamingTitle": {
     "description": "Title for streaming mode option"
   },
-  "setupModeStreamingFeature1": "Stream tracks instantly without downloading",
+  "setupModeStreamingFeature1": "Streame Titel sofort ohne Download",
   "@setupModeStreamingFeature1": {
     "description": "Streaming mode feature 1"
   },
@@ -4319,11 +4319,11 @@
   "@settingsSmartQueueTitle": {
     "description": "Title for Smart Queue toggle in settings"
   },
-  "settingsSmartQueueSubtitle": "Automatically discover and add similar tracks to your queue",
+  "settingsSmartQueueSubtitle": "Ähnliche Titel automatisch entdecken und zu deiner Wiedergabeliste hinzufügen",
   "@settingsSmartQueueSubtitle": {
     "description": "Subtitle for Smart Queue toggle in settings"
   },
-  "whatsNewTitle": "What's New in 4.0",
+  "whatsNewTitle": "Was ist neu in 4.0",
   "@whatsNewTitle": {
     "description": "Title for the What's New screen"
   },
@@ -4343,11 +4343,11 @@
   "@whatsNewWelcomeTip1": {
     "description": "Welcome page tip 1"
   },
-  "whatsNewWelcomeTip2": "Redesigned library and full-screen player",
+  "whatsNewWelcomeTip2": "Neue Bibliothek und Vollbild-Player",
   "@whatsNewWelcomeTip2": {
     "description": "Welcome page tip 2"
   },
-  "whatsNewWelcomeTip3": "Batch tools, performance boosts, and more",
+  "whatsNewWelcomeTip3": "Batch-Tools, Performance-Boosts und mehr",
   "@whatsNewWelcomeTip3": {
     "description": "Welcome page tip 3"
   },
@@ -4375,7 +4375,7 @@
   "@whatsNewDualModeDesc": {
     "description": "What's New feature: Dual Mode description"
   },
-  "whatsNewLibraryTitle": "Redesigned Library",
+  "whatsNewLibraryTitle": "Neu gestaltete Bibliothek",
   "@whatsNewLibraryTitle": {
     "description": "What's New feature: Library redesign title"
   },
@@ -4383,7 +4383,7 @@
   "@whatsNewLibraryDesc": {
     "description": "What's New feature: Library redesign description"
   },
-  "whatsNewPlayerTitle": "Full-Screen Player",
+  "whatsNewPlayerTitle": "Vollbild-Player",
   "@whatsNewPlayerTitle": {
     "description": "What's New feature: Full-Screen Player title"
   },
