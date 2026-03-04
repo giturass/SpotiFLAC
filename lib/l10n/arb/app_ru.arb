@@ -5,10 +5,6 @@
   "@appName": {
     "description": "App name - DO NOT TRANSLATE"
   },
-  "appDescription": "Скачайте треки Spotify в Lossless качестве из Tidal, Qobuz и Amazon Music.",
-  "@appDescription": {
-    "description": "App description shown in about page"
-  },
   "navHome": "Главная",
   "@navHome": {
     "description": "Bottom navigation - Home tab"
@@ -16,10 +12,6 @@
   "navLibrary": "Библиотека",
   "@navLibrary": {
     "description": "Bottom navigation - Library tab"
-  },
-  "navHistory": "История",
-  "@navHistory": {
-    "description": "Bottom navigation - History tab (legacy)"
   },
   "navSettings": "Настройки",
   "@navSettings": {
@@ -33,20 +25,6 @@
   "@homeTitle": {
     "description": "Home screen title"
   },
-  "homeSearchHint": "Вставьте URL Spotify или выполните поиск...",
-  "@homeSearchHint": {
-    "description": "Placeholder text in search box"
-  },
-  "homeSearchHintExtension": "Искать с помощью {extensionName}...",
-  "@homeSearchHintExtension": {
-    "description": "Placeholder when extension search is active",
-    "placeholders": {
-      "extensionName": {
-        "type": "String",
-        "description": "Name of the active extension"
-      }
-    }
-  },
   "homeSubtitle": "Вставьте ссылку Spotify или ищите по названию",
   "@homeSubtitle": {
     "description": "Subtitle shown below search box"
@@ -59,24 +37,6 @@
   "@homeRecent": {
     "description": "Section header for recent searches"
   },
-  "historyTitle": "История",
-  "@historyTitle": {
-    "description": "History screen title"
-  },
-  "historyDownloading": "Скачивание ({count})",
-  "@historyDownloading": {
-    "description": "Tab showing active downloads count",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "description": "Number of active downloads"
-      }
-    }
-  },
-  "historyDownloaded": "Скачано",
-  "@historyDownloaded": {
-    "description": "Tab showing completed downloads"
-  },
   "historyFilterAll": "Все",
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
@@ -88,48 +48,6 @@
   "historyFilterSingles": "Синглы",
   "@historyFilterSingles": {
     "description": "Filter chip - show singles only"
-  },
-  "historyTracksCount": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} other {{count} треков}}",
-  "@historyTracksCount": {
-    "description": "Track count with plural form",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "historyAlbumsCount": "{count, plural, one {{count} альбом} few {{count} альбома} many {{count} альбомов} other {{count} альбомов}}",
-  "@historyAlbumsCount": {
-    "description": "Album count with plural form",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "historyNoDownloads": "Нет истории скачиваний",
-  "@historyNoDownloads": {
-    "description": "Empty state title"
-  },
-  "historyNoDownloadsSubtitle": "Скачанные треки появятся здесь",
-  "@historyNoDownloadsSubtitle": {
-    "description": "Empty state subtitle"
-  },
-  "historyNoAlbums": "Нет скачанных альбомов",
-  "@historyNoAlbums": {
-    "description": "Empty state when filtering albums"
-  },
-  "historyNoAlbumsSubtitle": "Скачайте несколько треков из альбома, чтобы увидеть их здесь",
-  "@historyNoAlbumsSubtitle": {
-    "description": "Empty state subtitle for albums filter"
-  },
-  "historyNoSingles": "Нет скачанных синглов",
-  "@historyNoSingles": {
-    "description": "Empty state when filtering singles"
-  },
-  "historyNoSinglesSubtitle": "Здесь будут отображаться загрузки синглов",
-  "@historyNoSinglesSubtitle": {
-    "description": "Empty state subtitle for singles filter"
   },
   "historySearchHint": "Поиск в истории...",
   "@historySearchHint": {
@@ -163,34 +81,6 @@
   "@downloadTitle": {
     "description": "Download settings page title"
   },
-  "downloadLocation": "Папка для скачивания",
-  "@downloadLocation": {
-    "description": "Setting for download folder"
-  },
-  "downloadLocationSubtitle": "Выберите, куда сохранить файлы",
-  "@downloadLocationSubtitle": {
-    "description": "Subtitle for download location"
-  },
-  "downloadLocationDefault": "Расположение по умолчанию",
-  "@downloadLocationDefault": {
-    "description": "Shown when using default folder"
-  },
-  "downloadDefaultService": "Сервис по умолчанию",
-  "@downloadDefaultService": {
-    "description": "Setting for preferred download service (Tidal/Qobuz/Amazon)"
-  },
-  "downloadDefaultServiceSubtitle": "Сервис, используемый для скачивания",
-  "@downloadDefaultServiceSubtitle": {
-    "description": "Subtitle for default service"
-  },
-  "downloadDefaultQuality": "Качество по умолчанию",
-  "@downloadDefaultQuality": {
-    "description": "Setting for audio quality"
-  },
-  "downloadAskQuality": "Спрашивать качество перед скачиванием",
-  "@downloadAskQuality": {
-    "description": "Toggle to show quality picker"
-  },
   "downloadAskQualitySubtitle": "Показывать выбор качества для каждого скачивания",
   "@downloadAskQualitySubtitle": {
     "description": "Subtitle for ask quality toggle"
@@ -203,37 +93,9 @@
   "@downloadFolderOrganization": {
     "description": "Setting for folder structure"
   },
-  "downloadSeparateSingles": "Разделять синглы",
-  "@downloadSeparateSingles": {
-    "description": "Toggle to separate single tracks"
-  },
-  "downloadSeparateSinglesSubtitle": "Помещать синглы в отдельную папку",
-  "@downloadSeparateSinglesSubtitle": {
-    "description": "Subtitle for separate singles toggle"
-  },
-  "qualityBest": "Лучшее из доступных",
-  "@qualityBest": {
-    "description": "Audio quality option - highest available"
-  },
-  "qualityFlac": "FLAC",
-  "@qualityFlac": {
-    "description": "Audio quality option - FLAC lossless"
-  },
-  "quality320": "320 кбит/с",
-  "@quality320": {
-    "description": "Audio quality option - 320kbps MP3"
-  },
-  "quality128": "128 кбит/с",
-  "@quality128": {
-    "description": "Audio quality option - 128kbps MP3"
-  },
   "appearanceTitle": "Внешний вид",
   "@appearanceTitle": {
     "description": "Appearance settings page title"
-  },
-  "appearanceTheme": "Тема",
-  "@appearanceTheme": {
-    "description": "Theme mode setting"
   },
   "appearanceThemeSystem": "Системная",
   "@appearanceThemeSystem": {
@@ -255,10 +117,6 @@
   "@appearanceDynamicColorSubtitle": {
     "description": "Subtitle for dynamic color"
   },
-  "appearanceAccentColor": "Акцентный цвет",
-  "@appearanceAccentColor": {
-    "description": "Custom accent color picker"
-  },
   "appearanceHistoryView": "Отображение истории",
   "@appearanceHistoryView": {
     "description": "Layout style for history"
@@ -274,10 +132,6 @@
   "optionsTitle": "Опции",
   "@optionsTitle": {
     "description": "Options settings page title"
-  },
-  "optionsSearchSource": "Поиск источника",
-  "@optionsSearchSource": {
-    "description": "Section for search provider settings"
   },
   "optionsPrimaryProvider": "Основной провайдер",
   "@optionsPrimaryProvider": {
@@ -438,22 +292,6 @@
   "@extensionsTitle": {
     "description": "Extensions page title"
   },
-  "extensionsInstalled": "Установленные расширения",
-  "@extensionsInstalled": {
-    "description": "Section header for installed extensions"
-  },
-  "extensionsNone": "Нет установленных расширений",
-  "@extensionsNone": {
-    "description": "Empty state title"
-  },
-  "extensionsNoneSubtitle": "Установка расширений из вкладки Магазин",
-  "@extensionsNoneSubtitle": {
-    "description": "Empty state subtitle"
-  },
-  "extensionsEnabled": "Включено",
-  "@extensionsEnabled": {
-    "description": "Extension status - active"
-  },
   "extensionsDisabled": "Выключено",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
@@ -479,10 +317,6 @@
   "extensionsUninstall": "Удалить",
   "@extensionsUninstall": {
     "description": "Uninstall extension button"
-  },
-  "extensionsSetAsSearch": "Установить в качестве поисковой системы",
-  "@extensionsSetAsSearch": {
-    "description": "Use extension for search"
   },
   "storeTitle": "Магазин расширений",
   "@storeTitle": {
@@ -580,10 +414,6 @@
   "@aboutSocial": {
     "description": "Section for social links"
   },
-  "aboutSupport": "Поддержка",
-  "@aboutSupport": {
-    "description": "Section for support/donation links"
-  },
   "aboutApp": "Приложение",
   "@aboutApp": {
     "description": "Section for app info"
@@ -603,14 +433,6 @@
   "aboutSjdonadoDesc": "Создатель I Don't Have Spotify (IDHS). Резервный резолвер ссылки",
   "@aboutSjdonadoDesc": {
     "description": "Credit description for sjdonado"
-  },
-  "aboutDoubleDouble": "DoubleDouble",
-  "@aboutDoubleDouble": {
-    "description": "Name of Amazon API service - DO NOT TRANSLATE"
-  },
-  "aboutDoubleDoubleDesc": "Удивительный API для загрузок Amazon Music. Спасибо за то, что сделали это бесплатно!",
-  "@aboutDoubleDoubleDesc": {
-    "description": "Credit for DoubleDouble API"
   },
   "aboutDabMusic": "DAB Music",
   "@aboutDabMusic": {
@@ -632,35 +454,6 @@
   "@aboutAppDescription": {
     "description": "App description in header card"
   },
-  "albumTitle": "Альбом",
-  "@albumTitle": {
-    "description": "Album screen title"
-  },
-  "albumTracks": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} other {{count} треков}}",
-  "@albumTracks": {
-    "description": "Album track count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "albumDownloadAll": "Скачать всё",
-  "@albumDownloadAll": {
-    "description": "Button to download all tracks"
-  },
-  "albumDownloadRemaining": "Скачать оставшиеся",
-  "@albumDownloadRemaining": {
-    "description": "Button to download remaining tracks"
-  },
-  "playlistTitle": "Плейлист",
-  "@playlistTitle": {
-    "description": "Playlist screen title"
-  },
-  "artistTitle": "Исполнитель",
-  "@artistTitle": {
-    "description": "Artist screen title"
-  },
   "artistAlbums": "Альбомы",
   "@artistAlbums": {
     "description": "Section header for artist albums"
@@ -672,15 +465,6 @@
   "artistCompilations": "Сборники",
   "@artistCompilations": {
     "description": "Section header for compilations"
-  },
-  "artistReleases": "{count, plural, one {{count} релиз} few {{count} релиза} many {{count} релизов} other {{count} релизов}}",
-  "@artistReleases": {
-    "description": "Artist release count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "artistPopular": "Популярное",
   "@artistPopular": {
@@ -695,34 +479,6 @@
         "description": "Formatted listener count"
       }
     }
-  },
-  "trackMetadataTitle": "Информация о треке",
-  "@trackMetadataTitle": {
-    "description": "Track metadata screen title"
-  },
-  "trackMetadataArtist": "Исполнитель",
-  "@trackMetadataArtist": {
-    "description": "Metadata field - artist name"
-  },
-  "trackMetadataAlbum": "Альбом",
-  "@trackMetadataAlbum": {
-    "description": "Metadata field - album name"
-  },
-  "trackMetadataDuration": "Продолжительность",
-  "@trackMetadataDuration": {
-    "description": "Metadata field - track length"
-  },
-  "trackMetadataQuality": "Качество",
-  "@trackMetadataQuality": {
-    "description": "Metadata field - audio quality"
-  },
-  "trackMetadataPath": "Путь к файлу",
-  "@trackMetadataPath": {
-    "description": "Metadata field - file location"
-  },
-  "trackMetadataDownloadedAt": "Скачано",
-  "@trackMetadataDownloadedAt": {
-    "description": "Metadata field - download date"
   },
   "trackMetadataService": "Сервис",
   "@trackMetadataService": {
@@ -740,53 +496,9 @@
   "@trackMetadataDelete": {
     "description": "Action button - delete track"
   },
-  "trackMetadataRedownload": "Скачать снова",
-  "@trackMetadataRedownload": {
-    "description": "Action button - download again"
-  },
-  "trackMetadataOpenFolder": "Открыть папку",
-  "@trackMetadataOpenFolder": {
-    "description": "Action button - open containing folder"
-  },
-  "setupTitle": "Добро пожаловать в SpotiFLAC",
-  "@setupTitle": {
-    "description": "Setup wizard title"
-  },
-  "setupSubtitle": "Давайте начнем",
-  "@setupSubtitle": {
-    "description": "Setup wizard subtitle"
-  },
-  "setupStoragePermission": "Доступ к хранилищу",
-  "@setupStoragePermission": {
-    "description": "Storage permission step title"
-  },
-  "setupStoragePermissionSubtitle": "Необходимо для сохранения загруженных файлов",
-  "@setupStoragePermissionSubtitle": {
-    "description": "Explanation for storage permission"
-  },
-  "setupStoragePermissionGranted": "Разрешение предоставлено",
-  "@setupStoragePermissionGranted": {
-    "description": "Status when permission granted"
-  },
-  "setupStoragePermissionDenied": "Разрешение не предоставлено",
-  "@setupStoragePermissionDenied": {
-    "description": "Status when permission denied"
-  },
   "setupGrantPermission": "Предоставить разрешение",
   "@setupGrantPermission": {
     "description": "Button to request permission"
-  },
-  "setupDownloadLocation": "Папка для скачивания",
-  "@setupDownloadLocation": {
-    "description": "Download folder step title"
-  },
-  "setupChooseFolder": "Выбрать папку",
-  "@setupChooseFolder": {
-    "description": "Button to pick folder"
-  },
-  "setupContinue": "Продолжить",
-  "@setupContinue": {
-    "description": "Continue to next step button"
   },
   "setupSkip": "Пропустить",
   "@setupSkip": {
@@ -795,10 +507,6 @@
   "setupStorageAccessRequired": "Требуется доступ к хранилищу",
   "@setupStorageAccessRequired": {
     "description": "Title when storage access needed"
-  },
-  "setupStorageAccessMessage": "SpotiFLAC требуется разрешение \"Доступ ко всем файлам\" для сохранения музыкальных файлов в выбранную папку.",
-  "@setupStorageAccessMessage": {
-    "description": "Explanation for storage access"
   },
   "setupStorageAccessMessageAndroid11": "Для Android 11+ требуется разрешение \"Доступ ко всем файлам\" для сохранения файлов в выбранную вами папку загрузки.",
   "@setupStorageAccessMessageAndroid11": {
@@ -830,10 +538,6 @@
         "type": "String"
       }
     }
-  },
-  "setupSelectDownloadFolder": "Выбрать папку для скачивания",
-  "@setupSelectDownloadFolder": {
-    "description": "Folder selection step title"
   },
   "setupUseDefaultFolder": "Использовать папку по умолчанию?",
   "@setupUseDefaultFolder": {
@@ -883,26 +587,6 @@
   "@setupDownloadInFlac": {
     "description": "App tagline in setup"
   },
-  "setupStepStorage": "Хранилище",
-  "@setupStepStorage": {
-    "description": "Setup step indicator - storage"
-  },
-  "setupStepNotification": "Уведомления",
-  "@setupStepNotification": {
-    "description": "Setup step indicator - notification"
-  },
-  "setupStepFolder": "Папка",
-  "@setupStepFolder": {
-    "description": "Setup step indicator - folder"
-  },
-  "setupStepSpotify": "Spotify",
-  "@setupStepSpotify": {
-    "description": "Setup step indicator - Spotify API"
-  },
-  "setupStepPermission": "Разрешение",
-  "@setupStepPermission": {
-    "description": "Setup step indicator - permission"
-  },
   "setupStorageGranted": "Доступ к хранилищу предоставлен!",
   "@setupStorageGranted": {
     "description": "Success message for storage permission"
@@ -923,14 +607,6 @@
   "@setupNotificationEnable": {
     "description": "Button to enable notifications"
   },
-  "setupNotificationDescription": "Получайте уведомления о завершении загрузки или о необходимости привлечения внимания.",
-  "@setupNotificationDescription": {
-    "description": "Explanation for notifications"
-  },
-  "setupFolderSelected": "Папка для загрузки выбрана!",
-  "@setupFolderSelected": {
-    "description": "Success message for folder selection"
-  },
   "setupFolderChoose": "Выбрать папку для скачивания",
   "@setupFolderChoose": {
     "description": "Button to choose folder"
@@ -939,57 +615,13 @@
   "@setupFolderDescription": {
     "description": "Explanation for folder selection"
   },
-  "setupChangeFolder": "Сменить папку",
-  "@setupChangeFolder": {
-    "description": "Button to change selected folder"
-  },
   "setupSelectFolder": "Выбрать папку",
   "@setupSelectFolder": {
     "description": "Button to select folder"
   },
-  "setupSpotifyApiOptional": "Spotify API (необязательно)",
-  "@setupSpotifyApiOptional": {
-    "description": "Spotify API step title"
-  },
-  "setupSpotifyApiDescription": "Добавьте свои учётные данные Spotify для улучшения результатов поиска и доступа к эксклюзивному контенту Spotify.",
-  "@setupSpotifyApiDescription": {
-    "description": "Explanation for Spotify API"
-  },
-  "setupUseSpotifyApi": "Использовать Spotify API",
-  "@setupUseSpotifyApi": {
-    "description": "Toggle to enable Spotify API"
-  },
-  "setupEnterCredentialsBelow": "Введите ваши учётные данные ниже",
-  "@setupEnterCredentialsBelow": {
-    "description": "Prompt to enter credentials"
-  },
-  "setupUsingDeezer": "Использование Deezer (аккаунт не требуется)",
-  "@setupUsingDeezer": {
-    "description": "Status when using Deezer"
-  },
-  "setupEnterClientId": "Введите Client ID Spotify",
-  "@setupEnterClientId": {
-    "description": "Placeholder for client ID field"
-  },
-  "setupEnterClientSecret": "Введите Spotify Client Secret",
-  "@setupEnterClientSecret": {
-    "description": "Placeholder for client secret field"
-  },
-  "setupGetFreeCredentials": "Получите бесплатный API учётной записи на панели разработчика Spotify.",
-  "@setupGetFreeCredentials": {
-    "description": "Info about getting Spotify credentials"
-  },
   "setupEnableNotifications": "Включить уведомления",
   "@setupEnableNotifications": {
     "description": "Button to enable notifications"
-  },
-  "setupProceedToNextStep": "Теперь вы можете перейти к следующему шагу.",
-  "@setupProceedToNextStep": {
-    "description": "Message after completing a step"
-  },
-  "setupNotificationProgressDescription": "Вы будете получать уведомления о ходе загрузки.",
-  "@setupNotificationProgressDescription": {
-    "description": "Info about notification usage"
   },
   "setupNotificationBackgroundDescription": "Получайте уведомления о ходе и завершении загрузки. Это поможет вам отслеживать загрузки, когда приложение находится в фоновом режиме.",
   "@setupNotificationBackgroundDescription": {
@@ -999,10 +631,6 @@
   "@setupSkipForNow": {
     "description": "Skip button text"
   },
-  "setupBack": "Назад",
-  "@setupBack": {
-    "description": "Back button text"
-  },
   "setupNext": "Далее",
   "@setupNext": {
     "description": "Next button text"
@@ -1011,25 +639,13 @@
   "@setupGetStarted": {
     "description": "Final setup button"
   },
-  "setupSkipAndStart": "Пропустить и начать",
-  "@setupSkipAndStart": {
-    "description": "Skip setup and start app"
-  },
   "setupAllowAccessToManageFiles": "Пожалуйста, включите \"Разрешить доступ для управления всеми файлами\" на следующем экране.",
   "@setupAllowAccessToManageFiles": {
     "description": "Instruction for file access permission"
   },
-  "setupGetCredentialsFromSpotify": "Получить учётные данные с developer.spotify.com",
-  "@setupGetCredentialsFromSpotify": {
-    "description": "Link text for Spotify developer portal"
-  },
   "dialogCancel": "Отмена",
   "@dialogCancel": {
     "description": "Dialog button - cancel action"
-  },
-  "dialogOk": "ОК",
-  "@dialogOk": {
-    "description": "Dialog button - confirm/acknowledge"
   },
   "dialogSave": "Сохранить",
   "@dialogSave": {
@@ -1043,25 +659,9 @@
   "@dialogRetry": {
     "description": "Dialog button - retry action"
   },
-  "dialogClose": "Закрыть",
-  "@dialogClose": {
-    "description": "Dialog button - close dialog"
-  },
-  "dialogYes": "Да",
-  "@dialogYes": {
-    "description": "Dialog button - confirm yes"
-  },
-  "dialogNo": "Нет",
-  "@dialogNo": {
-    "description": "Dialog button - confirm no"
-  },
   "dialogClear": "Очистить",
   "@dialogClear": {
     "description": "Dialog button - clear items"
-  },
-  "dialogConfirm": "Подтвердить",
-  "@dialogConfirm": {
-    "description": "Dialog button - confirm action"
   },
   "dialogDone": "Готово",
   "@dialogDone": {
@@ -1091,33 +691,9 @@
   "@dialogUnsavedChanges": {
     "description": "Dialog message - unsaved changes"
   },
-  "dialogDownloadFailed": "Ошибка скачивания",
-  "@dialogDownloadFailed": {
-    "description": "Dialog title - download error"
-  },
-  "dialogTrackLabel": "Трек:",
-  "@dialogTrackLabel": {
-    "description": "Label for track name in error dialog"
-  },
-  "dialogArtistLabel": "Исполнитель:",
-  "@dialogArtistLabel": {
-    "description": "Label for artist name in error dialog"
-  },
-  "dialogErrorLabel": "Ошибка:",
-  "@dialogErrorLabel": {
-    "description": "Label for error message"
-  },
   "dialogClearAll": "Очистить всё",
   "@dialogClearAll": {
     "description": "Dialog title - clear all items"
-  },
-  "dialogClearAllDownloads": "Вы уверены, что хотите очистить все загрузки?",
-  "@dialogClearAllDownloads": {
-    "description": "Dialog message - clear downloads confirmation"
-  },
-  "dialogRemoveFromDevice": "Удалить с устройства?",
-  "@dialogRemoveFromDevice": {
-    "description": "Dialog title - delete file confirmation"
   },
   "dialogRemoveExtension": "Удалить расширение",
   "@dialogRemoveExtension": {
@@ -1257,15 +833,6 @@
   "@snackbarViewQueue": {
     "description": "Snackbar action - view download queue"
   },
-  "snackbarFailedToLoad": "Ошибка загрузки: {error}",
-  "@snackbarFailedToLoad": {
-    "description": "Snackbar - loading error",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarUrlCopied": "{platform} ссылка скопирована в буфер обмена",
   "@snackbarUrlCopied": {
     "description": "Snackbar - URL copied",
@@ -1326,16 +893,6 @@
   "@errorRateLimitedMessage": {
     "description": "Error message - rate limit explanation"
   },
-  "errorFailedToLoad": "Ошибка загрузки {item}",
-  "@errorFailedToLoad": {
-    "description": "Error message - loading failed",
-    "placeholders": {
-      "item": {
-        "type": "String",
-        "description": "Item that failed to load (album/playlist/etc)"
-      }
-    }
-  },
   "errorNoTracksFound": "Треки не найдены",
   "@errorNoTracksFound": {
     "description": "Error - search returned no results"
@@ -1349,34 +906,6 @@
       }
     }
   },
-  "statusQueued": "В очереди",
-  "@statusQueued": {
-    "description": "Download status - waiting in queue"
-  },
-  "statusDownloading": "Скачивание",
-  "@statusDownloading": {
-    "description": "Download status - in progress"
-  },
-  "statusFinalizing": "Завершение",
-  "@statusFinalizing": {
-    "description": "Download status - writing metadata"
-  },
-  "statusCompleted": "Завершено",
-  "@statusCompleted": {
-    "description": "Download status - finished"
-  },
-  "statusFailed": "Неудачно",
-  "@statusFailed": {
-    "description": "Download status - error occurred"
-  },
-  "statusSkipped": "Пропущено",
-  "@statusSkipped": {
-    "description": "Download status - already exists"
-  },
-  "statusPaused": "Приостановлено",
-  "@statusPaused": {
-    "description": "Download status - paused"
-  },
   "actionPause": "Пауза",
   "@actionPause": {
     "description": "Action button - pause download"
@@ -1389,14 +918,6 @@
   "@actionCancel": {
     "description": "Action button - cancel operation"
   },
-  "actionStop": "Стоп",
-  "@actionStop": {
-    "description": "Action button - stop operation"
-  },
-  "actionSelect": "Выбрать",
-  "@actionSelect": {
-    "description": "Action button - enter selection mode"
-  },
   "actionSelectAll": "Выбрать все",
   "@actionSelectAll": {
     "description": "Action button - select all items"
@@ -1404,14 +925,6 @@
   "actionDeselect": "Снять выделение",
   "@actionDeselect": {
     "description": "Action button - deselect all"
-  },
-  "actionPaste": "Вставить",
-  "@actionPaste": {
-    "description": "Action button - paste from clipboard"
-  },
-  "actionImportCsv": "Импорт CSV",
-  "@actionImportCsv": {
-    "description": "Action button - import CSV file"
   },
   "actionRemoveCredentials": "Удалить учётные данные",
   "@actionRemoveCredentials": {
@@ -1433,19 +946,6 @@
   "selectionAllSelected": "Все треки выбраны",
   "@selectionAllSelected": {
     "description": "Status - all items selected"
-  },
-  "selectionTapToSelect": "Нажмите на треки для выбора",
-  "@selectionTapToSelect": {
-    "description": "Hint - how to select items"
-  },
-  "selectionDeleteTracks": "Удалить {count} {count, plural, one {трек} few {трека} many {треков} other {треков}}",
-  "@selectionDeleteTracks": {
-    "description": "Delete button with count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "selectionSelectToDelete": "Выберите треки для удаления",
   "@selectionSelectToDelete": {
@@ -1487,54 +987,9 @@
   "@tooltipPlay": {
     "description": "Tooltip - play button"
   },
-  "tooltipCancel": "Отмена",
-  "@tooltipCancel": {
-    "description": "Tooltip - cancel button"
-  },
-  "tooltipStop": "Стоп",
-  "@tooltipStop": {
-    "description": "Tooltip - stop button"
-  },
-  "tooltipRetry": "Повторить",
-  "@tooltipRetry": {
-    "description": "Tooltip - retry button"
-  },
-  "tooltipRemove": "Убрать",
-  "@tooltipRemove": {
-    "description": "Tooltip - remove button"
-  },
-  "tooltipClear": "Очистить",
-  "@tooltipClear": {
-    "description": "Tooltip - clear button"
-  },
-  "tooltipPaste": "Вставить",
-  "@tooltipPaste": {
-    "description": "Tooltip - paste button"
-  },
   "filenameFormat": "Формат имени файла",
   "@filenameFormat": {
     "description": "Setting title - filename pattern"
-  },
-  "filenameFormatPreview": "Предпросмотр: {preview}",
-  "@filenameFormatPreview": {
-    "description": "Preview of filename pattern",
-    "placeholders": {
-      "preview": {
-        "type": "String"
-      }
-    }
-  },
-  "filenameAvailablePlaceholders": "Доступные заполнители:",
-  "@filenameAvailablePlaceholders": {
-    "description": "Label for placeholder list"
-  },
-  "filenameHint": "{artist} - {title}",
-  "@filenameHint": {
-    "description": "Default filename format hint"
-  },
-  "folderOrganization": "Организация папок",
-  "@folderOrganization": {
-    "description": "Setting title - folder structure"
   },
   "folderOrganizationNone": "Без организации",
   "@folderOrganizationNone": {
@@ -1576,26 +1031,9 @@
   "@updateAvailable": {
     "description": "Update dialog title"
   },
-  "updateNewVersion": "Версия {version} доступна",
-  "@updateNewVersion": {
-    "description": "Update available message",
-    "placeholders": {
-      "version": {
-        "type": "String"
-      }
-    }
-  },
-  "updateDownload": "Скачать",
-  "@updateDownload": {
-    "description": "Update button - download update"
-  },
   "updateLater": "Позже",
   "@updateLater": {
     "description": "Update button - dismiss"
-  },
-  "updateChangelog": "Список изменений",
-  "@updateChangelog": {
-    "description": "Link to changelog"
   },
   "updateStartingDownload": "Загрузка началась...",
   "@updateStartingDownload": {
@@ -1637,14 +1075,6 @@
   "@updateDontRemind": {
     "description": "Update button - skip this version"
   },
-  "providerPriority": "Приоритет провайдера",
-  "@providerPriority": {
-    "description": "Setting title - download provider order"
-  },
-  "providerPrioritySubtitle": "Перетащите для изменения порядка",
-  "@providerPrioritySubtitle": {
-    "description": "Subtitle for provider priority"
-  },
   "providerPriorityTitle": "Приоритет провайдера",
   "@providerPriorityTitle": {
     "description": "Provider priority page title"
@@ -1664,14 +1094,6 @@
   "providerExtension": "Расширение",
   "@providerExtension": {
     "description": "Label for extension-provided providers"
-  },
-  "metadataProviderPriority": "Приоритет провайдера метаданных",
-  "@metadataProviderPriority": {
-    "description": "Setting title - metadata provider order"
-  },
-  "metadataProviderPrioritySubtitle": "Порядок, используемый при получении метаданных",
-  "@metadataProviderPrioritySubtitle": {
-    "description": "Subtitle for metadata priority"
   },
   "metadataProviderPriorityTitle": "Приоритет метаданных",
   "@metadataProviderPriorityTitle": {
@@ -1696,22 +1118,6 @@
   "logTitle": "Логи",
   "@logTitle": {
     "description": "Logs screen title"
-  },
-  "logCopy": "Скопировать логи",
-  "@logCopy": {
-    "description": "Action - copy logs to clipboard"
-  },
-  "logClear": "Очистить логи",
-  "@logClear": {
-    "description": "Action - delete all logs"
-  },
-  "logShare": "Поделиться логами",
-  "@logShare": {
-    "description": "Action - share logs file"
-  },
-  "logEmpty": "Логов нет",
-  "@logEmpty": {
-    "description": "Empty state title"
   },
   "logCopied": "Логи скопированы в буфер обмена",
   "@logCopied": {
@@ -1745,22 +1151,6 @@
   "@logClearLogsMessage": {
     "description": "Clear logs confirmation message"
   },
-  "logIspBlocking": "ОБНАРУЖЕНА БЛОКИРОВКА ИНТЕРНЕТ ПРОВАЙДЕРОМ",
-  "@logIspBlocking": {
-    "description": "Error category - ISP blocking"
-  },
-  "logRateLimited": "ОГРАНИЧЕННАЯ СКОРОСТЬ",
-  "@logRateLimited": {
-    "description": "Error category - rate limiting"
-  },
-  "logNetworkError": "ОШИБКА СЕТИ",
-  "@logNetworkError": {
-    "description": "Error category - network issues"
-  },
-  "logTrackNotFound": "ТРЕК НЕ НАЙДЕН",
-  "@logTrackNotFound": {
-    "description": "Error category - missing tracks"
-  },
   "logFilterBySeverity": "Фильтровать логи по серьезности",
   "@logFilterBySeverity": {
     "description": "Filter dialog title"
@@ -1772,60 +1162,6 @@
   "logNoLogsYetSubtitle": "Логи появятся здесь по мере использования приложения",
   "@logNoLogsYetSubtitle": {
     "description": "Empty state subtitle"
-  },
-  "logIssueSummary": "Краткое описание проблемы",
-  "@logIssueSummary": {
-    "description": "Section header for error summary"
-  },
-  "logIspBlockingDescription": "Ваш провайдер может блокировать доступ к сервисам скачивания",
-  "@logIspBlockingDescription": {
-    "description": "ISP blocking explanation"
-  },
-  "logIspBlockingSuggestion": "Попробуйте использовать VPN или измените DNS на 1.1.1.1 или 8.8.8.8",
-  "@logIspBlockingSuggestion": {
-    "description": "ISP blocking fix suggestion"
-  },
-  "logRateLimitedDescription": "Слишком много запросов к сервису",
-  "@logRateLimitedDescription": {
-    "description": "Rate limit explanation"
-  },
-  "logRateLimitedSuggestion": "Подождите несколько минут, прежде чем повторить попытку",
-  "@logRateLimitedSuggestion": {
-    "description": "Rate limit fix suggestion"
-  },
-  "logNetworkErrorDescription": "Обнаружены проблемы с подключением",
-  "@logNetworkErrorDescription": {
-    "description": "Network error explanation"
-  },
-  "logNetworkErrorSuggestion": "Проверьте подключение к Интернету",
-  "@logNetworkErrorSuggestion": {
-    "description": "Network error fix suggestion"
-  },
-  "logTrackNotFoundDescription": "Некоторые треки не найдены в сервисах загрузки",
-  "@logTrackNotFoundDescription": {
-    "description": "Track not found explanation"
-  },
-  "logTrackNotFoundSuggestion": "Трек может быть недоступен в lossless формате",
-  "@logTrackNotFoundSuggestion": {
-    "description": "Track not found explanation"
-  },
-  "logTotalErrors": "Всего ошибок: {count}",
-  "@logTotalErrors": {
-    "description": "Error count display",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "logAffected": "Затронуто: {domains}",
-  "@logAffected": {
-    "description": "Affected domains display",
-    "placeholders": {
-      "domains": {
-        "type": "String"
-      }
-    }
   },
   "logEntriesFiltered": "Записи ({count} фильтровано)",
   "@logEntriesFiltered": {
@@ -1969,10 +1305,6 @@
   "@appearanceLanguage": {
     "description": "Language setting title"
   },
-  "appearanceLanguageSubtitle": "Выберите предпочитаемый язык",
-  "@appearanceLanguageSubtitle": {
-    "description": "Language setting subtitle"
-  },
   "settingsAppearanceSubtitle": "Тема, цвета, дисплей",
   "@settingsAppearanceSubtitle": {
     "description": "Appearance settings description"
@@ -2000,10 +1332,6 @@
   "pressBackAgainToExit": "Нажмите «Назад» ещё раз, чтобы выйти",
   "@pressBackAgainToExit": {
     "description": "Exit confirmation message"
-  },
-  "tracksHeader": "Треки",
-  "@tracksHeader": {
-    "description": "Section header for track list"
   },
   "downloadAllCount": "Скачать все ({count})",
   "@downloadAllCount": {
@@ -2151,15 +1479,6 @@
   "@trackDeleteConfirmMessage": {
     "description": "Delete confirmation message"
   },
-  "trackCannotOpen": "Невозможно открыть: {message}",
-  "@trackCannotOpen": {
-    "description": "Error opening file",
-    "placeholders": {
-      "message": {
-        "type": "String"
-      }
-    }
-  },
   "dateToday": "Сегодня",
   "@dateToday": {
     "description": "Relative date - today"
@@ -2195,22 +1514,6 @@
       }
     }
   },
-  "concurrentSequential": "Последовательно",
-  "@concurrentSequential": {
-    "description": "Download mode - one at a time"
-  },
-  "concurrentParallel2": "2 параллельно",
-  "@concurrentParallel2": {
-    "description": "Download mode - 2 simultaneous"
-  },
-  "concurrentParallel3": "3 параллельно",
-  "@concurrentParallel3": {
-    "description": "Download mode - 3 simultaneous"
-  },
-  "tapToSeeError": "Нажмите, чтобы увидеть подробности ошибки",
-  "@tapToSeeError": {
-    "description": "Tooltip for failed download"
-  },
   "storeFilterAll": "Все",
   "@storeFilterAll": {
     "description": "Store filter - all extensions"
@@ -2238,18 +1541,6 @@
   "storeClearFilters": "Очистить фильтры",
   "@storeClearFilters": {
     "description": "Button to clear all filters"
-  },
-  "storeNoResults": "Расширения не найдены",
-  "@storeNoResults": {
-    "description": "Empty state when no extensions match filters"
-  },
-  "extensionProviderPriority": "Приоритет провайдера",
-  "@extensionProviderPriority": {
-    "description": "Extension capability - provider priority"
-  },
-  "extensionInstallButton": "Установить расширение",
-  "@extensionInstallButton": {
-    "description": "Button to install extension"
   },
   "extensionDefaultProvider": "По умолчанию (Deezer/Spotify)",
   "@extensionDefaultProvider": {
@@ -2450,46 +1741,6 @@
   "@qualityHiResFlacMaxSubtitle": {
     "description": "Technical spec for hi-res max"
   },
-  "qualityLossy": "Lossy",
-  "@qualityLossy": {
-    "description": "Quality option - lossy format (MP3/Opus)"
-  },
-  "qualityLossyMp3Subtitle": "Opus 320 кбит/с (конвертировать из FLAC)",
-  "@qualityLossyMp3Subtitle": {
-    "description": "Technical spec for lossy MP3"
-  },
-  "qualityLossyOpusSubtitle": "Opus 128 кбит/с (конвертировать из FLAC)",
-  "@qualityLossyOpusSubtitle": {
-    "description": "Technical spec for lossy Opus"
-  },
-  "enableLossyOption": "Включить опцию Lossy",
-  "@enableLossyOption": {
-    "description": "Setting - enable lossy quality option"
-  },
-  "enableLossyOptionSubtitleOn": "Доступно качество с потерями",
-  "@enableLossyOptionSubtitleOn": {
-    "description": "Subtitle when lossy is enabled"
-  },
-  "enableLossyOptionSubtitleOff": "Скачивать FLAC и конвертировать в MP3 320 кбит/с",
-  "@enableLossyOptionSubtitleOff": {
-    "description": "Subtitle when lossy is disabled"
-  },
-  "lossyFormat": "Формат с потерями",
-  "@lossyFormat": {
-    "description": "Setting - choose lossy format"
-  },
-  "lossyFormatDescription": "Выберите Lossy формат для конвертации",
-  "@lossyFormatDescription": {
-    "description": "Description for lossy format picker"
-  },
-  "lossyFormatMp3Subtitle": "320Кбит/с, лучшая совместимость",
-  "@lossyFormatMp3Subtitle": {
-    "description": "MP3 format description"
-  },
-  "lossyFormatOpusSubtitle": "128кбит/с, лучшее качество при меньших размерах",
-  "@lossyFormatOpusSubtitle": {
-    "description": "Opus format description"
-  },
   "qualityNote": "Фактическое качество зависит от доступности треков в сервисе",
   "@qualityNote": {
     "description": "Note about quality availability"
@@ -2518,14 +1769,6 @@
   "@downloadUseAlbumArtistForFolders": {
     "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
   },
-  "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Artist folders use Album Artist when available",
-  "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
-    "description": "Subtitle when Album Artist is used for folder naming"
-  },
-  "downloadUseAlbumArtistForFoldersTrackSubtitle": "Папки исполнителя используют только трек исполнителя",
-  "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
-    "description": "Subtitle when Track Artist is used for folder naming"
-  },
   "downloadUsePrimaryArtistOnly": "Primary artist only for folders",
   "@downloadUsePrimaryArtistOnly": {
     "description": "Setting - strip featured artists from folder name"
@@ -2538,14 +1781,6 @@
   "@downloadUsePrimaryArtistOnlyDisabled": {
     "description": "Subtitle when primary artist only is disabled"
   },
-  "downloadSaveFormat": "Формат сохранения",
-  "@downloadSaveFormat": {
-    "description": "Setting - output file format"
-  },
-  "downloadSelectService": "Выбор сервиса",
-  "@downloadSelectService": {
-    "description": "Dialog title - choose download service"
-  },
   "downloadSelectQuality": "Выбор качества",
   "@downloadSelectQuality": {
     "description": "Dialog title - choose audio quality"
@@ -2553,66 +1788,6 @@
   "downloadFrom": "Скачивать из",
   "@downloadFrom": {
     "description": "Label - download source"
-  },
-  "downloadDefaultQualityLabel": "Качество по умолчанию",
-  "@downloadDefaultQualityLabel": {
-    "description": "Label - default quality setting"
-  },
-  "downloadBestAvailable": "Лучшее из доступных",
-  "@downloadBestAvailable": {
-    "description": "Quality option - highest available"
-  },
-  "folderNone": "Отсутствует",
-  "@folderNone": {
-    "description": "Folder option - no organization"
-  },
-  "folderNoneSubtitle": "Сохранить все файлы непосредственно в папку загрузки",
-  "@folderNoneSubtitle": {
-    "description": "Subtitle for no folder organization"
-  },
-  "folderArtist": "Исполнитель",
-  "@folderArtist": {
-    "description": "Folder option - by artist"
-  },
-  "folderArtistSubtitle": "Исполнитель/имя файла",
-  "@folderArtistSubtitle": {
-    "description": "Folder structure example"
-  },
-  "folderAlbum": "Альбом",
-  "@folderAlbum": {
-    "description": "Folder option - by album"
-  },
-  "folderAlbumSubtitle": "Альбом/имя файла",
-  "@folderAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "folderArtistAlbum": "Исполнитель/Альбом",
-  "@folderArtistAlbum": {
-    "description": "Folder option - nested"
-  },
-  "folderArtistAlbumSubtitle": "Исполнитель/ Альбом/имя файла",
-  "@folderArtistAlbumSubtitle": {
-    "description": "Folder structure example"
-  },
-  "serviceTidal": "Tidal",
-  "@serviceTidal": {
-    "description": "Service name - DO NOT TRANSLATE"
-  },
-  "serviceQobuz": "Qobuz",
-  "@serviceQobuz": {
-    "description": "Service name - DO NOT TRANSLATE"
-  },
-  "serviceAmazon": "Amazon",
-  "@serviceAmazon": {
-    "description": "Service name - DO NOT TRANSLATE"
-  },
-  "serviceDeezer": "Deezer",
-  "@serviceDeezer": {
-    "description": "Service name - DO NOT TRANSLATE"
-  },
-  "serviceSpotify": "Spotify",
-  "@serviceSpotify": {
-    "description": "Service name - DO NOT TRANSLATE"
   },
   "appearanceAmoledDark": "AMOLED",
   "@appearanceAmoledDark": {
@@ -2622,18 +1797,6 @@
   "@appearanceAmoledDarkSubtitle": {
     "description": "Subtitle for AMOLED dark"
   },
-  "appearanceChooseAccentColor": "Выберите акцентный цвет",
-  "@appearanceChooseAccentColor": {
-    "description": "Color picker dialog title"
-  },
-  "appearanceChooseTheme": "Режим темы",
-  "@appearanceChooseTheme": {
-    "description": "Theme picker dialog title"
-  },
-  "queueTitle": "Очередь скачиваний",
-  "@queueTitle": {
-    "description": "Queue screen title"
-  },
   "queueClearAll": "Очистить всё",
   "@queueClearAll": {
     "description": "Button - clear all queue items"
@@ -2641,22 +1804,6 @@
   "queueClearAllMessage": "Вы уверены, что хотите очистить все загрузки?",
   "@queueClearAllMessage": {
     "description": "Clear queue confirmation"
-  },
-  "queueExportFailed": "Экспорт",
-  "@queueExportFailed": {
-    "description": "Button - export failed downloads to TXT"
-  },
-  "queueExportFailedSuccess": "Сбой при экспорте загрузок в файл TXT",
-  "@queueExportFailedSuccess": {
-    "description": "Success message after exporting failed downloads"
-  },
-  "queueExportFailedClear": "Не удалось очистить",
-  "@queueExportFailedClear": {
-    "description": "Action to clear failed downloads after export"
-  },
-  "queueExportFailedError": "Не удалось экспортировать загрузки",
-  "@queueExportFailedError": {
-    "description": "Error message when export fails"
   },
   "settingsAutoExportFailed": "Автоэкспорт неудачных загрузок",
   "@settingsAutoExportFailed": {
@@ -2681,38 +1828,6 @@
   "settingsDownloadNetworkSubtitle": "Выберите, какую сеть использовать для скачивания. Когда установлено значение только WiFi — скачивания через мобильную сеть будут приостановлены.",
   "@settingsDownloadNetworkSubtitle": {
     "description": "Subtitle explaining network preference"
-  },
-  "queueEmpty": "Нет загрузок в очереди",
-  "@queueEmpty": {
-    "description": "Empty queue state title"
-  },
-  "queueEmptySubtitle": "Добавить треки с главного экрана",
-  "@queueEmptySubtitle": {
-    "description": "Empty queue state subtitle"
-  },
-  "queueClearCompleted": "Очистка завершена",
-  "@queueClearCompleted": {
-    "description": "Button - clear finished downloads"
-  },
-  "queueDownloadFailed": "Ошибка скачивания",
-  "@queueDownloadFailed": {
-    "description": "Error dialog title"
-  },
-  "queueTrackLabel": "Трек:",
-  "@queueTrackLabel": {
-    "description": "Label in error dialog"
-  },
-  "queueArtistLabel": "Исполнитель:",
-  "@queueArtistLabel": {
-    "description": "Label in error dialog"
-  },
-  "queueErrorLabel": "Ошибка:",
-  "@queueErrorLabel": {
-    "description": "Label in error dialog"
-  },
-  "queueUnknownError": "Неизвестная ошибка",
-  "@queueUnknownError": {
-    "description": "Fallback error message"
   },
   "albumFolderArtistAlbum": "Исполнитель / Альбом",
   "@albumFolderArtistAlbum": {
@@ -2767,19 +1882,6 @@
       }
     }
   },
-  "downloadedAlbumTracksHeader": "Треки",
-  "@downloadedAlbumTracksHeader": {
-    "description": "Section header for tracks"
-  },
-  "downloadedAlbumDownloadedCount": "{count} скачано",
-  "@downloadedAlbumDownloadedCount": {
-    "description": "Downloaded tracks count badge",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "downloadedAlbumSelectedCount": "{count} выбрано",
   "@downloadedAlbumSelectedCount": {
     "description": "Selection count indicator",
@@ -2820,10 +1922,6 @@
       }
     }
   },
-  "utilityFunctions": "Функции утилиты",
-  "@utilityFunctions": {
-    "description": "Extension capability - utility functions"
-  },
   "recentTypeArtist": "Исполнитель",
   "@recentTypeArtist": {
     "description": "Recent access item type - artist"
@@ -2855,16 +1953,6 @@
       "name": {
         "type": "String",
         "description": "Playlist name"
-      }
-    }
-  },
-  "errorGeneric": "Ошибка: {message}",
-  "@errorGeneric": {
-    "description": "Generic error message format",
-    "placeholders": {
-      "message": {
-        "type": "String",
-        "description": "Error message"
       }
     }
   },
@@ -3034,10 +2122,6 @@
   "@libraryTitle": {
     "description": "Library settings page title"
   },
-  "libraryStatus": "Статус Библиотеки",
-  "@libraryStatus": {
-    "description": "Section header for library status"
-  },
   "libraryScanSettings": "Настройки сканирования",
   "@libraryScanSettings": {
     "description": "Section header for scan settings"
@@ -3113,15 +2197,6 @@
   "libraryAboutDescription": "Сканирует существующую коллекцию музыки для обнаружения дубликатов при загрузке. Поддерживает форматы FLAC, M4A, MP3, Opus и OGG. Метаданные читаются из тегов файлов, если доступны.",
   "@libraryAboutDescription": {
     "description": "Description of local library feature"
-  },
-  "libraryTracksCount": "{count} {count, plural, one {трек} few {трека} many {треков} other{треков}}",
-  "@libraryTracksCount": {
-    "description": "Track count in library",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "libraryLastScanned": "Последнее сканирование: {time}",
   "@libraryLastScanned": {
@@ -3237,26 +2312,6 @@
   "@libraryFilterFormat": {
     "description": "Filter section - file format"
   },
-  "libraryFilterDate": "Дата добавления",
-  "@libraryFilterDate": {
-    "description": "Filter section - date range"
-  },
-  "libraryFilterDateToday": "Сегодня",
-  "@libraryFilterDateToday": {
-    "description": "Filter option - today only"
-  },
-  "libraryFilterDateWeek": "На этой неделе",
-  "@libraryFilterDateWeek": {
-    "description": "Filter option - this week"
-  },
-  "libraryFilterDateMonth": "В этом месяце",
-  "@libraryFilterDateMonth": {
-    "description": "Filter option - this month"
-  },
-  "libraryFilterDateYear": "В этом году",
-  "@libraryFilterDateYear": {
-    "description": "Filter option - this year"
-  },
   "libraryFilterSort": "Сортировка",
   "@libraryFilterSort": {
     "description": "Filter section - sort order"
@@ -3268,15 +2323,6 @@
   "libraryFilterSortOldest": "Старые",
   "@libraryFilterSortOldest": {
     "description": "Sort option - oldest first"
-  },
-  "libraryFilterActive": "{count} фильтр(-ов) активно",
-  "@libraryFilterActive": {
-    "description": "Badge showing number of active filters",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
   },
   "timeJustNow": "Только что",
   "@timeJustNow": {
@@ -3299,106 +2345,6 @@
         "type": "int"
       }
     }
-  },
-  "storageSwitchTitle": "Сменить режим хранения",
-  "@storageSwitchTitle": {
-    "description": "Dialog title when switching storage mode"
-  },
-  "storageSwitchToSafTitle": "Переключиться на SAF хранилище?",
-  "@storageSwitchToSafTitle": {
-    "description": "Dialog title when switching to SAF"
-  },
-  "storageSwitchToAppTitle": "Переключиться хранилище приложения?",
-  "@storageSwitchToAppTitle": {
-    "description": "Dialog title when switching to app storage"
-  },
-  "storageSwitchToSafMessage": "Ваши скачанные файлы останутся в текущем расположении и будут доступны.\n\nНовые файлы будут сохранены в выбранной вами папке SAF.",
-  "@storageSwitchToSafMessage": {
-    "description": "Explanation when switching to SAF"
-  },
-  "storageSwitchToAppMessage": "Ваши скачанные файлы останутся в текущем выбранной вами папке SAF.\n\nНовые файлы будут сохранены в папке Music/SpotiFLAC.",
-  "@storageSwitchToAppMessage": {
-    "description": "Explanation when switching to app storage"
-  },
-  "storageSwitchExistingDownloads": "Существующие загрузки",
-  "@storageSwitchExistingDownloads": {
-    "description": "Section header for existing downloads info"
-  },
-  "storageSwitchExistingDownloadsInfo": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} other {{count} треков}} в {mode} хранилище",
-  "@storageSwitchExistingDownloadsInfo": {
-    "description": "Info about existing downloads count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "mode": {
-        "type": "String"
-      }
-    }
-  },
-  "storageSwitchNewDownloads": "Новые загрузки",
-  "@storageSwitchNewDownloads": {
-    "description": "Section header for new downloads info"
-  },
-  "storageSwitchNewDownloadsLocation": "Будет сохранено в: {location}",
-  "@storageSwitchNewDownloadsLocation": {
-    "description": "Shows where new downloads will go",
-    "placeholders": {
-      "location": {
-        "type": "String"
-      }
-    }
-  },
-  "storageSwitchContinue": "Продолжить",
-  "@storageSwitchContinue": {
-    "description": "Button to proceed with storage switch"
-  },
-  "storageSwitchSelectFolder": "Выберите папку SAF",
-  "@storageSwitchSelectFolder": {
-    "description": "Button to select SAF folder"
-  },
-  "storageAppStorage": "Хранилище приложения",
-  "@storageAppStorage": {
-    "description": "Label for app storage mode"
-  },
-  "storageSafStorage": "Хранилище SAF",
-  "@storageSafStorage": {
-    "description": "Label for SAF storage mode"
-  },
-  "storageModeBadge": "Хранилище: {mode}",
-  "@storageModeBadge": {
-    "description": "Badge showing storage mode for a track",
-    "placeholders": {
-      "mode": {
-        "type": "String"
-      }
-    }
-  },
-  "storageStatsTitle": "Статистика хранилища",
-  "@storageStatsTitle": {
-    "description": "Section title for storage stats"
-  },
-  "storageStatsAppCount": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} other {{count} треков}} в хранилище приложения",
-  "@storageStatsAppCount": {
-    "description": "Count of tracks in app storage",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "storageStatsSafCount": "{count, plural, one {{count} трек} few {{count} трека} many {{count} треков} other {{count} треков}} в вашей папке в SAF",
-  "@storageStatsSafCount": {
-    "description": "Count of tracks in SAF storage",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "storageModeInfo": "Ваши файлы хранятся в нескольких местах",
-  "@storageModeInfo": {
-    "description": "Info when user has files in both storage modes"
   },
   "tutorialWelcomeTitle": "Добро пожаловать в SpotiFLAC!",
   "@tutorialWelcomeTitle": {
@@ -3428,18 +2374,6 @@
   "@tutorialSearchDesc": {
     "description": "Tutorial search page description"
   },
-  "tutorialSearchTip1": "Вставьте ссылку Spotify или Deezer прямо в поле поиска",
-  "@tutorialSearchTip1": {
-    "description": "Tutorial search tip 1"
-  },
-  "tutorialSearchTip2": "Или введите название песни, исполнителя или альбом для поиска",
-  "@tutorialSearchTip2": {
-    "description": "Tutorial search tip 2"
-  },
-  "tutorialSearchTip3": "Поддержка треков, альбомов, плейлистов и страниц исполнителей",
-  "@tutorialSearchTip3": {
-    "description": "Tutorial search tip 3"
-  },
   "tutorialDownloadTitle": "Скачивание музыки",
   "@tutorialDownloadTitle": {
     "description": "Tutorial download page title"
@@ -3447,18 +2381,6 @@
   "tutorialDownloadDesc": "Скачивание музыки просто и быстро. Вот как это работает.",
   "@tutorialDownloadDesc": {
     "description": "Tutorial download page description"
-  },
-  "tutorialDownloadTip1": "Нажмите кнопку скачать рядом с любым треком, чтобы начать скачивание",
-  "@tutorialDownloadTip1": {
-    "description": "Tutorial download tip 1"
-  },
-  "tutorialDownloadTip2": "Выберите предпочитаемое качество (FLAC, Hi-Res или MP3)",
-  "@tutorialDownloadTip2": {
-    "description": "Tutorial download tip 2"
-  },
-  "tutorialDownloadTip3": "Скачать все альбомы или плейлисты одним нажатием",
-  "@tutorialDownloadTip3": {
-    "description": "Tutorial download tip 3"
   },
   "tutorialLibraryTitle": "Ваша библиотека",
   "@tutorialLibraryTitle": {
@@ -3523,10 +2445,6 @@
   "tutorialReadyMessage": "Всё готово! Начните загружать любимую музыку прямо сейчас.",
   "@tutorialReadyMessage": {
     "description": "Tutorial completion message"
-  },
-  "tutorialExample": "EXAMPLE",
-  "@tutorialExample": {
-    "description": "Example label in tutorial"
   },
   "libraryForceFullScan": "Полное сканирование",
   "@libraryForceFullScan": {
@@ -3754,10 +2672,6 @@
   "@trackReEnrich": {
     "description": "Menu action - re-embed metadata into audio file"
   },
-  "trackReEnrichSubtitle": "Re-embed metadata without re-downloading",
-  "@trackReEnrichSubtitle": {
-    "description": "Subtitle for re-enrich metadata action"
-  },
   "trackReEnrichOnlineSubtitle": "Search metadata online and embed into file",
   "@trackReEnrichOnlineSubtitle": {
     "description": "Subtitle for re-enrich metadata action for local items"
@@ -3869,15 +2783,21 @@
   "@trackConvertFailed": {
     "description": "Snackbar when conversion fails"
   },
-  "setupModeSelectionTitle": "Выберите режим",
-  "setupModeSelectionDescription": "Как вы хотите использовать SpotiFLAC? Вы всегда можете изменить это позже в Настройках.",
-  "setupModeDownloaderTitle": "Загрузчик",
-  "setupModeDownloaderFeature1": "Скачивайте треки в качестве FLAC без потерь",
-  "setupModeDownloaderFeature2": "Сохраняйте музыку на устройство для прослушивания офлайн",
-  "setupModeDownloaderFeature3": "Управляйте своей локальной музыкальной библиотекой",
-  "setupModeStreamingTitle": "Стриминг",
-  "setupModeStreamingFeature1": "Слушайте треки мгновенно без скачивания",
-  "setupModeStreamingFeature2": "Smart Queue автоматически подбирает новую музыку для вас",
-  "setupModeStreamingFeature3": "Воспроизводите любой трек по запросу с элементами управления",
-  "setupModeChangeableLater": "Вы можете переключаться между режимами в любое время в Настройках."
+  "downloadedAlbumDownloadedCount": "{count} скачано",
+  "@downloadedAlbumDownloadedCount": {
+    "description": "Downloaded tracks count badge",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "downloadUseAlbumArtistForFoldersAlbumSubtitle": "Artist folders use Album Artist when available",
+  "@downloadUseAlbumArtistForFoldersAlbumSubtitle": {
+    "description": "Subtitle when Album Artist is used for folder naming"
+  },
+  "downloadUseAlbumArtistForFoldersTrackSubtitle": "Папки исполнителя используют только трек исполнителя",
+  "@downloadUseAlbumArtistForFoldersTrackSubtitle": {
+    "description": "Subtitle when Track Artist is used for folder naming"
+  }
 }

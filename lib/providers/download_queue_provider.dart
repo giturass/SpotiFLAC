@@ -625,6 +625,7 @@ final downloadHistoryProvider =
     );
 
 class DownloadQueueState {
+  static const Object _noChange = Object();
   final List<DownloadItem> items;
   final DownloadItem? currentDownload;
   final bool isProcessing;
@@ -649,7 +650,7 @@ class DownloadQueueState {
 
   DownloadQueueState copyWith({
     List<DownloadItem>? items,
-    DownloadItem? currentDownload,
+    Object? currentDownload = _noChange,
     bool? isProcessing,
     bool? isPaused,
     String? outputDir,
@@ -660,7 +661,9 @@ class DownloadQueueState {
   }) {
     return DownloadQueueState(
       items: items ?? this.items,
-      currentDownload: currentDownload ?? this.currentDownload,
+      currentDownload: identical(currentDownload, _noChange)
+          ? this.currentDownload
+          : currentDownload as DownloadItem?,
       isProcessing: isProcessing ?? this.isProcessing,
       isPaused: isPaused ?? this.isPaused,
       outputDir: outputDir ?? this.outputDir,
@@ -717,6 +720,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   int _totalQueuedAtStart = 0;
   int _completedInSession = 0;
   int _failedInSession = 0;
+  int _queueItemSequence = 0;
   bool _isLoaded = false;
   final Set<String> _ensuredDirs = {};
   int _progressPollingErrorCount = 0;
@@ -735,6 +739,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   String? _lastNotifArtistName;
   int _lastNotifPercent = -1;
   int _lastNotifQueueCount = -1;
+  final Set<String> _locallyCancelledItemIds = {};
 
   double _normalizeProgressForUi(double value) {
     final clamped = value.clamp(0.0, 1.0).toDouble();
@@ -854,8 +859,11 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         return;
       }
 
-      state = state.copyWith(items: pendingItems);
-      _log.i('Restored ${pendingItems.length} pending items from storage');
+      final normalizedPendingItems = _normalizeRestoredQueueIds(pendingItems);
+      state = state.copyWith(items: normalizedPendingItems);
+      _log.i(
+        'Restored ${normalizedPendingItems.length} pending items from storage',
+      );
       Future.microtask(() => _processQueue());
     } catch (e) {
       _log.e('Failed to load queue from storage: $e');
@@ -1644,6 +1652,53 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     return _isrcRegex.hasMatch(value.toUpperCase());
   }
 
+  String _newQueueItemId(Track track, {Set<String>? takenIds}) {
+    final trimmedIsrc = track.isrc?.trim();
+    final trimmedTrackId = track.id.trim();
+    final base = (trimmedIsrc != null && trimmedIsrc.isNotEmpty)
+        ? trimmedIsrc
+        : (trimmedTrackId.isNotEmpty ? trimmedTrackId : 'track');
+
+    while (true) {
+      _queueItemSequence++;
+      final candidate =
+          '$base-${DateTime.now().microsecondsSinceEpoch}-$_queueItemSequence';
+      if (takenIds == null || !takenIds.contains(candidate)) {
+        return candidate;
+      }
+    }
+  }
+
+  List<DownloadItem> _normalizeRestoredQueueIds(List<DownloadItem> items) {
+    if (items.isEmpty) return items;
+
+    final seen = <String>{};
+    var regeneratedCount = 0;
+    final normalized = <DownloadItem>[];
+
+    for (final item in items) {
+      final trimmedId = item.id.trim();
+      final shouldRegenerate = trimmedId.isEmpty || seen.contains(trimmedId);
+      if (shouldRegenerate) {
+        final newId = _newQueueItemId(item.track, takenIds: seen);
+        seen.add(newId);
+        normalized.add(item.copyWith(id: newId));
+        regeneratedCount++;
+      } else {
+        seen.add(trimmedId);
+        normalized.add(item);
+      }
+    }
+
+    if (regeneratedCount > 0) {
+      _log.w(
+        'Regenerated $regeneratedCount duplicate/empty queue item IDs during restore',
+      );
+    }
+
+    return normalized;
+  }
+
   void updateSettings(AppSettings settings) {
     final concurrentDownloads = settings.concurrentDownloads.clamp(1, 5);
     state = state.copyWith(
@@ -1661,8 +1716,8 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     final settings = ref.read(settingsProvider);
     updateSettings(settings);
 
-    final id =
-        '${track.isrc ?? track.id}-${DateTime.now().millisecondsSinceEpoch}';
+    final takenIds = state.items.map((item) => item.id).toSet();
+    final id = _newQueueItemId(track, takenIds: takenIds);
     final item = DownloadItem(
       id: id,
       track: track,
@@ -1689,9 +1744,10 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     final settings = ref.read(settingsProvider);
     updateSettings(settings);
 
+    final takenIds = state.items.map((item) => item.id).toSet();
     final newItems = tracks.map((track) {
-      final id =
-          '${track.isrc ?? track.id}-${DateTime.now().millisecondsSinceEpoch}';
+      final id = _newQueueItemId(track, takenIds: takenIds);
+      takenIds.add(id);
       return DownloadItem(
         id: id,
         track: track,
@@ -1770,10 +1826,28 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     );
   }
 
-  void cancelItem(String id) {
-    updateItemStatus(id, DownloadStatus.skipped);
+  DownloadItem? _findItemById(String id) {
+    for (final item in state.items) {
+      if (item.id == id) return item;
+    }
+    return null;
+  }
+
+  bool _isLocallyCancelled(String id, {DownloadItem? item}) {
+    if (_locallyCancelledItemIds.contains(id)) return true;
+    final resolved = item ?? _findItemById(id);
+    return resolved?.status == DownloadStatus.skipped;
+  }
+
+  void _requestNativeCancel(String id) {
     PlatformBridge.cancelDownload(id).catchError((_) {});
     PlatformBridge.clearItemProgress(id).catchError((_) {});
+  }
+
+  void cancelItem(String id) {
+    _locallyCancelledItemIds.add(id);
+    updateItemStatus(id, DownloadStatus.skipped);
+    _requestNativeCancel(id);
   }
 
   void clearCompleted() {
@@ -1791,8 +1865,30 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   }
 
   void clearAll() {
-    state = state.copyWith(items: [], isPaused: false);
+    final wasProcessing = state.isProcessing;
+    final activeIds = state.items
+        .where(
+          (item) =>
+              item.status == DownloadStatus.queued ||
+              item.status == DownloadStatus.downloading ||
+              item.status == DownloadStatus.finalizing,
+        )
+        .map((item) => item.id)
+        .toList(growable: false);
+
+    if (activeIds.isNotEmpty) {
+      _locallyCancelledItemIds.addAll(activeIds);
+      for (final id in activeIds) {
+        _requestNativeCancel(id);
+      }
+    }
+
+    state = state.copyWith(items: [], isPaused: false, currentDownload: null);
+    _notificationService.cancelDownloadNotification();
     _saveQueueToStorage();
+    if (!wasProcessing) {
+      _locallyCancelledItemIds.clear();
+    }
   }
 
   void pauseQueue() {
@@ -1835,6 +1931,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     }
 
     _log.i('Retrying item: ${item.track.name} (id: $id)');
+    _locallyCancelledItemIds.remove(id);
 
     final items = state.items.map((i) {
       if (i.id == id) {
@@ -1858,6 +1955,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
   }
 
   void removeItem(String id) {
+    _locallyCancelledItemIds.remove(id);
     final items = state.items.where((item) => item.id != id).toList();
     state = state.copyWith(items: items);
     _saveQueueToStorage();
@@ -2892,17 +2990,16 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
     }
 
     _stopProgressPolling();
+    final remainingIds = state.items.map((item) => item.id).toSet();
+    _locallyCancelledItemIds.removeWhere((id) => !remainingIds.contains(id));
   }
 
   Future<void> _downloadSingleItem(DownloadItem item) async {
     _log.d('Processing: ${item.track.name} by ${item.track.artistName}');
     _log.d('Cover URL: ${item.track.coverUrl}');
 
-    final currentItem = state.items.firstWhere(
-      (i) => i.id == item.id,
-      orElse: () => item,
-    );
-    if (currentItem.status == DownloadStatus.skipped) {
+    final currentItem = _findItemById(item.id) ?? item;
+    if (_isLocallyCancelled(item.id, item: currentItem)) {
       _log.i('Download was cancelled before start, skipping');
       return;
     }
@@ -3315,6 +3412,11 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         );
       }
 
+      if (_isLocallyCancelled(item.id)) {
+        _log.i('Download was cancelled before native download start, skipping');
+        return;
+      }
+
       result = await runDownload(
         useSaf: effectiveSafMode,
         outputDir: effectiveOutputDir,
@@ -3323,6 +3425,10 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       if (effectiveSafMode &&
           result['success'] != true &&
           _isSafWriteFailure(result)) {
+        if (_isLocallyCancelled(item.id)) {
+          _log.i('Download was cancelled before SAF fallback, skipping');
+          return;
+        }
         _log.w('SAF write failed, retrying with app-private storage');
         appOutputDir ??= await _buildOutputDir(
           trackToDownload,
@@ -3348,11 +3454,11 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
 
       _log.d('Result: $result');
 
-      final currentItem = state.items.firstWhere(
-        (i) => i.id == item.id,
-        orElse: () => item,
-      );
-      if (currentItem.status == DownloadStatus.skipped) {
+      final itemAfterResult = _findItemById(item.id);
+      final cancelledAfterResult =
+          itemAfterResult == null ||
+          _isLocallyCancelled(item.id, item: itemAfterResult);
+      if (cancelledAfterResult) {
         _log.i('Download was cancelled, skipping result processing');
         final filePath = result['file_path'] as String?;
         if (filePath != null && result['success'] == true) {
@@ -4083,11 +4189,9 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           }
         }
 
-        final itemAfterDownload = state.items.firstWhere(
-          (i) => i.id == item.id,
-          orElse: () => item,
-        );
-        if (itemAfterDownload.status == DownloadStatus.skipped) {
+        final itemAfterDownload = _findItemById(item.id);
+        if (itemAfterDownload == null ||
+            _isLocallyCancelled(item.id, item: itemAfterDownload)) {
           _log.i('Download was cancelled during finalization, cleaning up');
           if (filePath != null) {
             await deleteFile(filePath);
@@ -4309,11 +4413,9 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
           removeItem(item.id);
         }
       } else {
-        final itemAfterFailure = state.items.firstWhere(
-          (i) => i.id == item.id,
-          orElse: () => item,
-        );
-        if (itemAfterFailure.status == DownloadStatus.skipped) {
+        final itemAfterFailure = _findItemById(item.id);
+        if (itemAfterFailure == null ||
+            _isLocallyCancelled(item.id, item: itemAfterFailure)) {
           _log.i('Download was cancelled, skipping error handling');
           return;
         }
@@ -4374,11 +4476,9 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
         }
       }
     } catch (e, stackTrace) {
-      final itemAfterError = state.items.firstWhere(
-        (i) => i.id == item.id,
-        orElse: () => item,
-      );
-      if (itemAfterError.status == DownloadStatus.skipped) {
+      final itemAfterError = _findItemById(item.id);
+      if (itemAfterError == null ||
+          _isLocallyCancelled(item.id, item: itemAfterError)) {
         _log.i('Download was cancelled, skipping error handling');
         return;
       }

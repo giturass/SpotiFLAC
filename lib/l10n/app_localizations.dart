@@ -130,12 +130,6 @@ abstract class AppLocalizations {
   /// **'SpotiFLAC'**
   String get appName;
 
-  /// App description shown in about page
-  ///
-  /// In en, this message translates to:
-  /// **'Download Spotify tracks in lossless quality from Tidal, Qobuz, and Amazon Music.'**
-  String get appDescription;
-
   /// Bottom navigation - Home tab
   ///
   /// In en, this message translates to:
@@ -147,12 +141,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Library'**
   String get navLibrary;
-
-  /// Bottom navigation - History tab (legacy)
-  ///
-  /// In en, this message translates to:
-  /// **'History'**
-  String get navHistory;
 
   /// Bottom navigation - Settings tab
   ///
@@ -172,18 +160,6 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get homeTitle;
 
-  /// Placeholder text in search box
-  ///
-  /// In en, this message translates to:
-  /// **'Paste Spotify URL or search...'**
-  String get homeSearchHint;
-
-  /// Placeholder when extension search is active
-  ///
-  /// In en, this message translates to:
-  /// **'Search with {extensionName}...'**
-  String homeSearchHintExtension(String extensionName);
-
   /// Subtitle shown below search box
   ///
   /// In en, this message translates to:
@@ -202,24 +178,6 @@ abstract class AppLocalizations {
   /// **'Recent'**
   String get homeRecent;
 
-  /// History screen title
-  ///
-  /// In en, this message translates to:
-  /// **'History'**
-  String get historyTitle;
-
-  /// Tab showing active downloads count
-  ///
-  /// In en, this message translates to:
-  /// **'Downloading ({count})'**
-  String historyDownloading(int count);
-
-  /// Tab showing completed downloads
-  ///
-  /// In en, this message translates to:
-  /// **'Downloaded'**
-  String get historyDownloaded;
-
   /// Filter chip - show all items
   ///
   /// In en, this message translates to:
@@ -237,54 +195,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Singles'**
   String get historyFilterSingles;
-
-  /// Track count with plural form
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 track} other{{count} tracks}}'**
-  String historyTracksCount(int count);
-
-  /// Album count with plural form
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 album} other{{count} albums}}'**
-  String historyAlbumsCount(int count);
-
-  /// Empty state title
-  ///
-  /// In en, this message translates to:
-  /// **'No download history'**
-  String get historyNoDownloads;
-
-  /// Empty state subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Downloaded tracks will appear here'**
-  String get historyNoDownloadsSubtitle;
-
-  /// Empty state when filtering albums
-  ///
-  /// In en, this message translates to:
-  /// **'No album downloads'**
-  String get historyNoAlbums;
-
-  /// Empty state subtitle for albums filter
-  ///
-  /// In en, this message translates to:
-  /// **'Download multiple tracks from an album to see them here'**
-  String get historyNoAlbumsSubtitle;
-
-  /// Empty state when filtering singles
-  ///
-  /// In en, this message translates to:
-  /// **'No single downloads'**
-  String get historyNoSingles;
-
-  /// Empty state subtitle for singles filter
-  ///
-  /// In en, this message translates to:
-  /// **'Single track downloads will appear here'**
-  String get historyNoSinglesSubtitle;
 
   /// Search bar placeholder in history
   ///
@@ -334,48 +244,6 @@ abstract class AppLocalizations {
   /// **'Download'**
   String get downloadTitle;
 
-  /// Setting for download folder
-  ///
-  /// In en, this message translates to:
-  /// **'Download Location'**
-  String get downloadLocation;
-
-  /// Subtitle for download location
-  ///
-  /// In en, this message translates to:
-  /// **'Choose where to save files'**
-  String get downloadLocationSubtitle;
-
-  /// Shown when using default folder
-  ///
-  /// In en, this message translates to:
-  /// **'Default location'**
-  String get downloadLocationDefault;
-
-  /// Setting for preferred download service (Tidal/Qobuz/Amazon)
-  ///
-  /// In en, this message translates to:
-  /// **'Default Service'**
-  String get downloadDefaultService;
-
-  /// Subtitle for default service
-  ///
-  /// In en, this message translates to:
-  /// **'Service used for downloads'**
-  String get downloadDefaultServiceSubtitle;
-
-  /// Setting for audio quality
-  ///
-  /// In en, this message translates to:
-  /// **'Default Quality'**
-  String get downloadDefaultQuality;
-
-  /// Toggle to show quality picker
-  ///
-  /// In en, this message translates to:
-  /// **'Ask Quality Before Download'**
-  String get downloadAskQuality;
-
   /// Subtitle for ask quality toggle
   ///
   /// In en, this message translates to:
@@ -394,53 +262,11 @@ abstract class AppLocalizations {
   /// **'Folder Organization'**
   String get downloadFolderOrganization;
 
-  /// Toggle to separate single tracks
-  ///
-  /// In en, this message translates to:
-  /// **'Separate Singles'**
-  String get downloadSeparateSingles;
-
-  /// Subtitle for separate singles toggle
-  ///
-  /// In en, this message translates to:
-  /// **'Put single tracks in a separate folder'**
-  String get downloadSeparateSinglesSubtitle;
-
-  /// Audio quality option - highest available
-  ///
-  /// In en, this message translates to:
-  /// **'Best Available'**
-  String get qualityBest;
-
-  /// Audio quality option - FLAC lossless
-  ///
-  /// In en, this message translates to:
-  /// **'FLAC'**
-  String get qualityFlac;
-
-  /// Audio quality option - 320kbps MP3
-  ///
-  /// In en, this message translates to:
-  /// **'320 kbps'**
-  String get quality320;
-
-  /// Audio quality option - 128kbps MP3
-  ///
-  /// In en, this message translates to:
-  /// **'128 kbps'**
-  String get quality128;
-
   /// Appearance settings page title
   ///
   /// In en, this message translates to:
   /// **'Appearance'**
   String get appearanceTitle;
-
-  /// Theme mode setting
-  ///
-  /// In en, this message translates to:
-  /// **'Theme'**
-  String get appearanceTheme;
 
   /// Follow system theme
   ///
@@ -472,12 +298,6 @@ abstract class AppLocalizations {
   /// **'Use colors from your wallpaper'**
   String get appearanceDynamicColorSubtitle;
 
-  /// Custom accent color picker
-  ///
-  /// In en, this message translates to:
-  /// **'Accent Color'**
-  String get appearanceAccentColor;
-
   /// Layout style for history
   ///
   /// In en, this message translates to:
@@ -501,12 +321,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Options'**
   String get optionsTitle;
-
-  /// Section for search provider settings
-  ///
-  /// In en, this message translates to:
-  /// **'Search Source'**
-  String get optionsSearchSource;
 
   /// Main search provider setting
   ///
@@ -543,54 +357,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try other services if download fails'**
   String get optionsAutoFallbackSubtitle;
-
-  /// Toggle to skip to the next queue track when current track stream resolution fails
-  ///
-  /// In en, this message translates to:
-  /// **'Auto Skip Unavailable Tracks'**
-  String get optionsAutoSkipUnavailableTracks;
-
-  /// Subtitle when auto skip on resolve failure is enabled
-  ///
-  /// In en, this message translates to:
-  /// **'Automatically skip to the next queue track when a stream cannot be resolved.'**
-  String get optionsAutoSkipUnavailableTracksSubtitleOn;
-
-  /// Subtitle when auto skip on resolve failure is disabled
-  ///
-  /// In en, this message translates to:
-  /// **'Stop on failed track resolution and show an error.'**
-  String get optionsAutoSkipUnavailableTracksSubtitleOff;
-
-  /// Tap behavior mode for track lists
-  ///
-  /// In en, this message translates to:
-  /// **'Interaction Mode'**
-  String get optionsInteractionMode;
-
-  /// Interaction mode where taps queue downloads
-  ///
-  /// In en, this message translates to:
-  /// **'Downloader Mode'**
-  String get modeDownloader;
-
-  /// Subtitle for downloader interaction mode
-  ///
-  /// In en, this message translates to:
-  /// **'Tap tracks to add them to download queue'**
-  String get modeDownloaderSubtitle;
-
-  /// Interaction mode where taps start playback
-  ///
-  /// In en, this message translates to:
-  /// **'Streaming Mode'**
-  String get modeStreaming;
-
-  /// Subtitle for streaming interaction mode
-  ///
-  /// In en, this message translates to:
-  /// **'Tap tracks to play instantly'**
-  String get modeStreamingSubtitle;
 
   /// Enable extension download providers
   ///
@@ -772,30 +538,6 @@ abstract class AppLocalizations {
   /// **'Extensions'**
   String get extensionsTitle;
 
-  /// Section header for installed extensions
-  ///
-  /// In en, this message translates to:
-  /// **'Installed Extensions'**
-  String get extensionsInstalled;
-
-  /// Empty state title
-  ///
-  /// In en, this message translates to:
-  /// **'No extensions installed'**
-  String get extensionsNone;
-
-  /// Empty state subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Install extensions from the Store tab'**
-  String get extensionsNoneSubtitle;
-
-  /// Extension status - active
-  ///
-  /// In en, this message translates to:
-  /// **'Enabled'**
-  String get extensionsEnabled;
-
   /// Extension status - inactive
   ///
   /// In en, this message translates to:
@@ -819,12 +561,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Uninstall'**
   String get extensionsUninstall;
-
-  /// Use extension for search
-  ///
-  /// In en, this message translates to:
-  /// **'Set as Search Provider'**
-  String get extensionsSetAsSearch;
 
   /// Store screen title
   ///
@@ -970,12 +706,6 @@ abstract class AppLocalizations {
   /// **'Social'**
   String get aboutSocial;
 
-  /// Section for support/donation links
-  ///
-  /// In en, this message translates to:
-  /// **'Support'**
-  String get aboutSupport;
-
   /// Section for app info
   ///
   /// In en, this message translates to:
@@ -1005,18 +735,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Creator of I Don\'t Have Spotify (IDHS). The fallback link resolver that saves the day!'**
   String get aboutSjdonadoDesc;
-
-  /// Name of Amazon API service - DO NOT TRANSLATE
-  ///
-  /// In en, this message translates to:
-  /// **'DoubleDouble'**
-  String get aboutDoubleDouble;
-
-  /// Credit for DoubleDouble API
-  ///
-  /// In en, this message translates to:
-  /// **'Amazing API for Amazon Music downloads. Thank you for making it free!'**
-  String get aboutDoubleDoubleDesc;
 
   /// Name of Qobuz API service - DO NOT TRANSLATE
   ///
@@ -1048,42 +766,6 @@ abstract class AppLocalizations {
   /// **'Download Spotify tracks in lossless quality from Tidal, Qobuz, and Amazon Music.'**
   String get aboutAppDescription;
 
-  /// Album screen title
-  ///
-  /// In en, this message translates to:
-  /// **'Album'**
-  String get albumTitle;
-
-  /// Album track count
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 track} other{{count} tracks}}'**
-  String albumTracks(int count);
-
-  /// Button to download all tracks
-  ///
-  /// In en, this message translates to:
-  /// **'Download All'**
-  String get albumDownloadAll;
-
-  /// Button to download remaining tracks
-  ///
-  /// In en, this message translates to:
-  /// **'Download Remaining'**
-  String get albumDownloadRemaining;
-
-  /// Playlist screen title
-  ///
-  /// In en, this message translates to:
-  /// **'Playlist'**
-  String get playlistTitle;
-
-  /// Artist screen title
-  ///
-  /// In en, this message translates to:
-  /// **'Artist'**
-  String get artistTitle;
-
   /// Section header for artist albums
   ///
   /// In en, this message translates to:
@@ -1102,12 +784,6 @@ abstract class AppLocalizations {
   /// **'Compilations'**
   String get artistCompilations;
 
-  /// Artist release count
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 release} other{{count} releases}}'**
-  String artistReleases(int count);
-
   /// Section header for popular/top tracks
   ///
   /// In en, this message translates to:
@@ -1119,48 +795,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} monthly listeners'**
   String artistMonthlyListeners(String count);
-
-  /// Track metadata screen title
-  ///
-  /// In en, this message translates to:
-  /// **'Track Info'**
-  String get trackMetadataTitle;
-
-  /// Metadata field - artist name
-  ///
-  /// In en, this message translates to:
-  /// **'Artist'**
-  String get trackMetadataArtist;
-
-  /// Metadata field - album name
-  ///
-  /// In en, this message translates to:
-  /// **'Album'**
-  String get trackMetadataAlbum;
-
-  /// Metadata field - track length
-  ///
-  /// In en, this message translates to:
-  /// **'Duration'**
-  String get trackMetadataDuration;
-
-  /// Metadata field - audio quality
-  ///
-  /// In en, this message translates to:
-  /// **'Quality'**
-  String get trackMetadataQuality;
-
-  /// Metadata field - file location
-  ///
-  /// In en, this message translates to:
-  /// **'File Path'**
-  String get trackMetadataPath;
-
-  /// Metadata field - download date
-  ///
-  /// In en, this message translates to:
-  /// **'Downloaded'**
-  String get trackMetadataDownloadedAt;
 
   /// Metadata field - download service used
   ///
@@ -1186,77 +820,11 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get trackMetadataDelete;
 
-  /// Action button - download again
-  ///
-  /// In en, this message translates to:
-  /// **'Re-download'**
-  String get trackMetadataRedownload;
-
-  /// Action button - open containing folder
-  ///
-  /// In en, this message translates to:
-  /// **'Open Folder'**
-  String get trackMetadataOpenFolder;
-
-  /// Setup wizard title
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to SpotiFLAC'**
-  String get setupTitle;
-
-  /// Setup wizard subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Let\'s get you started'**
-  String get setupSubtitle;
-
-  /// Storage permission step title
-  ///
-  /// In en, this message translates to:
-  /// **'Storage Permission'**
-  String get setupStoragePermission;
-
-  /// Explanation for storage permission
-  ///
-  /// In en, this message translates to:
-  /// **'Required to save downloaded files'**
-  String get setupStoragePermissionSubtitle;
-
-  /// Status when permission granted
-  ///
-  /// In en, this message translates to:
-  /// **'Permission granted'**
-  String get setupStoragePermissionGranted;
-
-  /// Status when permission denied
-  ///
-  /// In en, this message translates to:
-  /// **'Permission denied'**
-  String get setupStoragePermissionDenied;
-
   /// Button to request permission
   ///
   /// In en, this message translates to:
   /// **'Grant Permission'**
   String get setupGrantPermission;
-
-  /// Download folder step title
-  ///
-  /// In en, this message translates to:
-  /// **'Download Location'**
-  String get setupDownloadLocation;
-
-  /// Button to pick folder
-  ///
-  /// In en, this message translates to:
-  /// **'Choose Folder'**
-  String get setupChooseFolder;
-
-  /// Continue to next step button
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get setupContinue;
 
   /// Skip current step button
   ///
@@ -1269,12 +837,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Storage Access Required'**
   String get setupStorageAccessRequired;
-
-  /// Explanation for storage access
-  ///
-  /// In en, this message translates to:
-  /// **'SpotiFLAC needs \"All files access\" permission to save music files to your chosen folder.'**
-  String get setupStorageAccessMessage;
 
   /// Android 11+ specific explanation
   ///
@@ -1305,12 +867,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{permissionType} permission is required for the best experience. You can change this later in Settings.'**
   String setupPermissionRequiredMessage(String permissionType);
-
-  /// Folder selection step title
-  ///
-  /// In en, this message translates to:
-  /// **'Select Download Folder'**
-  String get setupSelectDownloadFolder;
 
   /// Dialog title for default folder
   ///
@@ -1384,36 +940,6 @@ abstract class AppLocalizations {
   /// **'Download Spotify tracks in FLAC'**
   String get setupDownloadInFlac;
 
-  /// Setup step indicator - storage
-  ///
-  /// In en, this message translates to:
-  /// **'Storage'**
-  String get setupStepStorage;
-
-  /// Setup step indicator - notification
-  ///
-  /// In en, this message translates to:
-  /// **'Notification'**
-  String get setupStepNotification;
-
-  /// Setup step indicator - folder
-  ///
-  /// In en, this message translates to:
-  /// **'Folder'**
-  String get setupStepFolder;
-
-  /// Setup step indicator - Spotify API
-  ///
-  /// In en, this message translates to:
-  /// **'Spotify'**
-  String get setupStepSpotify;
-
-  /// Setup step indicator - permission
-  ///
-  /// In en, this message translates to:
-  /// **'Permission'**
-  String get setupStepPermission;
-
   /// Success message for storage permission
   ///
   /// In en, this message translates to:
@@ -1444,18 +970,6 @@ abstract class AppLocalizations {
   /// **'Enable Notifications'**
   String get setupNotificationEnable;
 
-  /// Explanation for notifications
-  ///
-  /// In en, this message translates to:
-  /// **'Get notified when downloads complete or require attention.'**
-  String get setupNotificationDescription;
-
-  /// Success message for folder selection
-  ///
-  /// In en, this message translates to:
-  /// **'Download Folder Selected!'**
-  String get setupFolderSelected;
-
   /// Button to choose folder
   ///
   /// In en, this message translates to:
@@ -1468,83 +982,17 @@ abstract class AppLocalizations {
   /// **'Select a folder where your downloaded music will be saved.'**
   String get setupFolderDescription;
 
-  /// Button to change selected folder
-  ///
-  /// In en, this message translates to:
-  /// **'Change Folder'**
-  String get setupChangeFolder;
-
   /// Button to select folder
   ///
   /// In en, this message translates to:
   /// **'Select Folder'**
   String get setupSelectFolder;
 
-  /// Spotify API step title
-  ///
-  /// In en, this message translates to:
-  /// **'Spotify API (Optional)'**
-  String get setupSpotifyApiOptional;
-
-  /// Explanation for Spotify API
-  ///
-  /// In en, this message translates to:
-  /// **'Add your Spotify API credentials for better search results and access to Spotify-exclusive content.'**
-  String get setupSpotifyApiDescription;
-
-  /// Toggle to enable Spotify API
-  ///
-  /// In en, this message translates to:
-  /// **'Use Spotify API'**
-  String get setupUseSpotifyApi;
-
-  /// Prompt to enter credentials
-  ///
-  /// In en, this message translates to:
-  /// **'Enter your credentials below'**
-  String get setupEnterCredentialsBelow;
-
-  /// Status when using Deezer
-  ///
-  /// In en, this message translates to:
-  /// **'Using Deezer (no account needed)'**
-  String get setupUsingDeezer;
-
-  /// Placeholder for client ID field
-  ///
-  /// In en, this message translates to:
-  /// **'Enter Spotify Client ID'**
-  String get setupEnterClientId;
-
-  /// Placeholder for client secret field
-  ///
-  /// In en, this message translates to:
-  /// **'Enter Spotify Client Secret'**
-  String get setupEnterClientSecret;
-
-  /// Info about getting Spotify credentials
-  ///
-  /// In en, this message translates to:
-  /// **'Get your free API credentials from the Spotify Developer Dashboard.'**
-  String get setupGetFreeCredentials;
-
   /// Button to enable notifications
   ///
   /// In en, this message translates to:
   /// **'Enable Notifications'**
   String get setupEnableNotifications;
-
-  /// Message after completing a step
-  ///
-  /// In en, this message translates to:
-  /// **'You can now proceed to the next step.'**
-  String get setupProceedToNextStep;
-
-  /// Info about notification usage
-  ///
-  /// In en, this message translates to:
-  /// **'You will receive download progress notifications.'**
-  String get setupNotificationProgressDescription;
 
   /// Detailed notification explanation
   ///
@@ -1558,12 +1006,6 @@ abstract class AppLocalizations {
   /// **'Skip for now'**
   String get setupSkipForNow;
 
-  /// Back button text
-  ///
-  /// In en, this message translates to:
-  /// **'Back'**
-  String get setupBack;
-
   /// Next button text
   ///
   /// In en, this message translates to:
@@ -1576,35 +1018,17 @@ abstract class AppLocalizations {
   /// **'Get Started'**
   String get setupGetStarted;
 
-  /// Skip setup and start app
-  ///
-  /// In en, this message translates to:
-  /// **'Skip & Start'**
-  String get setupSkipAndStart;
-
   /// Instruction for file access permission
   ///
   /// In en, this message translates to:
   /// **'Please enable \"Allow access to manage all files\" in the next screen.'**
   String get setupAllowAccessToManageFiles;
 
-  /// Link text for Spotify developer portal
-  ///
-  /// In en, this message translates to:
-  /// **'Get credentials from developer.spotify.com'**
-  String get setupGetCredentialsFromSpotify;
-
   /// Dialog button - cancel action
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get dialogCancel;
-
-  /// Dialog button - confirm/acknowledge
-  ///
-  /// In en, this message translates to:
-  /// **'OK'**
-  String get dialogOk;
 
   /// Dialog button - save changes
   ///
@@ -1624,35 +1048,11 @@ abstract class AppLocalizations {
   /// **'Retry'**
   String get dialogRetry;
 
-  /// Dialog button - close dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get dialogClose;
-
-  /// Dialog button - confirm yes
-  ///
-  /// In en, this message translates to:
-  /// **'Yes'**
-  String get dialogYes;
-
-  /// Dialog button - confirm no
-  ///
-  /// In en, this message translates to:
-  /// **'No'**
-  String get dialogNo;
-
   /// Dialog button - clear items
   ///
   /// In en, this message translates to:
   /// **'Clear'**
   String get dialogClear;
-
-  /// Dialog button - confirm action
-  ///
-  /// In en, this message translates to:
-  /// **'Confirm'**
-  String get dialogConfirm;
 
   /// Dialog button - action completed
   ///
@@ -1696,47 +1096,11 @@ abstract class AppLocalizations {
   /// **'You have unsaved changes. Do you want to discard them?'**
   String get dialogUnsavedChanges;
 
-  /// Dialog title - download error
-  ///
-  /// In en, this message translates to:
-  /// **'Download Failed'**
-  String get dialogDownloadFailed;
-
-  /// Label for track name in error dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Track:'**
-  String get dialogTrackLabel;
-
-  /// Label for artist name in error dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Artist:'**
-  String get dialogArtistLabel;
-
-  /// Label for error message
-  ///
-  /// In en, this message translates to:
-  /// **'Error:'**
-  String get dialogErrorLabel;
-
   /// Dialog title - clear all items
   ///
   /// In en, this message translates to:
   /// **'Clear All'**
   String get dialogClearAll;
-
-  /// Dialog message - clear downloads confirmation
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to clear all downloads?'**
-  String get dialogClearAllDownloads;
-
-  /// Dialog title - delete file confirmation
-  ///
-  /// In en, this message translates to:
-  /// **'Remove from device?'**
-  String get dialogRemoveFromDevice;
 
   /// Dialog title - uninstall extension
   ///
@@ -1870,12 +1234,6 @@ abstract class AppLocalizations {
   /// **'View Queue'**
   String get snackbarViewQueue;
 
-  /// Snackbar - loading error
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to load: {error}'**
-  String snackbarFailedToLoad(String error);
-
   /// Snackbar - URL copied
   ///
   /// In en, this message translates to:
@@ -1942,71 +1300,17 @@ abstract class AppLocalizations {
   /// **'Too many requests. Please wait a moment before searching again.'**
   String get errorRateLimitedMessage;
 
-  /// Error message - loading failed
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to load {item}'**
-  String errorFailedToLoad(String item);
-
   /// Error - search returned no results
   ///
   /// In en, this message translates to:
   /// **'No tracks found'**
   String get errorNoTracksFound;
 
-  /// Error - seek disabled for live decrypted stream
-  ///
-  /// In en, this message translates to:
-  /// **'Seeking is not supported for this live stream'**
-  String get errorSeekNotSupported;
-
   /// Error - extension source not available
   ///
   /// In en, this message translates to:
   /// **'Cannot load {item}: missing extension source'**
   String errorMissingExtensionSource(String item);
-
-  /// Download status - waiting in queue
-  ///
-  /// In en, this message translates to:
-  /// **'Queued'**
-  String get statusQueued;
-
-  /// Download status - in progress
-  ///
-  /// In en, this message translates to:
-  /// **'Downloading'**
-  String get statusDownloading;
-
-  /// Download status - writing metadata
-  ///
-  /// In en, this message translates to:
-  /// **'Finalizing'**
-  String get statusFinalizing;
-
-  /// Download status - finished
-  ///
-  /// In en, this message translates to:
-  /// **'Completed'**
-  String get statusCompleted;
-
-  /// Download status - error occurred
-  ///
-  /// In en, this message translates to:
-  /// **'Failed'**
-  String get statusFailed;
-
-  /// Download status - already exists
-  ///
-  /// In en, this message translates to:
-  /// **'Skipped'**
-  String get statusSkipped;
-
-  /// Download status - paused
-  ///
-  /// In en, this message translates to:
-  /// **'Paused'**
-  String get statusPaused;
 
   /// Action button - pause download
   ///
@@ -2026,18 +1330,6 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get actionCancel;
 
-  /// Action button - stop operation
-  ///
-  /// In en, this message translates to:
-  /// **'Stop'**
-  String get actionStop;
-
-  /// Action button - enter selection mode
-  ///
-  /// In en, this message translates to:
-  /// **'Select'**
-  String get actionSelect;
-
   /// Action button - select all items
   ///
   /// In en, this message translates to:
@@ -2049,18 +1341,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Deselect'**
   String get actionDeselect;
-
-  /// Action button - paste from clipboard
-  ///
-  /// In en, this message translates to:
-  /// **'Paste'**
-  String get actionPaste;
-
-  /// Action button - import CSV file
-  ///
-  /// In en, this message translates to:
-  /// **'Import CSV'**
-  String get actionImportCsv;
 
   /// Action button - delete Spotify credentials
   ///
@@ -2085,18 +1365,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All tracks selected'**
   String get selectionAllSelected;
-
-  /// Hint - how to select items
-  ///
-  /// In en, this message translates to:
-  /// **'Tap tracks to select'**
-  String get selectionTapToSelect;
-
-  /// Delete button with count
-  ///
-  /// In en, this message translates to:
-  /// **'Delete {count} {count, plural, =1{track} other{tracks}}'**
-  String selectionDeleteTracks(int count);
 
   /// Placeholder when nothing selected
   ///
@@ -2146,65 +1414,11 @@ abstract class AppLocalizations {
   /// **'Play'**
   String get tooltipPlay;
 
-  /// Tooltip - cancel button
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get tooltipCancel;
-
-  /// Tooltip - stop button
-  ///
-  /// In en, this message translates to:
-  /// **'Stop'**
-  String get tooltipStop;
-
-  /// Tooltip - retry button
-  ///
-  /// In en, this message translates to:
-  /// **'Retry'**
-  String get tooltipRetry;
-
-  /// Tooltip - remove button
-  ///
-  /// In en, this message translates to:
-  /// **'Remove'**
-  String get tooltipRemove;
-
-  /// Tooltip - clear button
-  ///
-  /// In en, this message translates to:
-  /// **'Clear'**
-  String get tooltipClear;
-
-  /// Tooltip - paste button
-  ///
-  /// In en, this message translates to:
-  /// **'Paste'**
-  String get tooltipPaste;
-
   /// Setting title - filename pattern
   ///
   /// In en, this message translates to:
   /// **'Filename Format'**
   String get filenameFormat;
-
-  /// Preview of filename pattern
-  ///
-  /// In en, this message translates to:
-  /// **'Preview: {preview}'**
-  String filenameFormatPreview(String preview);
-
-  /// Label for placeholder list
-  ///
-  /// In en, this message translates to:
-  /// **'Available placeholders:'**
-  String get filenameAvailablePlaceholders;
-
-  /// Default filename format hint
-  ///
-  /// In en, this message translates to:
-  /// **'{artist} - {title}'**
-  String filenameHint(Object artist, Object title);
 
   /// Toggle label for showing advanced filename tags
   ///
@@ -2217,12 +1431,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enable formatted tags for track padding and date patterns'**
   String get filenameShowAdvancedTagsDescription;
-
-  /// Setting title - folder structure
-  ///
-  /// In en, this message translates to:
-  /// **'Folder Organization'**
-  String get folderOrganization;
 
   /// Folder option - flat structure
   ///
@@ -2284,29 +1492,11 @@ abstract class AppLocalizations {
   /// **'Update Available'**
   String get updateAvailable;
 
-  /// Update available message
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version} is available'**
-  String updateNewVersion(String version);
-
-  /// Update button - download update
-  ///
-  /// In en, this message translates to:
-  /// **'Download'**
-  String get updateDownload;
-
   /// Update button - dismiss
   ///
   /// In en, this message translates to:
   /// **'Later'**
   String get updateLater;
-
-  /// Link to changelog
-  ///
-  /// In en, this message translates to:
-  /// **'Changelog'**
-  String get updateChangelog;
 
   /// Update status - initializing
   ///
@@ -2368,18 +1558,6 @@ abstract class AppLocalizations {
   /// **'Don\'t remind'**
   String get updateDontRemind;
 
-  /// Setting title - download provider order
-  ///
-  /// In en, this message translates to:
-  /// **'Provider Priority'**
-  String get providerPriority;
-
-  /// Subtitle for provider priority
-  ///
-  /// In en, this message translates to:
-  /// **'Drag to reorder download providers'**
-  String get providerPrioritySubtitle;
-
   /// Provider priority page title
   ///
   /// In en, this message translates to:
@@ -2409,18 +1587,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Extension'**
   String get providerExtension;
-
-  /// Setting title - metadata provider order
-  ///
-  /// In en, this message translates to:
-  /// **'Metadata Provider Priority'**
-  String get metadataProviderPriority;
-
-  /// Subtitle for metadata priority
-  ///
-  /// In en, this message translates to:
-  /// **'Order used when fetching track metadata'**
-  String get metadataProviderPrioritySubtitle;
 
   /// Metadata priority page title
   ///
@@ -2457,30 +1623,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logs'**
   String get logTitle;
-
-  /// Action - copy logs to clipboard
-  ///
-  /// In en, this message translates to:
-  /// **'Copy Logs'**
-  String get logCopy;
-
-  /// Action - delete all logs
-  ///
-  /// In en, this message translates to:
-  /// **'Clear Logs'**
-  String get logClear;
-
-  /// Action - share logs file
-  ///
-  /// In en, this message translates to:
-  /// **'Share Logs'**
-  String get logShare;
-
-  /// Empty state title
-  ///
-  /// In en, this message translates to:
-  /// **'No logs yet'**
-  String get logEmpty;
 
   /// Snackbar - logs copied
   ///
@@ -2530,30 +1672,6 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to clear all logs?'**
   String get logClearLogsMessage;
 
-  /// Error category - ISP blocking
-  ///
-  /// In en, this message translates to:
-  /// **'ISP BLOCKING DETECTED'**
-  String get logIspBlocking;
-
-  /// Error category - rate limiting
-  ///
-  /// In en, this message translates to:
-  /// **'RATE LIMITED'**
-  String get logRateLimited;
-
-  /// Error category - network issues
-  ///
-  /// In en, this message translates to:
-  /// **'NETWORK ERROR'**
-  String get logNetworkError;
-
-  /// Error category - missing tracks
-  ///
-  /// In en, this message translates to:
-  /// **'TRACK NOT FOUND'**
-  String get logTrackNotFound;
-
   /// Filter dialog title
   ///
   /// In en, this message translates to:
@@ -2571,72 +1689,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logs will appear here as you use the app'**
   String get logNoLogsYetSubtitle;
-
-  /// Section header for error summary
-  ///
-  /// In en, this message translates to:
-  /// **'Issue Summary'**
-  String get logIssueSummary;
-
-  /// ISP blocking explanation
-  ///
-  /// In en, this message translates to:
-  /// **'Your ISP may be blocking access to download services'**
-  String get logIspBlockingDescription;
-
-  /// ISP blocking fix suggestion
-  ///
-  /// In en, this message translates to:
-  /// **'Try using a VPN or change DNS to 1.1.1.1 or 8.8.8.8'**
-  String get logIspBlockingSuggestion;
-
-  /// Rate limit explanation
-  ///
-  /// In en, this message translates to:
-  /// **'Too many requests to the service'**
-  String get logRateLimitedDescription;
-
-  /// Rate limit fix suggestion
-  ///
-  /// In en, this message translates to:
-  /// **'Wait a few minutes before trying again'**
-  String get logRateLimitedSuggestion;
-
-  /// Network error explanation
-  ///
-  /// In en, this message translates to:
-  /// **'Connection issues detected'**
-  String get logNetworkErrorDescription;
-
-  /// Network error fix suggestion
-  ///
-  /// In en, this message translates to:
-  /// **'Check your internet connection'**
-  String get logNetworkErrorSuggestion;
-
-  /// Track not found explanation
-  ///
-  /// In en, this message translates to:
-  /// **'Some tracks could not be found on download services'**
-  String get logTrackNotFoundDescription;
-
-  /// Track not found explanation
-  ///
-  /// In en, this message translates to:
-  /// **'The track may not be available in lossless quality'**
-  String get logTrackNotFoundSuggestion;
-
-  /// Error count display
-  ///
-  /// In en, this message translates to:
-  /// **'Total errors: {count}'**
-  String logTotalErrors(int count);
-
-  /// Affected domains display
-  ///
-  /// In en, this message translates to:
-  /// **'Affected: {domains}'**
-  String logAffected(String domains);
 
   /// Log count with filter active
   ///
@@ -2836,12 +1888,6 @@ abstract class AppLocalizations {
   /// **'App Language'**
   String get appearanceLanguage;
 
-  /// Language setting subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Choose your preferred language'**
-  String get appearanceLanguageSubtitle;
-
   /// Appearance settings description
   ///
   /// In en, this message translates to:
@@ -2884,23 +1930,11 @@ abstract class AppLocalizations {
   /// **'Press back again to exit'**
   String get pressBackAgainToExit;
 
-  /// Section header for track list
-  ///
-  /// In en, this message translates to:
-  /// **'Tracks'**
-  String get tracksHeader;
-
   /// Download all button with count
   ///
   /// In en, this message translates to:
   /// **'Download All ({count})'**
   String downloadAllCount(int count);
-
-  /// Play all button with count
-  ///
-  /// In en, this message translates to:
-  /// **'Play All ({count})'**
-  String playAllCount(int count);
 
   /// Track count display
   ///
@@ -3100,12 +2134,6 @@ abstract class AppLocalizations {
   /// **'This will permanently delete the downloaded file and remove it from your history.'**
   String get trackDeleteConfirmMessage;
 
-  /// Error opening file
-  ///
-  /// In en, this message translates to:
-  /// **'Cannot open: {message}'**
-  String trackCannotOpen(String message);
-
   /// Relative date - today
   ///
   /// In en, this message translates to:
@@ -3135,30 +2163,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} months ago'**
   String dateMonthsAgo(int count);
-
-  /// Download mode - one at a time
-  ///
-  /// In en, this message translates to:
-  /// **'Sequential'**
-  String get concurrentSequential;
-
-  /// Download mode - 2 simultaneous
-  ///
-  /// In en, this message translates to:
-  /// **'2 Parallel'**
-  String get concurrentParallel2;
-
-  /// Download mode - 3 simultaneous
-  ///
-  /// In en, this message translates to:
-  /// **'3 Parallel'**
-  String get concurrentParallel3;
-
-  /// Tooltip for failed download
-  ///
-  /// In en, this message translates to:
-  /// **'Tap to see error details'**
-  String get tapToSeeError;
 
   /// Store filter - all extensions
   ///
@@ -3201,24 +2205,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear filters'**
   String get storeClearFilters;
-
-  /// Empty state when no extensions match filters
-  ///
-  /// In en, this message translates to:
-  /// **'No extensions found'**
-  String get storeNoResults;
-
-  /// Extension capability - provider priority
-  ///
-  /// In en, this message translates to:
-  /// **'Provider Priority'**
-  String get extensionProviderPriority;
-
-  /// Button to install extension
-  ///
-  /// In en, this message translates to:
-  /// **'Install Extension'**
-  String get extensionInstallButton;
 
   /// Default search provider option
   ///
@@ -3496,66 +2482,6 @@ abstract class AppLocalizations {
   /// **'24-bit / up to 192kHz'**
   String get qualityHiResFlacMaxSubtitle;
 
-  /// Quality option - lossy format (MP3/Opus)
-  ///
-  /// In en, this message translates to:
-  /// **'Lossy'**
-  String get qualityLossy;
-
-  /// Technical spec for lossy MP3
-  ///
-  /// In en, this message translates to:
-  /// **'MP3 320kbps (converted from FLAC)'**
-  String get qualityLossyMp3Subtitle;
-
-  /// Technical spec for lossy Opus
-  ///
-  /// In en, this message translates to:
-  /// **'Opus 128kbps (converted from FLAC)'**
-  String get qualityLossyOpusSubtitle;
-
-  /// Setting - enable lossy quality option
-  ///
-  /// In en, this message translates to:
-  /// **'Enable Lossy Option'**
-  String get enableLossyOption;
-
-  /// Subtitle when lossy is enabled
-  ///
-  /// In en, this message translates to:
-  /// **'Lossy quality option is available'**
-  String get enableLossyOptionSubtitleOn;
-
-  /// Subtitle when lossy is disabled
-  ///
-  /// In en, this message translates to:
-  /// **'Downloads FLAC then converts to lossy format'**
-  String get enableLossyOptionSubtitleOff;
-
-  /// Setting - choose lossy format
-  ///
-  /// In en, this message translates to:
-  /// **'Lossy Format'**
-  String get lossyFormat;
-
-  /// Description for lossy format picker
-  ///
-  /// In en, this message translates to:
-  /// **'Choose the lossy format for conversion'**
-  String get lossyFormatDescription;
-
-  /// MP3 format description
-  ///
-  /// In en, this message translates to:
-  /// **'320kbps, best compatibility'**
-  String get lossyFormatMp3Subtitle;
-
-  /// Opus format description
-  ///
-  /// In en, this message translates to:
-  /// **'128kbps, better quality at smaller size'**
-  String get lossyFormatOpusSubtitle;
-
   /// Note about quality availability
   ///
   /// In en, this message translates to:
@@ -3579,30 +2505,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'YouTube MP3 Bitrate'**
   String get youtubeMp3BitrateTitle;
-
-  /// Subtitle showing current bitrate and valid range
-  ///
-  /// In en, this message translates to:
-  /// **'{bitrate}kbps ({min}-{max})'**
-  String youtubeBitrateSubtitle(int bitrate, int min, int max);
-
-  /// Helper text for manual YouTube bitrate input
-  ///
-  /// In en, this message translates to:
-  /// **'Enter custom bitrate ({min}-{max} kbps)'**
-  String youtubeBitrateInputHelp(int min, int max);
-
-  /// Label for YouTube bitrate input field
-  ///
-  /// In en, this message translates to:
-  /// **'Bitrate (kbps)'**
-  String get youtubeBitrateFieldLabel;
-
-  /// Validation error for invalid YouTube bitrate input
-  ///
-  /// In en, this message translates to:
-  /// **'Bitrate must be between {min} and {max} kbps'**
-  String youtubeBitrateValidationError(int min, int max);
 
   /// Setting - show quality picker
   ///
@@ -3634,18 +2536,6 @@ abstract class AppLocalizations {
   /// **'Use Album Artist for folders'**
   String get downloadUseAlbumArtistForFolders;
 
-  /// Subtitle when Album Artist is used for folder naming
-  ///
-  /// In en, this message translates to:
-  /// **'Artist folders use Album Artist when available'**
-  String get downloadUseAlbumArtistForFoldersAlbumSubtitle;
-
-  /// Subtitle when Track Artist is used for folder naming
-  ///
-  /// In en, this message translates to:
-  /// **'Artist folders use Track Artist only'**
-  String get downloadUseAlbumArtistForFoldersTrackSubtitle;
-
   /// Setting - strip featured artists from folder name
   ///
   /// In en, this message translates to:
@@ -3664,18 +2554,6 @@ abstract class AppLocalizations {
   /// **'Full artist string used for folder name'**
   String get downloadUsePrimaryArtistOnlyDisabled;
 
-  /// Setting - output file format
-  ///
-  /// In en, this message translates to:
-  /// **'Save Format'**
-  String get downloadSaveFormat;
-
-  /// Dialog title - choose download service
-  ///
-  /// In en, this message translates to:
-  /// **'Select Service'**
-  String get downloadSelectService;
-
   /// Dialog title - choose audio quality
   ///
   /// In en, this message translates to:
@@ -3687,96 +2565,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download From'**
   String get downloadFrom;
-
-  /// Label - default quality setting
-  ///
-  /// In en, this message translates to:
-  /// **'Default Quality'**
-  String get downloadDefaultQualityLabel;
-
-  /// Quality option - highest available
-  ///
-  /// In en, this message translates to:
-  /// **'Best available'**
-  String get downloadBestAvailable;
-
-  /// Folder option - no organization
-  ///
-  /// In en, this message translates to:
-  /// **'None'**
-  String get folderNone;
-
-  /// Subtitle for no folder organization
-  ///
-  /// In en, this message translates to:
-  /// **'Save all files directly to download folder'**
-  String get folderNoneSubtitle;
-
-  /// Folder option - by artist
-  ///
-  /// In en, this message translates to:
-  /// **'Artist'**
-  String get folderArtist;
-
-  /// Folder structure example
-  ///
-  /// In en, this message translates to:
-  /// **'Artist Name/filename'**
-  String get folderArtistSubtitle;
-
-  /// Folder option - by album
-  ///
-  /// In en, this message translates to:
-  /// **'Album'**
-  String get folderAlbum;
-
-  /// Folder structure example
-  ///
-  /// In en, this message translates to:
-  /// **'Album Name/filename'**
-  String get folderAlbumSubtitle;
-
-  /// Folder option - nested
-  ///
-  /// In en, this message translates to:
-  /// **'Artist/Album'**
-  String get folderArtistAlbum;
-
-  /// Folder structure example
-  ///
-  /// In en, this message translates to:
-  /// **'Artist Name/Album Name/filename'**
-  String get folderArtistAlbumSubtitle;
-
-  /// Service name - DO NOT TRANSLATE
-  ///
-  /// In en, this message translates to:
-  /// **'Tidal'**
-  String get serviceTidal;
-
-  /// Service name - DO NOT TRANSLATE
-  ///
-  /// In en, this message translates to:
-  /// **'Qobuz'**
-  String get serviceQobuz;
-
-  /// Service name - DO NOT TRANSLATE
-  ///
-  /// In en, this message translates to:
-  /// **'Amazon'**
-  String get serviceAmazon;
-
-  /// Service name - DO NOT TRANSLATE
-  ///
-  /// In en, this message translates to:
-  /// **'Deezer'**
-  String get serviceDeezer;
-
-  /// Service name - DO NOT TRANSLATE
-  ///
-  /// In en, this message translates to:
-  /// **'Spotify'**
-  String get serviceSpotify;
 
   /// Theme option - pure black
   ///
@@ -3790,24 +2578,6 @@ abstract class AppLocalizations {
   /// **'Pure black background'**
   String get appearanceAmoledDarkSubtitle;
 
-  /// Color picker dialog title
-  ///
-  /// In en, this message translates to:
-  /// **'Choose Accent Color'**
-  String get appearanceChooseAccentColor;
-
-  /// Theme picker dialog title
-  ///
-  /// In en, this message translates to:
-  /// **'Theme Mode'**
-  String get appearanceChooseTheme;
-
-  /// Queue screen title
-  ///
-  /// In en, this message translates to:
-  /// **'Download Queue'**
-  String get queueTitle;
-
   /// Button - clear all queue items
   ///
   /// In en, this message translates to:
@@ -3819,30 +2589,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to clear all downloads?'**
   String get queueClearAllMessage;
-
-  /// Button - export failed downloads to TXT
-  ///
-  /// In en, this message translates to:
-  /// **'Export'**
-  String get queueExportFailed;
-
-  /// Success message after exporting failed downloads
-  ///
-  /// In en, this message translates to:
-  /// **'Failed downloads exported to TXT file'**
-  String get queueExportFailedSuccess;
-
-  /// Action to clear failed downloads after export
-  ///
-  /// In en, this message translates to:
-  /// **'Clear Failed'**
-  String get queueExportFailedClear;
-
-  /// Error message when export fails
-  ///
-  /// In en, this message translates to:
-  /// **'Failed to export downloads'**
-  String get queueExportFailedError;
 
   /// Setting toggle for auto-export
   ///
@@ -3879,54 +2625,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose which network to use for downloads. When set to WiFi Only, downloads will pause on mobile data.'**
   String get settingsDownloadNetworkSubtitle;
-
-  /// Empty queue state title
-  ///
-  /// In en, this message translates to:
-  /// **'No downloads in queue'**
-  String get queueEmpty;
-
-  /// Empty queue state subtitle
-  ///
-  /// In en, this message translates to:
-  /// **'Add tracks from the home screen'**
-  String get queueEmptySubtitle;
-
-  /// Button - clear finished downloads
-  ///
-  /// In en, this message translates to:
-  /// **'Clear completed'**
-  String get queueClearCompleted;
-
-  /// Error dialog title
-  ///
-  /// In en, this message translates to:
-  /// **'Download Failed'**
-  String get queueDownloadFailed;
-
-  /// Label in error dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Track:'**
-  String get queueTrackLabel;
-
-  /// Label in error dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Artist:'**
-  String get queueArtistLabel;
-
-  /// Label in error dialog
-  ///
-  /// In en, this message translates to:
-  /// **'Error:'**
-  String get queueErrorLabel;
-
-  /// Fallback error message
-  ///
-  /// In en, this message translates to:
-  /// **'Unknown error'**
-  String get queueUnknownError;
 
   /// Album folder option
   ///
@@ -4000,18 +2698,6 @@ abstract class AppLocalizations {
   /// **'Delete {count} {count, plural, =1{track} other{tracks}} from this album?\n\nThis will also delete the files from storage.'**
   String downloadedAlbumDeleteMessage(int count);
 
-  /// Section header for tracks
-  ///
-  /// In en, this message translates to:
-  /// **'Tracks'**
-  String get downloadedAlbumTracksHeader;
-
-  /// Downloaded tracks count badge
-  ///
-  /// In en, this message translates to:
-  /// **'{count} downloaded'**
-  String downloadedAlbumDownloadedCount(int count);
-
   /// Selection count indicator
   ///
   /// In en, this message translates to:
@@ -4047,12 +2733,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Disc {discNumber}'**
   String downloadedAlbumDiscHeader(int discNumber);
-
-  /// Extension capability - utility functions
-  ///
-  /// In en, this message translates to:
-  /// **'Utility Functions'**
-  String get utilityFunctions;
 
   /// Recent access item type - artist
   ///
@@ -4096,35 +2776,17 @@ abstract class AppLocalizations {
   /// **'Playlist: {name}'**
   String recentPlaylistInfo(String name);
 
-  /// Generic error message format
-  ///
-  /// In en, this message translates to:
-  /// **'Error: {message}'**
-  String errorGeneric(String message);
-
   /// Button - download artist discography
   ///
   /// In en, this message translates to:
   /// **'Download Discography'**
   String get discographyDownload;
 
-  /// Button - play artist discography
-  ///
-  /// In en, this message translates to:
-  /// **'Play Discography'**
-  String get discographyPlay;
-
   /// Option - download entire discography
   ///
   /// In en, this message translates to:
   /// **'Download All'**
   String get discographyDownloadAll;
-
-  /// Option - play entire discography
-  ///
-  /// In en, this message translates to:
-  /// **'Play All'**
-  String get discographyPlayAll;
 
   /// Subtitle showing total tracks and albums
   ///
@@ -4191,12 +2853,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download Selected'**
   String get discographyDownloadSelected;
-
-  /// Button - play selected albums
-  ///
-  /// In en, this message translates to:
-  /// **'Play Selected'**
-  String get discographyPlaySelected;
 
   /// Snackbar - tracks added from discography
   ///
@@ -4293,12 +2949,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Local Library'**
   String get libraryTitle;
-
-  /// Section header for library status
-  ///
-  /// In en, this message translates to:
-  /// **'Library Status'**
-  String get libraryStatus;
 
   /// Section header for scan settings
   ///
@@ -4413,12 +3063,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Scans your existing music collection to detect duplicates when downloading. Supports FLAC, M4A, MP3, Opus, and OGG formats. Metadata is read from file tags when available.'**
   String get libraryAboutDescription;
-
-  /// Track count in library
-  ///
-  /// In en, this message translates to:
-  /// **'{count} tracks'**
-  String libraryTracksCount(int count);
 
   /// Unit label for tracks count (without the number itself)
   ///
@@ -4570,36 +3214,6 @@ abstract class AppLocalizations {
   /// **'Format'**
   String get libraryFilterFormat;
 
-  /// Filter section - date range
-  ///
-  /// In en, this message translates to:
-  /// **'Date Added'**
-  String get libraryFilterDate;
-
-  /// Filter option - today only
-  ///
-  /// In en, this message translates to:
-  /// **'Today'**
-  String get libraryFilterDateToday;
-
-  /// Filter option - this week
-  ///
-  /// In en, this message translates to:
-  /// **'This Week'**
-  String get libraryFilterDateWeek;
-
-  /// Filter option - this month
-  ///
-  /// In en, this message translates to:
-  /// **'This Month'**
-  String get libraryFilterDateMonth;
-
-  /// Filter option - this year
-  ///
-  /// In en, this message translates to:
-  /// **'This Year'**
-  String get libraryFilterDateYear;
-
   /// Filter section - sort order
   ///
   /// In en, this message translates to:
@@ -4618,12 +3232,6 @@ abstract class AppLocalizations {
   /// **'Oldest'**
   String get libraryFilterSortOldest;
 
-  /// Badge showing number of active filters
-  ///
-  /// In en, this message translates to:
-  /// **'{count} filter(s) active'**
-  String libraryFilterActive(int count);
-
   /// Relative time - less than a minute ago
   ///
   /// In en, this message translates to:
@@ -4641,114 +3249,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 hour ago} other{{count} hours ago}}'**
   String timeHoursAgo(int count);
-
-  /// Dialog title when switching storage mode
-  ///
-  /// In en, this message translates to:
-  /// **'Switch Storage Mode'**
-  String get storageSwitchTitle;
-
-  /// Dialog title when switching to SAF
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to SAF Storage?'**
-  String get storageSwitchToSafTitle;
-
-  /// Dialog title when switching to app storage
-  ///
-  /// In en, this message translates to:
-  /// **'Switch to App Storage?'**
-  String get storageSwitchToAppTitle;
-
-  /// Explanation when switching to SAF
-  ///
-  /// In en, this message translates to:
-  /// **'Your existing downloads will remain in the current location and stay accessible.\n\nNew downloads will be saved to your selected SAF folder.'**
-  String get storageSwitchToSafMessage;
-
-  /// Explanation when switching to app storage
-  ///
-  /// In en, this message translates to:
-  /// **'Your existing downloads will remain in the current SAF location and stay accessible.\n\nNew downloads will be saved to Music/SpotiFLAC folder.'**
-  String get storageSwitchToAppMessage;
-
-  /// Section header for existing downloads info
-  ///
-  /// In en, this message translates to:
-  /// **'Existing Downloads'**
-  String get storageSwitchExistingDownloads;
-
-  /// Info about existing downloads count
-  ///
-  /// In en, this message translates to:
-  /// **'{count} tracks in {mode} storage'**
-  String storageSwitchExistingDownloadsInfo(int count, String mode);
-
-  /// Section header for new downloads info
-  ///
-  /// In en, this message translates to:
-  /// **'New Downloads'**
-  String get storageSwitchNewDownloads;
-
-  /// Shows where new downloads will go
-  ///
-  /// In en, this message translates to:
-  /// **'Will be saved to: {location}'**
-  String storageSwitchNewDownloadsLocation(String location);
-
-  /// Button to proceed with storage switch
-  ///
-  /// In en, this message translates to:
-  /// **'Continue'**
-  String get storageSwitchContinue;
-
-  /// Button to select SAF folder
-  ///
-  /// In en, this message translates to:
-  /// **'Select SAF Folder'**
-  String get storageSwitchSelectFolder;
-
-  /// Label for app storage mode
-  ///
-  /// In en, this message translates to:
-  /// **'App Storage'**
-  String get storageAppStorage;
-
-  /// Label for SAF storage mode
-  ///
-  /// In en, this message translates to:
-  /// **'SAF Storage'**
-  String get storageSafStorage;
-
-  /// Badge showing storage mode for a track
-  ///
-  /// In en, this message translates to:
-  /// **'Storage: {mode}'**
-  String storageModeBadge(String mode);
-
-  /// Section title for storage stats
-  ///
-  /// In en, this message translates to:
-  /// **'Storage Statistics'**
-  String get storageStatsTitle;
-
-  /// Count of tracks in app storage
-  ///
-  /// In en, this message translates to:
-  /// **'{count} tracks in App Storage'**
-  String storageStatsAppCount(int count);
-
-  /// Count of tracks in SAF storage
-  ///
-  /// In en, this message translates to:
-  /// **'{count} tracks in SAF Storage'**
-  String storageStatsSafCount(int count);
-
-  /// Info when user has files in both storage modes
-  ///
-  /// In en, this message translates to:
-  /// **'Your files are stored in multiple locations'**
-  String get storageModeInfo;
 
   /// Tutorial welcome page title
   ///
@@ -4792,24 +3292,6 @@ abstract class AppLocalizations {
   /// **'There are two easy ways to find music you want to download.'**
   String get tutorialSearchDesc;
 
-  /// Tutorial search tip 1
-  ///
-  /// In en, this message translates to:
-  /// **'Paste a Spotify or Deezer URL directly in the search box'**
-  String get tutorialSearchTip1;
-
-  /// Tutorial search tip 2
-  ///
-  /// In en, this message translates to:
-  /// **'Or type the song name, artist, or album to search'**
-  String get tutorialSearchTip2;
-
-  /// Tutorial search tip 3
-  ///
-  /// In en, this message translates to:
-  /// **'Supports tracks, albums, playlists, and artist pages'**
-  String get tutorialSearchTip3;
-
   /// Tutorial download page title
   ///
   /// In en, this message translates to:
@@ -4821,24 +3303,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Downloading music is simple and fast. Here\'s how it works.'**
   String get tutorialDownloadDesc;
-
-  /// Tutorial download tip 1
-  ///
-  /// In en, this message translates to:
-  /// **'Tap the download button next to any track to start downloading'**
-  String get tutorialDownloadTip1;
-
-  /// Tutorial download tip 2
-  ///
-  /// In en, this message translates to:
-  /// **'Choose your preferred quality (FLAC, Hi-Res, or MP3)'**
-  String get tutorialDownloadTip2;
-
-  /// Tutorial download tip 3
-  ///
-  /// In en, this message translates to:
-  /// **'Download entire albums or playlists with one tap'**
-  String get tutorialDownloadTip3;
 
   /// Tutorial library page title
   ///
@@ -4935,12 +3399,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'re all set! Start downloading your favorite music now.'**
   String get tutorialReadyMessage;
-
-  /// Example label in tutorial
-  ///
-  /// In en, this message translates to:
-  /// **'EXAMPLE'**
-  String get tutorialExample;
 
   /// Button to force a complete rescan of library
   ///
@@ -5211,12 +3669,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Re-enrich'**
   String get trackReEnrich;
-
-  /// Subtitle for re-enrich metadata action
-  ///
-  /// In en, this message translates to:
-  /// **'Re-embed metadata without re-downloading'**
-  String get trackReEnrichSubtitle;
 
   /// Subtitle for re-enrich metadata action for local items
   ///
@@ -5634,71 +4086,23 @@ abstract class AppLocalizations {
   /// **'Converted {success} of {total} tracks to {format}'**
   String selectionBatchConvertSuccess(int success, int total, String format);
 
-  /// Title for mode selection step in setup wizard
+  /// Downloaded tracks count badge
   ///
   /// In en, this message translates to:
-  /// **'Choose Your Mode'**
-  String get setupModeSelectionTitle;
+  /// **'{count} downloaded'**
+  String downloadedAlbumDownloadedCount(int count);
 
-  /// Description for mode selection step
+  /// Subtitle when Album Artist is used for folder naming
   ///
   /// In en, this message translates to:
-  /// **'How would you like to use SpotiFLAC? You can always change this later in Settings.'**
-  String get setupModeSelectionDescription;
+  /// **'Artist folders use Album Artist when available'**
+  String get downloadUseAlbumArtistForFoldersAlbumSubtitle;
 
-  /// Title for downloader mode option
+  /// Subtitle when Track Artist is used for folder naming
   ///
   /// In en, this message translates to:
-  /// **'Downloader'**
-  String get setupModeDownloaderTitle;
-
-  /// Downloader mode feature 1
-  ///
-  /// In en, this message translates to:
-  /// **'Download tracks in lossless FLAC quality'**
-  String get setupModeDownloaderFeature1;
-
-  /// Downloader mode feature 2
-  ///
-  /// In en, this message translates to:
-  /// **'Save music to your device for offline listening'**
-  String get setupModeDownloaderFeature2;
-
-  /// Downloader mode feature 3
-  ///
-  /// In en, this message translates to:
-  /// **'Manage your local music library'**
-  String get setupModeDownloaderFeature3;
-
-  /// Title for streaming mode option
-  ///
-  /// In en, this message translates to:
-  /// **'Streaming'**
-  String get setupModeStreamingTitle;
-
-  /// Streaming mode feature 1
-  ///
-  /// In en, this message translates to:
-  /// **'Stream tracks instantly without downloading'**
-  String get setupModeStreamingFeature1;
-
-  /// Streaming mode feature 2
-  ///
-  /// In en, this message translates to:
-  /// **'Smart Queue auto-discovers new music for you'**
-  String get setupModeStreamingFeature2;
-
-  /// Streaming mode feature 3
-  ///
-  /// In en, this message translates to:
-  /// **'Play any track on demand with playback controls'**
-  String get setupModeStreamingFeature3;
-
-  /// Hint that mode can be changed later
-  ///
-  /// In en, this message translates to:
-  /// **'You can switch between modes anytime in Settings.'**
-  String get setupModeChangeableLater;
+  /// **'Artist folders use Track Artist only'**
+  String get downloadUseAlbumArtistForFoldersTrackSubtitle;
 }
 
 class _AppLocalizationsDelegate
