@@ -532,6 +532,19 @@ class SettingsNotifier extends Notifier<AppSettings> {
     _saveSettings();
   }
 
+  void setLocalLibraryBookmark(String bookmark) {
+    state = state.copyWith(localLibraryBookmark: bookmark);
+    _saveSettings();
+  }
+
+  void setLocalLibraryPathAndBookmark(String path, String bookmark) {
+    state = state.copyWith(
+      localLibraryPath: path,
+      localLibraryBookmark: bookmark,
+    );
+    _saveSettings();
+  }
+
   void setLocalLibraryShowDuplicates(bool show) {
     state = state.copyWith(localLibraryShowDuplicates: show);
     _saveSettings();

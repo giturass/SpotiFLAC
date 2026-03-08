@@ -487,6 +487,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen> {
         },
       ),
       leading: IconButton(
+        tooltip: MaterialLocalizations.of(context).backButtonTooltip,
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -726,6 +727,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen> {
           trailing: _isSelectionMode
               ? null
               : IconButton(
+                  tooltip: 'Play track',
                   onPressed: () => _openFile(track),
                   icon: Icon(Icons.play_arrow, color: colorScheme.primary),
                   style: IconButton.styleFrom(
@@ -950,13 +952,18 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen> {
       return;
     }
 
-    final localLibraryPath = ref.read(settingsProvider).localLibraryPath.trim();
+    final settings = ref.read(settingsProvider);
+    final localLibraryPath = settings.localLibraryPath.trim();
+    final iosBookmark = settings.localLibraryBookmark;
     try {
       if (localLibraryPath.isNotEmpty &&
           !ref.read(localLibraryProvider).isScanning) {
         await ref
             .read(localLibraryProvider.notifier)
-            .startScan(localLibraryPath);
+            .startScan(
+              localLibraryPath,
+              iosBookmark: iosBookmark.isNotEmpty ? iosBookmark : null,
+            );
       } else {
         await ref.read(localLibraryProvider.notifier).reloadFromStorage();
       }
@@ -1447,6 +1454,9 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen> {
                 children: [
                   IconButton.filledTonal(
                     onPressed: _exitSelectionMode,
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).closeButtonTooltip,
                     icon: const Icon(Icons.close),
                     style: IconButton.styleFrom(
                       backgroundColor: colorScheme.surfaceContainerHighest,

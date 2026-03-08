@@ -272,6 +272,7 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
   Future<void> startScan(
     String folderPath, {
     bool forceFullScan = false,
+    String? iosBookmark,
   }) async {
     if (state.isScanning) {
       _log.w('Scan already in progress');
@@ -316,8 +317,27 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
 
     _startProgressPolling();
 
+    // On iOS, start accessing the security-scoped bookmark so the Go backend
+    // can read files outside the app sandbox.
+    String? resolvedPath;
+    bool didStartSecurityAccess = false;
+    if (Platform.isIOS && iosBookmark != null && iosBookmark.isNotEmpty) {
+      resolvedPath =
+          await PlatformBridge.startAccessingIosBookmark(iosBookmark);
+      if (resolvedPath != null) {
+        didStartSecurityAccess = true;
+        _log.i('Started iOS security-scoped access: $resolvedPath');
+      } else {
+        _log.w(
+          'Failed to start iOS security-scoped access, '
+          'falling back to original path',
+        );
+      }
+    }
+    final effectiveFolderPath = resolvedPath ?? folderPath;
+
     try {
-      final isSaf = folderPath.startsWith('content://');
+      final isSaf = effectiveFolderPath.startsWith('content://');
 
       // Get all file paths from download history to exclude them.
       // Merge DB + in-memory state to avoid race when a fresh download has not
@@ -344,8 +364,8 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
       if (forceFullScan) {
         // Full scan path - ignores existing data
         final results = isSaf
-            ? await PlatformBridge.scanSafTree(folderPath)
-            : await PlatformBridge.scanLibraryFolder(folderPath);
+            ? await PlatformBridge.scanSafTree(effectiveFolderPath)
+            : await PlatformBridge.scanLibraryFolder(effectiveFolderPath);
         if (_scanCancelRequested) {
           state = state.copyWith(isScanning: false, scanWasCancelled: true);
           await _showScanCancelledNotification();
@@ -424,12 +444,12 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
         final Map<String, dynamic> result;
         if (isSaf) {
           result = await PlatformBridge.scanSafTreeIncremental(
-            folderPath,
+            effectiveFolderPath,
             existingFiles,
           );
         } else {
           result = await PlatformBridge.scanLibraryFolderIncremental(
-            folderPath,
+            effectiveFolderPath,
             existingFiles,
           );
         }
@@ -553,6 +573,10 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
       state = state.copyWith(isScanning: false, scanWasCancelled: false);
       await _showScanFailedNotification(e.toString());
     } finally {
+      if (didStartSecurityAccess) {
+        await PlatformBridge.stopAccessingIosBookmark();
+        _log.i('Stopped iOS security-scoped access');
+      }
       _stopProgressPolling();
     }
   }
@@ -807,12 +831,26 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
     return decoded;
   }
 
-  Future<int> cleanupMissingFiles() async {
-    final removed = await _db.cleanupMissingFiles();
-    if (removed > 0) {
-      await reloadFromStorage();
+  Future<int> cleanupMissingFiles({String? iosBookmark}) async {
+    bool didStartSecurityAccess = false;
+    if (Platform.isIOS && iosBookmark != null && iosBookmark.isNotEmpty) {
+      final resolved =
+          await PlatformBridge.startAccessingIosBookmark(iosBookmark);
+      if (resolved != null) {
+        didStartSecurityAccess = true;
+      }
     }
-    return removed;
+    try {
+      final removed = await _db.cleanupMissingFiles();
+      if (removed > 0) {
+        await reloadFromStorage();
+      }
+      return removed;
+    } finally {
+      if (didStartSecurityAccess) {
+        await PlatformBridge.stopAccessingIosBookmark();
+      }
+    }
   }
 
   Future<void> clearLibrary() async {

@@ -1155,6 +1155,47 @@ class PlatformBridge {
     await _channel.invokeMethod('cancelLibraryScan');
   }
 
+  // MARK: - iOS Security-Scoped Bookmark
+
+  /// Create a security-scoped bookmark from a filesystem path picked by
+  /// FilePicker on iOS. Must be called while the picker session is still active.
+  /// Returns base64-encoded bookmark data, or null on failure.
+  static Future<String?> createIosBookmarkFromPath(String path) async {
+    try {
+      final result = await _channel.invokeMethod('createIosBookmarkFromPath', {
+        'path': path,
+      });
+      return result as String?;
+    } catch (e) {
+      _log.w('Failed to create iOS bookmark from path: $e');
+      return null;
+    }
+  }
+
+  /// Resolve a base64-encoded iOS security-scoped bookmark and start accessing
+  /// the resource. Returns the resolved filesystem path.
+  /// The resource stays accessed until [stopAccessingIosBookmark] is called.
+  static Future<String?> startAccessingIosBookmark(String bookmark) async {
+    try {
+      final result = await _channel.invokeMethod('startAccessingIosBookmark', {
+        'bookmark': bookmark,
+      });
+      return result as String?;
+    } catch (e) {
+      _log.w('Failed to start accessing iOS bookmark: $e');
+      return null;
+    }
+  }
+
+  /// Stop accessing the currently active iOS security-scoped resource.
+  static Future<void> stopAccessingIosBookmark() async {
+    try {
+      await _channel.invokeMethod('stopAccessingIosBookmark');
+    } catch (e) {
+      _log.w('Failed to stop accessing iOS bookmark: $e');
+    }
+  }
+
   /// Read metadata from a single audio file
   static Future<Map<String, dynamic>?> readAudioMetadata(
     String filePath,

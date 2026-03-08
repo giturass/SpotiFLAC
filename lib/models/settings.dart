@@ -57,6 +57,8 @@ class AppSettings {
 
   final bool localLibraryEnabled; // Enable local library scanning
   final String localLibraryPath; // Path to scan for audio files
+  final String
+  localLibraryBookmark; // Base64-encoded iOS security-scoped bookmark
   final bool
   localLibraryShowDuplicates; // Show indicator when searching for existing tracks
 
@@ -122,6 +124,7 @@ class AppSettings {
     this.songLinkRegion = 'US',
     this.localLibraryEnabled = false,
     this.localLibraryPath = '',
+    this.localLibraryBookmark = '',
     this.localLibraryShowDuplicates = true,
     this.hasCompletedTutorial = false,
     this.lyricsProviders = const [
@@ -185,6 +188,7 @@ class AppSettings {
     String? songLinkRegion,
     bool? localLibraryEnabled,
     String? localLibraryPath,
+    String? localLibraryBookmark,
     bool? localLibraryShowDuplicates,
     bool? hasCompletedTutorial,
     List<String>? lyricsProviders,
@@ -249,6 +253,7 @@ class AppSettings {
       songLinkRegion: songLinkRegion ?? this.songLinkRegion,
       localLibraryEnabled: localLibraryEnabled ?? this.localLibraryEnabled,
       localLibraryPath: localLibraryPath ?? this.localLibraryPath,
+      localLibraryBookmark: localLibraryBookmark ?? this.localLibraryBookmark,
       localLibraryShowDuplicates:
           localLibraryShowDuplicates ?? this.localLibraryShowDuplicates,
       hasCompletedTutorial: hasCompletedTutorial ?? this.hasCompletedTutorial,
