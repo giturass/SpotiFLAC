@@ -343,7 +343,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
         .where((a) => a.albumType == 'album')
         .toList(growable: false);
     _singlesBucket = albums
-        .where((a) => a.albumType == 'single')
+        .where((a) => a.albumType == 'single' || a.albumType == 'ep')
         .toList(growable: false);
     _compilationsBucket = albums
         .where((a) => a.albumType == 'compilation')
@@ -414,6 +414,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                         context.l10n.artistSingles,
                         singles,
                         colorScheme,
+                        showTypeBadge: true,
                       ),
                     ),
                   if (compilations.isNotEmpty)
@@ -1523,8 +1524,9 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
   Widget _buildAlbumSection(
     String title,
     List<ArtistAlbum> albums,
-    ColorScheme colorScheme,
-  ) {
+    ColorScheme colorScheme, {
+    bool showTypeBadge = false,
+  }) {
     final sectionHeight = _artistAlbumSectionHeight();
     final tileSize = _artistAlbumTileSize();
 
@@ -1555,6 +1557,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                   colorScheme,
                   tileSize: tileSize,
                   sectionHeight: sectionHeight,
+                  showTypeBadge: showTypeBadge,
                 ),
               );
             },
@@ -1569,6 +1572,7 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
     ColorScheme colorScheme, {
     required double tileSize,
     required double sectionHeight,
+    bool showTypeBadge = false,
   }) {
     final isSelected = _selectedAlbumIds.contains(album.id);
 
@@ -1679,6 +1683,29 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                                 size: 18,
                               )
                             : null,
+                      ),
+                    ),
+                  if (showTypeBadge)
+                    Positioned(
+                      left: 6,
+                      bottom: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.7),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          album.albumType == 'ep' ? 'EP' : 'Single',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                 ],
