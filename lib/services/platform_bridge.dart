@@ -816,6 +816,22 @@ class PlatformBridge {
     return list.map((e) => e as Map<String, dynamic>).toList();
   }
 
+  static Future<List<Map<String, dynamic>>> searchTracksWithMetadataProviders(
+    String query, {
+    int limit = 20,
+    bool includeExtensions = true,
+  }) async {
+    _log.d(
+      'searchTracksWithMetadataProviders: "$query", includeExtensions=$includeExtensions',
+    );
+    final result = await _channel.invokeMethod(
+      'searchTracksWithMetadataProviders',
+      {'query': query, 'limit': limit, 'include_extensions': includeExtensions},
+    );
+    final list = jsonDecode(result as String) as List<dynamic>;
+    return list.map((e) => e as Map<String, dynamic>).toList();
+  }
+
   static Future<void> cleanupExtensions() async {
     _log.d('cleanupExtensions');
     await _channel.invokeMethod('cleanupExtensions');

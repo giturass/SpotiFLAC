@@ -600,8 +600,30 @@ func (m *ExtensionManager) SearchTracksWithExtensions(query string, limit int) (
 		return nil, nil
 	}
 
-	var allTracks []ExtTrackMetadata
+	providerByID := make(map[string]*ExtensionProviderWrapper, len(providers))
+	orderedProviders := make([]*ExtensionProviderWrapper, 0, len(providers))
 	for _, provider := range providers {
+		providerByID[provider.extension.ID] = provider
+	}
+	for _, providerID := range GetMetadataProviderPriority() {
+		if provider := providerByID[providerID]; provider != nil {
+			orderedProviders = append(orderedProviders, provider)
+			delete(providerByID, providerID)
+		}
+	}
+	if len(providerByID) > 0 {
+		remainingIDs := make([]string, 0, len(providerByID))
+		for providerID := range providerByID {
+			remainingIDs = append(remainingIDs, providerID)
+		}
+		sort.Strings(remainingIDs)
+		for _, providerID := range remainingIDs {
+			orderedProviders = append(orderedProviders, providerByID[providerID])
+		}
+	}
+
+	var allTracks []ExtTrackMetadata
+	for _, provider := range orderedProviders {
 		result, err := provider.SearchTracks(query, limit)
 		if err != nil {
 			GoLog("[Extension] Search error from %s: %v\n", provider.extension.ID, err)
@@ -620,6 +642,8 @@ var providerPriorityMu sync.RWMutex
 
 var metadataProviderPriority []string
 var metadataProviderPriorityMu sync.RWMutex
+
+var searchBuiltInMetadataTracksFunc = searchBuiltInMetadataTracks
 
 func SetProviderPriority(providerIDs []string) {
 	providerPriorityMu.Lock()
@@ -645,7 +669,7 @@ func SetMetadataProviderPriority(providerIDs []string) {
 	metadataProviderPriorityMu.Lock()
 	defer metadataProviderPriorityMu.Unlock()
 
-	sanitized := make([]string, 0, len(providerIDs)+1)
+	sanitized := make([]string, 0, len(providerIDs)+3)
 	seen := map[string]struct{}{}
 	for _, providerID := range providerIDs {
 		providerID = strings.TrimSpace(providerID)
@@ -658,8 +682,12 @@ func SetMetadataProviderPriority(providerIDs []string) {
 		seen[providerID] = struct{}{}
 		sanitized = append(sanitized, providerID)
 	}
-	if _, exists := seen["deezer"]; !exists {
-		sanitized = append([]string{"deezer"}, sanitized...)
+	for _, providerID := range []string{"deezer", "qobuz", "tidal"} {
+		if _, exists := seen[providerID]; exists {
+			continue
+		}
+		seen[providerID] = struct{}{}
+		sanitized = append(sanitized, providerID)
 	}
 
 	metadataProviderPriority = sanitized
@@ -671,7 +699,7 @@ func GetMetadataProviderPriority() []string {
 	defer metadataProviderPriorityMu.RUnlock()
 
 	if len(metadataProviderPriority) == 0 {
-		return []string{"deezer"}
+		return []string{"deezer", "qobuz", "tidal"}
 	}
 
 	result := make([]string, len(metadataProviderPriority))
@@ -686,6 +714,165 @@ func isBuiltInProvider(providerID string) bool {
 	default:
 		return false
 	}
+}
+
+func normalizeBuiltInMetadataTrack(track TrackMetadata, providerID string) ExtTrackMetadata {
+	deezerID := ""
+	tidalID := ""
+	qobuzID := ""
+	prefixedID := strings.TrimSpace(track.SpotifyID)
+
+	switch providerID {
+	case "deezer":
+		deezerID = strings.TrimPrefix(prefixedID, "deezer:")
+	case "tidal":
+		tidalID = strings.TrimPrefix(prefixedID, "tidal:")
+	case "qobuz":
+		qobuzID = strings.TrimPrefix(prefixedID, "qobuz:")
+	}
+
+	return ExtTrackMetadata{
+		ID:          prefixedID,
+		Name:        track.Name,
+		Artists:     track.Artists,
+		AlbumName:   track.AlbumName,
+		AlbumArtist: track.AlbumArtist,
+		DurationMS:  track.DurationMS,
+		CoverURL:    track.Images,
+		Images:      track.Images,
+		ReleaseDate: track.ReleaseDate,
+		TrackNumber: track.TrackNumber,
+		DiscNumber:  track.DiscNumber,
+		ISRC:        track.ISRC,
+		ProviderID:  providerID,
+		SpotifyID:   prefixedID,
+		DeezerID:    deezerID,
+		TidalID:     tidalID,
+		QobuzID:     qobuzID,
+		AlbumType:   track.AlbumType,
+	}
+}
+
+func metadataTrackDedupKey(track ExtTrackMetadata) string {
+	if isrc := strings.TrimSpace(track.ISRC); isrc != "" {
+		return "isrc:" + strings.ToUpper(isrc)
+	}
+	if spotifyID := strings.TrimSpace(track.SpotifyID); spotifyID != "" {
+		return "spotify:" + spotifyID
+	}
+	if providerID := strings.TrimSpace(track.ProviderID); providerID != "" && strings.TrimSpace(track.ID) != "" {
+		return providerID + ":" + strings.TrimSpace(track.ID)
+	}
+	return strings.TrimSpace(track.Name) + "|" + strings.TrimSpace(track.Artists)
+}
+
+func searchBuiltInMetadataTracks(providerID, query string, limit int) ([]ExtTrackMetadata, error) {
+	switch providerID {
+	case "deezer":
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+
+		results, err := GetDeezerClient().SearchAll(ctx, query, limit, 0, "track")
+		if err != nil {
+			return nil, err
+		}
+
+		tracks := make([]ExtTrackMetadata, 0, len(results.Tracks))
+		for _, track := range results.Tracks {
+			tracks = append(tracks, normalizeBuiltInMetadataTrack(track, "deezer"))
+		}
+		return tracks, nil
+	case "qobuz":
+		return NewQobuzDownloader().SearchTracks(query, limit)
+	case "tidal":
+		return NewTidalDownloader().SearchTracks(query, limit)
+	default:
+		return nil, fmt.Errorf("unsupported built-in metadata provider: %s", providerID)
+	}
+}
+
+func (m *ExtensionManager) SearchTracksWithMetadataProviders(query string, limit int, includeExtensions bool) ([]ExtTrackMetadata, error) {
+	priority := GetMetadataProviderPriority()
+	if limit <= 0 {
+		limit = 20
+	}
+
+	extensionProviders := make(map[string]*ExtensionProviderWrapper)
+	if includeExtensions {
+		for _, provider := range m.GetMetadataProviders() {
+			extensionProviders[provider.extension.ID] = provider
+		}
+	}
+
+	orderedProviderIDs := make([]string, 0, len(priority)+len(extensionProviders))
+	seenProviderIDs := make(map[string]struct{}, len(priority)+len(extensionProviders))
+	for _, providerID := range priority {
+		providerID = strings.TrimSpace(providerID)
+		if providerID == "" {
+			continue
+		}
+		orderedProviderIDs = append(orderedProviderIDs, providerID)
+		seenProviderIDs[providerID] = struct{}{}
+	}
+	if includeExtensions {
+		remainingIDs := make([]string, 0, len(extensionProviders))
+		for providerID := range extensionProviders {
+			if _, exists := seenProviderIDs[providerID]; exists {
+				continue
+			}
+			remainingIDs = append(remainingIDs, providerID)
+		}
+		sort.Strings(remainingIDs)
+		orderedProviderIDs = append(orderedProviderIDs, remainingIDs...)
+	}
+
+	tracks := make([]ExtTrackMetadata, 0, limit)
+	seenTracks := make(map[string]struct{})
+	for _, providerID := range orderedProviderIDs {
+		var (
+			providerTracks []ExtTrackMetadata
+			err            error
+		)
+
+		if isBuiltInProvider(providerID) {
+			providerTracks, err = searchBuiltInMetadataTracksFunc(providerID, query, limit)
+		} else {
+			if !includeExtensions {
+				continue
+			}
+			provider := extensionProviders[providerID]
+			if provider == nil {
+				continue
+			}
+			var result *ExtSearchResult
+			result, err = provider.SearchTracks(query, limit)
+			if result != nil {
+				providerTracks = result.Tracks
+			}
+		}
+
+		if err != nil {
+			GoLog("[MetadataSearch] Search error from %s: %v\n", providerID, err)
+			continue
+		}
+
+		for _, track := range providerTracks {
+			key := metadataTrackDedupKey(track)
+			if key == "" {
+				continue
+			}
+			if _, exists := seenTracks[key]; exists {
+				continue
+			}
+			seenTracks[key] = struct{}{}
+			tracks = append(tracks, track)
+			if len(tracks) >= limit {
+				return tracks, nil
+			}
+		}
+	}
+
+	return tracks, nil
 }
 
 func DownloadWithExtensionFallback(req DownloadRequest) (*DownloadResponse, error) {

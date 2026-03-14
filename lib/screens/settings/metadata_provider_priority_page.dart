@@ -228,6 +228,20 @@ class _MetadataProviderItem extends StatelessWidget {
           description: context.l10n.metadataNoRateLimits,
           isBuiltIn: true,
         );
+      case 'qobuz':
+        return _MetadataProviderInfo(
+          name: 'Qobuz',
+          icon: Icons.library_music,
+          description: context.l10n.providerBuiltIn,
+          isBuiltIn: true,
+        );
+      case 'tidal':
+        return _MetadataProviderInfo(
+          name: 'Tidal',
+          icon: Icons.music_note,
+          description: context.l10n.providerBuiltIn,
+          isBuiltIn: true,
+        );
       default:
         return _MetadataProviderInfo(
           name: provider,

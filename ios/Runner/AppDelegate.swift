@@ -623,6 +623,20 @@ import Gobackend  // Import Go framework
             let response = GobackendSearchTracksWithExtensionsJSON(query, Int(limit), &error)
             if let error = error { throw error }
             return response
+
+        case "searchTracksWithMetadataProviders":
+            let args = call.arguments as! [String: Any]
+            let query = args["query"] as! String
+            let limit = args["limit"] as? Int ?? 20
+            let includeExtensions = args["include_extensions"] as? Bool ?? true
+            let response = GobackendSearchTracksWithMetadataProvidersJSON(
+                query,
+                Int(limit),
+                includeExtensions,
+                &error
+            )
+            if let error = error { throw error }
+            return response
             
         case "enrichTrackWithExtension":
             let args = call.arguments as! [String: Any]

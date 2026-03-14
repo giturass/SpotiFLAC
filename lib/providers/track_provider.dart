@@ -637,41 +637,31 @@ class TrackNotifier extends Notifier<TrackState> {
       final hasActiveMetadataExtensions = extensionState.extensions.any(
         (e) => e.enabled && e.hasMetadataProvider,
       );
-      final searchProvider = settings.searchProvider;
-      final useExtensions =
-          settings.useExtensionProviders &&
-          hasActiveMetadataExtensions &&
-          searchProvider != null &&
-          searchProvider.isNotEmpty;
-
-      const source = 'deezer';
+      final includeExtensions =
+          settings.useExtensionProviders && hasActiveMetadataExtensions;
 
       _log.i(
-        'Search started: source=$source, query="$query", useExtensions=$useExtensions, filter=$currentFilter',
+        'Search started: metadataProviders, query="$query", includeExtensions=$includeExtensions, filter=$currentFilter',
       );
 
       Map<String, dynamic> results;
-      List<Track> extensionTracks = [];
+      List<Map<String, dynamic>> metadataTrackResults = [];
 
-      if (useExtensions) {
-        try {
-          _log.d('Calling extension search API...');
-          final extResults = await PlatformBridge.searchTracksWithExtensions(
-            query,
-            limit: 20,
-          );
-          _log.i('Extensions returned ${extResults.length} tracks');
-
-          for (final t in extResults) {
-            try {
-              extensionTracks.add(_parseSearchTrack(t));
-            } catch (e) {
-              _log.e('Failed to parse extension track: $e', e);
-            }
-          }
-        } catch (e) {
-          _log.w('Extension search failed, falling back to Deezer: $e');
-        }
+      try {
+        _log.d('Calling metadata provider search API...');
+        metadataTrackResults =
+            await PlatformBridge.searchTracksWithMetadataProviders(
+              query,
+              limit: 20,
+              includeExtensions: includeExtensions,
+            );
+        _log.i(
+          'Metadata providers returned ${metadataTrackResults.length} tracks',
+        );
+      } catch (e) {
+        _log.w(
+          'Metadata provider search failed, falling back to Deezer tracks: $e',
+        );
       }
 
       _log.d('Calling Deezer search API...');
@@ -693,32 +683,20 @@ class TrackNotifier extends Notifier<TrackState> {
       final trackList = results['tracks'] as List<dynamic>? ?? [];
       final artistList = results['artists'] as List<dynamic>? ?? [];
       final albumList = results['albums'] as List<dynamic>? ?? [];
+      final trackSearchResults = metadataTrackResults.isNotEmpty
+          ? metadataTrackResults
+          : trackList.whereType<Map<String, dynamic>>().toList();
 
       _log.d(
-        'Raw results: ${trackList.length} tracks, ${artistList.length} artists, ${albumList.length} albums',
+        'Raw results: ${trackSearchResults.length} tracks, ${artistList.length} artists, ${albumList.length} albums',
       );
 
       final tracks = <Track>[];
 
-      tracks.addAll(extensionTracks);
-
-      final existingIsrcs = extensionTracks
-          .where((t) => t.isrc != null && t.isrc!.isNotEmpty)
-          .map((t) => t.isrc!)
-          .toSet();
-
-      for (int i = 0; i < trackList.length; i++) {
-        final t = trackList[i];
+      for (int i = 0; i < trackSearchResults.length; i++) {
+        final t = trackSearchResults[i];
         try {
-          if (t is Map<String, dynamic>) {
-            final track = _parseSearchTrack(t);
-            if (track.isrc != null && existingIsrcs.contains(track.isrc)) {
-              continue;
-            }
-            tracks.add(track);
-          } else {
-            _log.w('Track[$i] is not a Map: ${t.runtimeType}');
-          }
+          tracks.add(_parseSearchTrack(t));
         } catch (e) {
           _log.e('Failed to parse track[$i]: $e', e);
         }
@@ -768,7 +746,7 @@ class TrackNotifier extends Notifier<TrackState> {
       }
 
       _log.i(
-        'Search complete: ${tracks.length} tracks (${extensionTracks.length} from extensions), ${artists.length} artists, ${albums.length} albums, ${playlists.length} playlists parsed successfully',
+        'Search complete: ${tracks.length} tracks, ${artists.length} artists, ${albums.length} albums, ${playlists.length} playlists parsed successfully',
       );
 
       state = TrackState(

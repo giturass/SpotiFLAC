@@ -208,6 +208,13 @@ type tidalPublicPlaylistItemsPage struct {
 	} `json:"items"`
 }
 
+type tidalPublicTrackSearchResponse struct {
+	Limit              int          `json:"limit"`
+	Offset             int          `json:"offset"`
+	TotalNumberOfItems int          `json:"totalNumberOfItems"`
+	Items              []TidalTrack `json:"items"`
+}
+
 func NewTidalDownloader() *TidalDownloader {
 	tidalDownloaderOnce.Do(func() {
 		globalTidalDownloader = &TidalDownloader{
@@ -590,6 +597,30 @@ func (t *TidalDownloader) getPlaylistItemsPage(resourceID string, offset, limit 
 	return &page, nil
 }
 
+func (t *TidalDownloader) getTrackSearchPage(query string, limit int) (*tidalPublicTrackSearchResponse, error) {
+	cleanQuery := strings.TrimSpace(query)
+	if cleanQuery == "" {
+		return nil, fmt.Errorf("empty tidal search query")
+	}
+	if limit <= 0 {
+		limit = 20
+	}
+
+	requestURL := tidalBuildMetadataURL(
+		"search/tracks",
+		url.Values{
+			"query":  {cleanQuery},
+			"limit":  {strconv.Itoa(limit)},
+			"offset": {"0"},
+		},
+	)
+	var page tidalPublicTrackSearchResponse
+	if err := t.getTidalMetadataJSON(requestURL, &page); err != nil {
+		return nil, err
+	}
+	return &page, nil
+}
+
 func findTidalAlbumPageModule(page *tidalPublicAlbumPage, moduleType string) *struct {
 	Type      string           `json:"type"`
 	Album     tidalPublicAlbum `json:"album"`
@@ -736,6 +767,19 @@ func (t *TidalDownloader) SearchTrackByMetadataWithISRC(trackName, artistName, a
 
 func (t *TidalDownloader) SearchTrackByMetadata(trackName, artistName string) (*TidalTrack, error) {
 	return nil, fmt.Errorf("tidal metadata search API disabled: no client credentials mode")
+}
+
+func (t *TidalDownloader) SearchTracks(query string, limit int) ([]ExtTrackMetadata, error) {
+	page, err := t.getTrackSearchPage(query, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]ExtTrackMetadata, 0, len(page.Items))
+	for i := range page.Items {
+		results = append(results, normalizeBuiltInMetadataTrack(tidalTrackToTrackMetadata(&page.Items[i]), "tidal"))
+	}
+	return results, nil
 }
 
 func (t *TidalDownloader) GetTrackMetadata(resourceID string) (*TrackResponse, error) {

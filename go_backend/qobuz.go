@@ -1278,6 +1278,27 @@ func (q *QobuzDownloader) SearchTrackByMetadata(trackName, artistName string) (*
 	return q.SearchTrackByMetadataWithDuration(trackName, artistName, 0)
 }
 
+func (q *QobuzDownloader) SearchTracks(query string, limit int) ([]ExtTrackMetadata, error) {
+	cleanQuery := strings.TrimSpace(query)
+	if cleanQuery == "" {
+		return nil, fmt.Errorf("empty qobuz search query")
+	}
+	if limit <= 0 {
+		limit = 20
+	}
+
+	tracks, err := q.searchQobuzTracksWithFallback(cleanQuery, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]ExtTrackMetadata, 0, len(tracks))
+	for i := range tracks {
+		results = append(results, normalizeBuiltInMetadataTrack(qobuzTrackToTrackMetadata(&tracks[i]), "qobuz"))
+	}
+	return results, nil
+}
+
 func (q *QobuzDownloader) SearchTrackByMetadataWithDuration(trackName, artistName string, expectedDurationSec int) (*QobuzTrack, error) {
 	queries := []string{}
 

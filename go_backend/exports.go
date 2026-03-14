@@ -1753,79 +1753,54 @@ func ReEnrichFile(requestJSON string) (string, error) {
 
 	GoLog("[ReEnrich] Starting re-enrichment for: %s\n", req.FilePath)
 
-	// When search_online is true, search for metadata from internet.
-	// Priority: 1) Deezer (reliable, no credentials) 2) Extension providers (spotify-web etc)
+	// When search_online is true, search for metadata from internet using the
+	// configured metadata-provider priority.
 	if req.SearchOnline && req.TrackName != "" && req.ArtistName != "" {
 		GoLog("[ReEnrich] Searching online metadata for: %s - %s\n", req.TrackName, req.ArtistName)
 		searchQuery := req.TrackName + " " + req.ArtistName
 		found := false
 
-		// 1) Try Deezer first (reliable, no credentials needed)
-		GoLog("[ReEnrich] Trying Deezer search...\n")
 		deezerClient := GetDeezerClient()
-		{
-			ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-			deezerResults, err := deezerClient.SearchAll(ctx, searchQuery, 5, 0, "track")
-			cancel()
-			if err == nil && len(deezerResults.Tracks) > 0 {
-				track := deezerResults.Tracks[0]
-				GoLog("[ReEnrich] Deezer match: %s - %s (album: %s)\n", track.Name, track.Artists, track.AlbumName)
-				req.SpotifyID = "deezer:" + track.SpotifyID
-				req.AlbumName = track.AlbumName
-				req.AlbumArtist = track.AlbumArtist
-				req.TrackNumber = track.TrackNumber
-				req.DiscNumber = track.DiscNumber
-				req.ReleaseDate = track.ReleaseDate
-				req.ISRC = track.ISRC
-				if track.Images != "" {
-					req.CoverURL = track.Images
-				}
-				req.DurationMs = int64(track.DurationMS)
-				found = true
-			} else if err != nil {
-				GoLog("[ReEnrich] Deezer search failed: %v\n", err)
+		GoLog("[ReEnrich] Trying metadata providers in configured priority...\n")
+		manager := GetExtensionManager()
+		tracks, searchErr := manager.SearchTracksWithMetadataProviders(searchQuery, 5, true)
+		if searchErr == nil && len(tracks) > 0 {
+			track := tracks[0]
+			GoLog("[ReEnrich] Metadata match (%s): %s - %s (album: %s)\n", track.ProviderID, track.Name, track.Artists, track.AlbumName)
+			if track.SpotifyID != "" {
+				req.SpotifyID = track.SpotifyID
+			} else if track.DeezerID != "" {
+				req.SpotifyID = "deezer:" + track.DeezerID
+			} else if track.QobuzID != "" {
+				req.SpotifyID = "qobuz:" + track.QobuzID
+			} else if track.TidalID != "" {
+				req.SpotifyID = "tidal:" + track.TidalID
+			} else {
+				req.SpotifyID = track.ID
 			}
-		}
-
-		// 2) Try extension metadata providers (spotify-web etc) if Deezer failed
-		if !found {
-			GoLog("[ReEnrich] Trying extension metadata providers...\n")
-			manager := GetExtensionManager()
-			extTracks, extErr := manager.SearchTracksWithExtensions(searchQuery, 5)
-			if extErr == nil && len(extTracks) > 0 {
-				track := extTracks[0]
-				GoLog("[ReEnrich] Extension match (%s): %s - %s (album: %s)\n", track.ProviderID, track.Name, track.Artists, track.AlbumName)
-				if track.SpotifyID != "" {
-					req.SpotifyID = track.SpotifyID
-				} else if track.DeezerID != "" {
-					req.SpotifyID = "deezer:" + track.DeezerID
-				} else {
-					req.SpotifyID = track.ID
-				}
-				req.AlbumName = track.AlbumName
-				req.AlbumArtist = track.AlbumArtist
-				req.TrackNumber = track.TrackNumber
-				req.DiscNumber = track.DiscNumber
-				req.ReleaseDate = track.ReleaseDate
-				req.ISRC = track.ISRC
-				coverURL := track.ResolvedCoverURL()
-				if coverURL != "" {
-					req.CoverURL = coverURL
-				}
-				req.DurationMs = int64(track.DurationMS)
-				if track.Genre != "" {
-					req.Genre = track.Genre
-				}
-				if track.Label != "" {
-					req.Label = track.Label
-				}
-				if track.Copyright != "" {
-					req.Copyright = track.Copyright
-				}
-				found = true
-			} else if extErr != nil {
-				GoLog("[ReEnrich] Extension search failed: %v\n", extErr)
+			req.AlbumName = track.AlbumName
+			req.AlbumArtist = track.AlbumArtist
+			req.TrackNumber = track.TrackNumber
+			req.DiscNumber = track.DiscNumber
+			req.ReleaseDate = track.ReleaseDate
+			req.ISRC = track.ISRC
+			coverURL := track.ResolvedCoverURL()
+			if coverURL != "" {
+				req.CoverURL = coverURL
 			}
+			req.DurationMs = int64(track.DurationMS)
+			if track.Genre != "" {
+				req.Genre = track.Genre
+			}
+			if track.Label != "" {
+				req.Label = track.Label
+			}
+			if track.Copyright != "" {
+				req.Copyright = track.Copyright
+			}
+			found = true
+		} else if searchErr != nil {
+			GoLog("[ReEnrich] Metadata provider search failed: %v\n", searchErr)
 		}
 
 		// Try to get extended metadata (genre, label) from Deezer if not already set
@@ -2215,6 +2190,21 @@ func SetExtensionSettingsJSON(extensionID, settingsJSON string) error {
 func SearchTracksWithExtensionsJSON(query string, limit int) (string, error) {
 	manager := GetExtensionManager()
 	tracks, err := manager.SearchTracksWithExtensions(query, limit)
+	if err != nil {
+		return "", err
+	}
+
+	jsonBytes, err := json.Marshal(tracks)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
+func SearchTracksWithMetadataProvidersJSON(query string, limit int, includeExtensions bool) (string, error) {
+	manager := GetExtensionManager()
+	tracks, err := manager.SearchTracksWithMetadataProviders(query, limit, includeExtensions)
 	if err != nil {
 		return "", err
 	}

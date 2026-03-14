@@ -2878,6 +2878,15 @@ class MainActivity: FlutterFragmentActivity() {
                             }
                             result.success(response)
                         }
+                        "searchTracksWithMetadataProviders" -> {
+                            val query = call.argument<String>("query") ?: ""
+                            val limit = call.argument<Int>("limit") ?: 20
+                            val includeExtensions = call.argument<Boolean>("include_extensions") ?: true
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.searchTracksWithMetadataProvidersJSON(query, limit.toLong(), includeExtensions)
+                            }
+                            result.success(response)
+                        }
                         "enrichTrackWithExtension" -> {
                             val extensionId = call.argument<String>("extension_id") ?: ""
                             val trackJson = call.argument<String>("track") ?: "{}"

@@ -892,7 +892,7 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
   }
 
   List<String> getAllMetadataProviders() {
-    final providers = ['deezer'];
+    final providers = ['deezer', 'qobuz', 'tidal'];
     for (final ext in state.extensions) {
       if (ext.enabled && ext.hasMetadataProvider) {
         providers.add(ext.id);
@@ -911,8 +911,10 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
       }
     }
 
-    if (!result.contains('deezer')) {
-      result.insert(0, 'deezer');
+    for (final provider in const ['deezer', 'qobuz', 'tidal']) {
+      if (!result.contains(provider)) {
+        result.add(provider);
+      }
     }
 
     return result;
