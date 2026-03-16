@@ -269,22 +269,19 @@ class _StoreTabState extends ConsumerState<StoreTab> {
                 ),
 
                 SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SettingsGroup(
-                      children: filteredExtensions.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final ext = entry.value;
-                        return _ExtensionItem(
-                          extension: ext,
-                          showDivider: index < filteredExtensions.length - 1,
-                          isDownloading: downloadingId == ext.id,
-                          onInstall: () => _installExtension(ext),
-                          onUpdate: () => _updateExtension(ext),
-                          onTap: () => _showExtensionDetails(ext),
-                        );
-                      }).toList(),
-                    ),
+                  child: SettingsGroup(
+                    children: filteredExtensions.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final ext = entry.value;
+                      return _ExtensionItem(
+                        extension: ext,
+                        showDivider: index < filteredExtensions.length - 1,
+                        isDownloading: downloadingId == ext.id,
+                        onInstall: () => _installExtension(ext),
+                        onUpdate: () => _updateExtension(ext),
+                        onTap: () => _showExtensionDetails(ext),
+                      );
+                    }).toList(),
                   ),
                 ),
 
