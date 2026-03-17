@@ -872,12 +872,54 @@ class _LibraryTracksFolderScreenState
 
   void _downloadAll(List<Track> tracks) {
     if (tracks.isEmpty) return;
+    final historyState = ref.read(downloadHistoryProvider);
     final settings = ref.read(settingsProvider);
-    final playlistName = widget.mode == LibraryTracksFolderMode.playlist ? playlist?.name ?? context.l10n.collectionPlaylist : null;
+    final localLibState =
+        (settings.localLibraryEnabled && settings.localLibraryShowDuplicates)
+        ? ref.read(localLibraryProvider)
+        : null;
+    final playlistName = widget.mode == LibraryTracksFolderMode.playlist
+        ? playlist?.name ?? context.l10n.collectionPlaylist
+        : null;
+    final tracksToQueue = <Track>[];
+    var skippedCount = 0;
+
+    for (final track in tracks) {
+      final isInHistory =
+          historyState.isDownloaded(track.id) ||
+          (track.isrc != null && historyState.getByIsrc(track.isrc!) != null) ||
+          historyState.findByTrackAndArtist(track.name, track.artistName) !=
+              null;
+      final isInLocal =
+          localLibState?.existsInLibrary(
+            isrc: track.isrc,
+            trackName: track.name,
+            artistName: track.artistName,
+          ) ??
+          false;
+
+      if (isInHistory || isInLocal) {
+        skippedCount++;
+      } else {
+        tracksToQueue.add(track);
+      }
+    }
+
+    if (tracksToQueue.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            context.l10n.discographySkippedDownloaded(0, skippedCount),
+          ),
+        ),
+      );
+      return;
+    }
+
     if (settings.askQualityBeforeDownload) {
       DownloadServicePicker.show(
         context,
-        trackName: '${tracks.length} tracks',
+        trackName: '${tracksToQueue.length} tracks',
         artistName: switch (widget.mode) {
           LibraryTracksFolderMode.wishlist => context.l10n.collectionWishlist,
           LibraryTracksFolderMode.loved => context.l10n.collectionLoved,
@@ -886,12 +928,24 @@ class _LibraryTracksFolderScreenState
         onSelect: (quality, service) {
           ref
               .read(downloadQueueProvider.notifier)
-              .addMultipleToQueue(tracks, service, qualityOverride: quality, playlistName: playlistName);
+              .addMultipleToQueue(
+                tracksToQueue,
+                service,
+                qualityOverride: quality,
+                playlistName: playlistName,
+              );
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                context.l10n.snackbarAddedTracksToQueue(tracks.length),
+                skippedCount > 0
+                    ? context.l10n.discographySkippedDownloaded(
+                        tracksToQueue.length,
+                        skippedCount,
+                      )
+                    : context.l10n.snackbarAddedTracksToQueue(
+                        tracksToQueue.length,
+                      ),
               ),
             ),
           );
@@ -900,10 +954,21 @@ class _LibraryTracksFolderScreenState
     } else {
       ref
           .read(downloadQueueProvider.notifier)
-          .addMultipleToQueue(tracks, settings.defaultService, playlistName: playlistName);
+          .addMultipleToQueue(
+            tracksToQueue,
+            settings.defaultService,
+            playlistName: playlistName,
+          );
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(context.l10n.snackbarAddedTracksToQueue(tracks.length)),
+          content: Text(
+            skippedCount > 0
+                ? context.l10n.discographySkippedDownloaded(
+                    tracksToQueue.length,
+                    skippedCount,
+                  )
+                : context.l10n.snackbarAddedTracksToQueue(tracksToQueue.length),
+          ),
         ),
       );
     }
