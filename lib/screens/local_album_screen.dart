@@ -1751,18 +1751,18 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen> {
 
               Row(
                 children: [
-                  Expanded(
-                    child: _LocalAlbumSelectionActionButton(
-                      icon: Icons.download_for_offline_outlined,
-                      label:
-                          '${context.l10n.queueFlacAction} ($flacEligibleCount)',
-                      onPressed: flacEligibleCount > 0
-                          ? () => _queueSelectedAsFlac(tracks)
-                          : null,
-                      colorScheme: colorScheme,
+                  if (flacEligibleCount > 0) ...[
+                    Expanded(
+                      child: _LocalAlbumSelectionActionButton(
+                        icon: Icons.download_for_offline_outlined,
+                        label:
+                            '${context.l10n.queueFlacAction} ($flacEligibleCount)',
+                        onPressed: () => _queueSelectedAsFlac(tracks),
+                        colorScheme: colorScheme,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
+                    const SizedBox(width: 8),
+                  ],
                   Expanded(
                     child: _LocalAlbumSelectionActionButton(
                       icon: Icons.auto_fix_high_outlined,

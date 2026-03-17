@@ -5472,15 +5472,13 @@ class _QueueTabState extends ConsumerState<QueueTab> {
               // Action buttons row: Share/Re-enrich, Convert, Delete
               Row(
                 children: [
-                  if (localOnlySelection) ...[
+                  if (localOnlySelection && flacEligibleCount > 0) ...[
                     Expanded(
                       child: _SelectionActionButton(
                         icon: Icons.download_for_offline_outlined,
                         label:
                             '${context.l10n.queueFlacAction} ($flacEligibleCount)',
-                        onPressed: flacEligibleCount > 0
-                            ? () => _queueSelectedLocalAsFlac(unifiedItems)
-                            : null,
+                        onPressed: () => _queueSelectedLocalAsFlac(unifiedItems),
                         colorScheme: colorScheme,
                       ),
                     ),
