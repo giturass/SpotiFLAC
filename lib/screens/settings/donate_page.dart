@@ -164,7 +164,7 @@ class _RecentDonorsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    const donorNames = <String>['micahRichie', 'a fan', 'mc nuggets jimmy', 'CJBGR', 'zcc09'];
+    const donorNames = <String>['McNuggets Jimmy', 'micahRichie', 'a fan', 'CJBGR', 'zcc09'];
 
     // Match SettingsGroup color logic
     final cardColor = isDark
@@ -480,7 +480,7 @@ int _cr(String v) {
 }
 
 // Highlighted supporters (hashes of names).
-const _cv = <int>{1211573191, 1003219236};
+const _cv = <int>{1211573191, 1003219236, 560908930};
 
 class _SupporterChip extends StatelessWidget {
   final String name;
