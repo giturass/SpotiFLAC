@@ -450,7 +450,7 @@
   "@aboutSpotiSaverDesc": {
     "description": "Credit for SpotiSaver API"
   },
-  "aboutAppDescription": "Download Spotify tracks in lossless quality from Tidal and Qobuz.",
+  "aboutAppDescription": "Скачивайте треки Spotify в lossless качестве с Tidal и Qobuz.",
   "@aboutAppDescription": {
     "description": "App description in header card"
   },
@@ -897,15 +897,15 @@
   "@errorNoTracksFound": {
     "description": "Error - search returned no results"
   },
-  "errorUrlNotRecognized": "Link not recognized",
+  "errorUrlNotRecognized": "Ссылка не распознана",
   "@errorUrlNotRecognized": {
     "description": "Error title - URL not handled by any extension or service"
   },
-  "errorUrlNotRecognizedMessage": "This link is not supported. Make sure the URL is correct and a compatible extension is installed.",
+  "errorUrlNotRecognizedMessage": "Эта ссылка не поддерживается. Убедитесь, что URL-адрес указан правильно и установлено совместимое расширение.",
   "@errorUrlNotRecognizedMessage": {
     "description": "Error message - URL not recognized explanation"
   },
-  "errorUrlFetchFailed": "Failed to load content from this link. Please try again.",
+  "errorUrlFetchFailed": "Не удалось загрузить контент по этой ссылке. Пожалуйста, попробуйте еще раз.",
   "@errorUrlFetchFailed": {
     "description": "Error message - generic URL fetch failure"
   },
@@ -1015,11 +1015,11 @@
   "@folderOrganizationNone": {
     "description": "Folder option - flat structure"
   },
-  "folderOrganizationByPlaylist": "By Playlist",
+  "folderOrganizationByPlaylist": "По плейлисту",
   "@folderOrganizationByPlaylist": {
     "description": "Folder option - playlist folders"
   },
-  "folderOrganizationByPlaylistSubtitle": "Separate folder for each playlist",
+  "folderOrganizationByPlaylistSubtitle": "Отдельная папка для каждого плейлиста",
   "@folderOrganizationByPlaylistSubtitle": {
     "description": "Subtitle for playlist folder option"
   },
@@ -1809,7 +1809,7 @@
   "@downloadUsePrimaryArtistOnly": {
     "description": "Setting - strip featured artists from folder name"
   },
-  "downloadUsePrimaryArtistOnlyEnabled": "Featured artists removed from folder name (e.g. Justin Bieber, Quavo → Justin Bieber)",
+  "downloadUsePrimaryArtistOnlyEnabled": "Список исполнителей, чьи работы были удалены из названия папки (например, Джастин Бибер, Quavo → Джастин Бибер)",
   "@downloadUsePrimaryArtistOnlyEnabled": {
     "description": "Subtitle when primary artist only is enabled"
   },
@@ -2403,7 +2403,7 @@
   "@tutorialWelcomeTip1": {
     "description": "Tutorial welcome tip 1"
   },
-  "tutorialWelcomeTip2": "Get FLAC quality audio from Tidal, Qobuz, or Deezer",
+  "tutorialWelcomeTip2": "Получите аудио в качестве FLAC от Tidal, Qobuz или Deezer",
   "@tutorialWelcomeTip2": {
     "description": "Tutorial welcome tip 2"
   },
@@ -2507,7 +2507,7 @@
   "@cleanupOrphanedDownloadsSubtitle": {
     "description": "Subtitle for orphaned cleanup button"
   },
-  "cleanupOrphanedDownloadsResult": "Removed {count} orphaned entries from history",
+  "cleanupOrphanedDownloadsResult": "Удалено {count} утерянных записей из истории",
   "@cleanupOrphanedDownloadsResult": {
     "description": "Snackbar after orphan cleanup",
     "placeholders": {
@@ -2545,7 +2545,7 @@
   "@cacheSectionStorage": {
     "description": "Section header for cache entries"
   },
-  "cacheSectionMaintenance": "Maintenance",
+  "cacheSectionMaintenance": "Обслуживание",
   "@cacheSectionMaintenance": {
     "description": "Section header for cleanup actions"
   },
@@ -2597,7 +2597,7 @@
   "@cacheTrackLookupDesc": {
     "description": "Description of what track lookup cache contains"
   },
-  "cacheCleanupUnusedDesc": "Remove orphaned download history and library entries for missing files.",
+  "cacheCleanupUnusedDesc": "Удалить записи из истории загрузок и библиотеки, которые остались без файлов.",
   "@cacheCleanupUnusedDesc": {
     "description": "Description of what cleanup unused data does"
   },
@@ -2673,7 +2673,7 @@
   "@cacheCleanupUnused": {
     "description": "Action title for cleaning unused entries"
   },
-  "cacheCleanupUnusedSubtitle": "Remove orphaned download history and missing library entries",
+  "cacheCleanupUnusedSubtitle": "Удалить историю загрузок, оставшихся без просмотра, и отсутствующие записи в библиотеке",
   "@cacheCleanupUnusedSubtitle": {
     "description": "Subtitle for cleanup unused data action"
   },
@@ -2828,15 +2828,15 @@
   "@trackConvertFailed": {
     "description": "Snackbar when conversion fails"
   },
-  "cueSplitTitle": "Split CUE Sheet",
+  "cueSplitTitle": "Разделить CUE Sheet",
   "@cueSplitTitle": {
     "description": "Title for CUE split bottom sheet"
   },
-  "cueSplitSubtitle": "Split CUE+FLAC into individual tracks",
+  "cueSplitSubtitle": "Разделить файл CUE+FLAC на отдельные треки",
   "@cueSplitSubtitle": {
     "description": "Subtitle for CUE split menu item"
   },
-  "cueSplitAlbum": "Album: {album}",
+  "cueSplitAlbum": "Альбом: {album}",
   "@cueSplitAlbum": {
     "description": "Album name in CUE split sheet",
     "placeholders": {
@@ -2845,7 +2845,7 @@
       }
     }
   },
-  "cueSplitArtist": "Artist: {artist}",
+  "cueSplitArtist": "Артист: {artist}",
   "@cueSplitArtist": {
     "description": "Artist name in CUE split sheet",
     "placeholders": {
@@ -2854,7 +2854,7 @@
       }
     }
   },
-  "cueSplitTrackCount": "{count} tracks",
+  "cueSplitTrackCount": "{count} треков",
   "@cueSplitTrackCount": {
     "description": "Number of tracks in CUE sheet",
     "placeholders": {
@@ -2863,11 +2863,11 @@
       }
     }
   },
-  "cueSplitConfirmTitle": "Split CUE Album",
+  "cueSplitConfirmTitle": "Разделенный CUE-альбом",
   "@cueSplitConfirmTitle": {
     "description": "CUE split confirmation dialog title"
   },
-  "cueSplitConfirmMessage": "Split \"{album}\" into {count} individual FLAC files?\n\nFiles will be saved to the same directory.",
+  "cueSplitConfirmMessage": "Разбить \"{album}\" на {count} отдельных FLAC-файлов?",
   "@cueSplitConfirmMessage": {
     "description": "CUE split confirmation dialog message",
     "placeholders": {
@@ -2879,7 +2879,7 @@
       }
     }
   },
-  "cueSplitSplitting": "Splitting CUE sheet... ({current}/{total})",
+  "cueSplitSplitting": "Разделение CUE sheet... ({current}/{total})",
   "@cueSplitSplitting": {
     "description": "Snackbar while splitting CUE",
     "placeholders": {
@@ -2891,7 +2891,7 @@
       }
     }
   },
-  "cueSplitSuccess": "Split into {count} tracks successfully",
+  "cueSplitSuccess": "Успешно разделено на {count} треков",
   "@cueSplitSuccess": {
     "description": "Snackbar after successful CUE split",
     "placeholders": {
@@ -2900,15 +2900,15 @@
       }
     }
   },
-  "cueSplitFailed": "CUE split failed",
+  "cueSplitFailed": "Разделение CUE не удалось",
   "@cueSplitFailed": {
     "description": "Snackbar when CUE split fails"
   },
-  "cueSplitNoAudioFile": "Audio file not found for this CUE sheet",
+  "cueSplitNoAudioFile": "Аудиофайл для этого CUE sheet не найден",
   "@cueSplitNoAudioFile": {
     "description": "Error when CUE audio file is missing"
   },
-  "cueSplitButton": "Split into Tracks",
+  "cueSplitButton": "Разделить на Треки",
   "@cueSplitButton": {
     "description": "Button text to start CUE splitting"
   },
@@ -3126,7 +3126,7 @@
       }
     }
   },
-  "selectionShareNoFiles": "No shareable files found",
+  "selectionShareNoFiles": "Файлы, доступные для совместного доступа, не найдены",
   "@selectionShareNoFiles": {
     "description": "Snackbar when no selected files exist on disk"
   },
@@ -3147,7 +3147,7 @@
   "@selectionBatchConvertConfirmTitle": {
     "description": "Confirmation dialog title for batch conversion"
   },
-  "selectionBatchConvertConfirmMessage": "Convert {count} {count, plural, =1{track} other{tracks}} to {format} at {bitrate}?\n\nOriginal files will be deleted after conversion.",
+  "selectionBatchConvertConfirmMessage": "Преобразовать {count} {count, plural, =1{track} other{tracks}} в {format} с {bitrate}?",
   "@selectionBatchConvertConfirmMessage": {
     "description": "Confirmation dialog message for batch conversion",
     "placeholders": {
