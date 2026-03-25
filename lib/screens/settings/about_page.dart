@@ -512,6 +512,30 @@ class _TranslatorsSection extends StatelessWidget {
       flag: '🇯🇵',
     ),
     _Translator(
+      name: 'unkn0wn',
+      crowdinUsername: 'rdclvi',
+      language: 'Indonesian',
+      flag: '🇮🇩',
+    ),
+    _Translator(
+      name: 'lunching1272',
+      crowdinUsername: 'lunching1272',
+      language: 'Chinese Simplified',
+      flag: '🇨🇳',
+    ),
+    _Translator(
+      name: 'Сергей Ильченко',
+      crowdinUsername: 'Sega_Mostky',
+      language: 'Russian',
+      flag: '🇷🇺',
+    ),
+    _Translator(
+      name: 'Girl-lass',
+      crowdinUsername: 'Girl-lass',
+      language: 'Chinese Simplified',
+      flag: '🇨🇳',
+    ),
+    _Translator(
       name: 'Kaan',
       crowdinUsername: 'glai',
       language: 'Turkish',
