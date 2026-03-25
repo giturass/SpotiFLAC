@@ -1003,7 +1003,7 @@
   "@filenameFormat": {
     "description": "Setting title - filename pattern"
   },
-  "filenameShowAdvancedTags": "Show advanced tags",
+  "filenameShowAdvancedTags": "高度なタグを表示",
   "@filenameShowAdvancedTags": {
     "description": "Toggle label for showing advanced filename tags"
   },
@@ -1491,7 +1491,7 @@
   "@trackLyricsEmbedded": {
     "description": "Snackbar - lyrics saved to file"
   },
-  "trackInstrumental": "Instrumental track",
+  "trackInstrumental": "インストゥルメンタルのトラック",
   "@trackInstrumental": {
     "description": "Message when track is instrumental (no lyrics)"
   },
@@ -2828,7 +2828,7 @@
   "@trackConvertFailed": {
     "description": "Snackbar when conversion fails"
   },
-  "cueSplitTitle": "Split CUE Sheet",
+  "cueSplitTitle": "分割 CUE シート",
   "@cueSplitTitle": {
     "description": "Title for CUE split bottom sheet"
   },
@@ -3044,7 +3044,7 @@
   "@collectionRemoveFromPlaylist": {
     "description": "Tooltip for removing track from playlist"
   },
-  "collectionRemoveFromFolder": "Remove from folder",
+  "collectionRemoveFromFolder": "フォルダから削除",
   "@collectionRemoveFromFolder": {
     "description": "Tooltip for removing track from wishlist/loved folder"
   },
@@ -3101,23 +3101,23 @@
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
-  "trackOptionAddToWishlist": "Add to Wishlist",
+  "trackOptionAddToWishlist": "ウィッシュリストに追加",
   "@trackOptionAddToWishlist": {
     "description": "Bottom sheet action label - add track to wishlist"
   },
-  "trackOptionRemoveFromWishlist": "Remove from Wishlist",
+  "trackOptionRemoveFromWishlist": "ウィッシュから削除",
   "@trackOptionRemoveFromWishlist": {
     "description": "Bottom sheet action label - remove track from wishlist"
   },
-  "collectionPlaylistChangeCover": "Change cover image",
+  "collectionPlaylistChangeCover": "カバー画像を変更",
   "@collectionPlaylistChangeCover": {
     "description": "Bottom sheet action to pick a custom cover image for a playlist"
   },
-  "collectionPlaylistRemoveCover": "Remove cover image",
+  "collectionPlaylistRemoveCover": "カバー画像を削除",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
   },
-  "selectionShareCount": "Share {count} {count, plural, =1{track} other{tracks}}",
+  "selectionShareCount": "{count} {count, plural, =1{個のトラック} other{個のトラック}}を共有",
   "@selectionShareCount": {
     "description": "Share button text with count in selection mode",
     "placeholders": {
@@ -3143,7 +3143,7 @@
   "@selectionConvertNoConvertible": {
     "description": "Snackbar when no selected tracks support conversion"
   },
-  "selectionBatchConvertConfirmTitle": "Batch Convert",
+  "selectionBatchConvertConfirmTitle": "一括変換",
   "@selectionBatchConvertConfirmTitle": {
     "description": "Confirmation dialog title for batch conversion"
   },
