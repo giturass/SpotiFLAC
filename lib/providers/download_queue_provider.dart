@@ -3642,6 +3642,15 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
                 e.hasDownloadProvider &&
                 e.id.toLowerCase() == item.service.toLowerCase(),
           );
+      final trackSource = (trackToDownload.source ?? '').trim().toLowerCase();
+      final shouldSkipExtensionSongLinkPrelookup =
+          trackSource.isNotEmpty &&
+          extensionState.extensions.any(
+            (e) =>
+                e.enabled &&
+                e.hasMetadataProvider &&
+                e.id.toLowerCase() == trackSource,
+          );
 
       String? deezerTrackId = trackToDownload.deezerId;
       if (deezerTrackId == null && trackToDownload.id.startsWith('deezer:')) {
@@ -3678,6 +3687,7 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       // Fallback: Use SongLink to convert Spotify ID to Deezer ID
       if (!selectedExtensionDownloadProvider &&
           deezerTrackId == null &&
+          !shouldSkipExtensionSongLinkPrelookup &&
           trackToDownload.id.isNotEmpty &&
           !trackToDownload.id.startsWith('deezer:') &&
           !trackToDownload.id.startsWith('extension:')) {
@@ -3781,6 +3791,11 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
       } else if (selectedExtensionDownloadProvider && deezerTrackId == null) {
         _log.d(
           'Skipping Flutter SongLink Deezer prelookup for extension provider: ${item.service}',
+        );
+      } else if (shouldSkipExtensionSongLinkPrelookup &&
+          deezerTrackId == null) {
+        _log.d(
+          'Skipping Flutter SongLink Deezer prelookup for extension-sourced track; backend metadata enrichment will resolve identifiers first',
         );
       }
 
@@ -4179,8 +4194,9 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
                     progress: 0.95,
                   );
 
-                  final format =
-                      tidalHighFormat.startsWith('opus') ? 'opus' : 'mp3';
+                  final format = tidalHighFormat.startsWith('opus')
+                      ? 'opus'
+                      : 'mp3';
                   convertedPath = await FFmpegService.convertM4aToLossy(
                     tempPath,
                     format: format,
@@ -4359,8 +4375,9 @@ class DownloadQueueNotifier extends Notifier<DownloadQueueState> {
                   progress: 0.95,
                 );
 
-                final format =
-                    tidalHighFormat.startsWith('opus') ? 'opus' : 'mp3';
+                final format = tidalHighFormat.startsWith('opus')
+                    ? 'opus'
+                    : 'mp3';
                 final convertedPath = await FFmpegService.convertM4aToLossy(
                   currentFilePath,
                   format: format,

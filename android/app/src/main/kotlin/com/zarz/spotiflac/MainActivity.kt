@@ -2642,6 +2642,28 @@ class MainActivity: FlutterFragmentActivity() {
                             }
                             result.success(response)
                         }
+                        // Tidal search API
+                        "searchTidalAll" -> {
+                            val query = call.argument<String>("query") ?: ""
+                            val trackLimit = call.argument<Int>("track_limit") ?: 15
+                            val artistLimit = call.argument<Int>("artist_limit") ?: 2
+                            val filter = call.argument<String>("filter") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.searchTidalAll(query, trackLimit.toLong(), artistLimit.toLong(), filter)
+                            }
+                            result.success(response)
+                        }
+                        // Qobuz search API
+                        "searchQobuzAll" -> {
+                            val query = call.argument<String>("query") ?: ""
+                            val trackLimit = call.argument<Int>("track_limit") ?: 15
+                            val artistLimit = call.argument<Int>("artist_limit") ?: 2
+                            val filter = call.argument<String>("filter") ?: ""
+                            val response = withContext(Dispatchers.IO) {
+                                Gobackend.searchQobuzAll(query, trackLimit.toLong(), artistLimit.toLong(), filter)
+                            }
+                            result.success(response)
+                        }
                         "getDeezerRelatedArtists" -> {
                             val artistId = call.argument<String>("artist_id") ?: ""
                             val limit = call.argument<Int>("limit") ?: 12

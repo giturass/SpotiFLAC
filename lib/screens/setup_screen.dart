@@ -91,6 +91,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
           _notificationPermissionGranted = notificationStatus.isGranted;
         });
       }
+    } else {
+      setState(() {
+        _storagePermissionGranted = true;
+        _notificationPermissionGranted = true;
+      });
     }
   }
 
@@ -139,6 +144,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
             SnackBar(content: Text(context.l10n.setupPermissionDeniedMessage)),
           );
         }
+      } else {
+        setState(() => _storagePermissionGranted = true);
       }
     } catch (e) {
       debugPrint('Permission error: $e');
@@ -225,7 +232,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
     try {
       if (Platform.isIOS) {
         await _showIOSDirectoryOptions();
-      } else {
+      } else if (Platform.isAndroid) {
         final result = await PlatformBridge.pickSafTree();
         if (result != null) {
           final treeUri = result['tree_uri'] as String? ?? '';

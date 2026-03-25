@@ -367,6 +367,26 @@ import Gobackend  // Import Go framework
             if let error = error { throw error }
             return response
 
+        case "searchTidalAll":
+            let args = call.arguments as! [String: Any]
+            let query = args["query"] as! String
+            let trackLimit = args["track_limit"] as? Int ?? 15
+            let artistLimit = args["artist_limit"] as? Int ?? 3
+            let filter = args["filter"] as? String ?? ""
+            let response = GobackendSearchTidalAll(query, Int(trackLimit), Int(artistLimit), filter, &error)
+            if let error = error { throw error }
+            return response
+
+        case "searchQobuzAll":
+            let args = call.arguments as! [String: Any]
+            let query = args["query"] as! String
+            let trackLimit = args["track_limit"] as? Int ?? 15
+            let artistLimit = args["artist_limit"] as? Int ?? 3
+            let filter = args["filter"] as? String ?? ""
+            let response = GobackendSearchQobuzAll(query, Int(trackLimit), Int(artistLimit), filter, &error)
+            if let error = error { throw error }
+            return response
+
         case "getDeezerRelatedArtists":
             let args = call.arguments as! [String: Any]
             let artistId = args["artist_id"] as! String

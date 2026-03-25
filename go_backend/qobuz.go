@@ -1307,6 +1307,134 @@ func (q *QobuzDownloader) SearchTracks(query string, limit int) ([]ExtTrackMetad
 	return results, nil
 }
 
+// SearchAll searches Qobuz for tracks, artists, and albums matching the query.
+// Returns results in the same SearchAllResult format as Deezer's SearchAll.
+func (q *QobuzDownloader) SearchAll(query string, trackLimit, artistLimit int, filter string) (*SearchAllResult, error) {
+	GoLog("[Qobuz] SearchAll: query=%q, trackLimit=%d, artistLimit=%d, filter=%q\n", query, trackLimit, artistLimit, filter)
+
+	cleanQuery := strings.TrimSpace(query)
+	if cleanQuery == "" {
+		return nil, fmt.Errorf("empty qobuz search query")
+	}
+
+	albumLimit := 5
+
+	if filter != "" {
+		switch filter {
+		case "track":
+			trackLimit = 50
+			artistLimit = 0
+			albumLimit = 0
+		case "artist":
+			trackLimit = 0
+			artistLimit = 20
+			albumLimit = 0
+		case "album":
+			trackLimit = 0
+			artistLimit = 0
+			albumLimit = 20
+		}
+	}
+
+	result := &SearchAllResult{
+		Tracks:    make([]TrackMetadata, 0, trackLimit),
+		Artists:   make([]SearchArtistResult, 0, artistLimit),
+		Albums:    make([]SearchAlbumResult, 0, albumLimit),
+		Playlists: make([]SearchPlaylistResult, 0),
+	}
+
+	if trackLimit > 0 {
+		tracks, err := q.searchQobuzTracksWithFallback(cleanQuery, trackLimit)
+		if err != nil {
+			GoLog("[Qobuz] Track search failed: %v\n", err)
+			return nil, fmt.Errorf("qobuz track search failed: %w", err)
+		}
+		GoLog("[Qobuz] Got %d tracks from API\n", len(tracks))
+		for i := range tracks {
+			result.Tracks = append(result.Tracks, qobuzTrackToTrackMetadata(&tracks[i]))
+		}
+	}
+
+	if artistLimit > 0 {
+		searchURL := fmt.Sprintf("https://www.qobuz.com/api.json/0.2/artist/search?query=%s&limit=%d&app_id=%s",
+			url.QueryEscape(cleanQuery), artistLimit, q.appID)
+		req, err := http.NewRequest("GET", searchURL, nil)
+		if err == nil {
+			resp, reqErr := DoRequestWithUserAgent(q.client, req)
+			if reqErr == nil {
+				defer resp.Body.Close()
+				if resp.StatusCode == 200 {
+					var artistResp struct {
+						Artists struct {
+							Items []struct {
+								ID    int64         `json:"id"`
+								Name  string        `json:"name"`
+								Image qobuzImageSet `json:"image"`
+							} `json:"items"`
+						} `json:"artists"`
+					}
+					if decErr := json.NewDecoder(resp.Body).Decode(&artistResp); decErr == nil {
+						GoLog("[Qobuz] Got %d artists from API\n", len(artistResp.Artists.Items))
+						for _, artist := range artistResp.Artists.Items {
+							imageURL := qobuzFirstNonEmpty(artist.Image.Large, artist.Image.Small, artist.Image.Thumbnail)
+							result.Artists = append(result.Artists, SearchArtistResult{
+								ID:     qobuzPrefixedNumericID(artist.ID),
+								Name:   strings.TrimSpace(artist.Name),
+								Images: imageURL,
+							})
+						}
+					} else {
+						GoLog("[Qobuz] Artist search decode failed: %v\n", decErr)
+					}
+				}
+			} else {
+				GoLog("[Qobuz] Artist search request failed: %v\n", reqErr)
+			}
+		}
+	}
+
+	if albumLimit > 0 {
+		searchURL := fmt.Sprintf("https://www.qobuz.com/api.json/0.2/album/search?query=%s&limit=%d&app_id=%s",
+			url.QueryEscape(cleanQuery), albumLimit, q.appID)
+		req, err := http.NewRequest("GET", searchURL, nil)
+		if err == nil {
+			resp, reqErr := DoRequestWithUserAgent(q.client, req)
+			if reqErr == nil {
+				defer resp.Body.Close()
+				if resp.StatusCode == 200 {
+					var albumResp struct {
+						Albums struct {
+							Items []qobuzAlbumDetails `json:"items"`
+						} `json:"albums"`
+					}
+					if decErr := json.NewDecoder(resp.Body).Decode(&albumResp); decErr == nil {
+						GoLog("[Qobuz] Got %d albums from API\n", len(albumResp.Albums.Items))
+						for i := range albumResp.Albums.Items {
+							album := &albumResp.Albums.Items[i]
+							result.Albums = append(result.Albums, SearchAlbumResult{
+								ID:          qobuzPrefixedID(album.ID),
+								Name:        strings.TrimSpace(album.Title),
+								Artists:     qobuzArtistsDisplayName(album.Artists, album.Artist.Name),
+								Images:      qobuzAlbumImage(album),
+								ReleaseDate: qobuzNormalizeReleaseDate(album.ReleaseDateOriginal),
+								TotalTracks: album.TracksCount,
+								AlbumType:   qobuzNormalizeAlbumType(album.ReleaseType, album.ProductType, album.TracksCount),
+							})
+						}
+					} else {
+						GoLog("[Qobuz] Album search decode failed: %v\n", decErr)
+					}
+				}
+			} else {
+				GoLog("[Qobuz] Album search request failed: %v\n", reqErr)
+			}
+		}
+	}
+
+	GoLog("[Qobuz] SearchAll complete: %d tracks, %d artists, %d albums\n", len(result.Tracks), len(result.Artists), len(result.Albums))
+	return result, nil
+}
+
 func (q *QobuzDownloader) SearchTrackByMetadataWithDuration(trackName, artistName string, expectedDurationSec int) (*QobuzTrack, error) {
 	queries := []string{}
 

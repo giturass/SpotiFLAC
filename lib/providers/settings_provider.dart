@@ -53,6 +53,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
   }
 
   void _syncLyricsSettingsToBackend() {
+    if (!PlatformBridge.supportsCoreBackend) return;
+
     PlatformBridge.setLyricsProviders(state.lyricsProviders).catchError((e) {
       _log.w('Failed to sync lyrics providers to backend: $e');
     });
@@ -68,6 +70,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
   }
 
   void _syncNetworkCompatibilitySettingsToBackend() {
+    if (!PlatformBridge.supportsCoreBackend) return;
+
     final compatibilityMode = state.networkCompatibilityMode;
     PlatformBridge.setNetworkCompatibilityOptions(
       allowHttp: compatibilityMode,

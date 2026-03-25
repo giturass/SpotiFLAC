@@ -1191,7 +1191,7 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
   Future<void> _pickDirectory(BuildContext context, WidgetRef ref) async {
     if (Platform.isIOS) {
       _showIOSDirectoryOptions(context, ref);
-    } else {
+    } else if (Platform.isAndroid) {
       _showAndroidDirectoryOptions(context, ref);
     }
   }
@@ -1626,9 +1626,9 @@ class _DownloadSettingsPageState extends ConsumerState<DownloadSettingsPage> {
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
               child: Text(
                 context.l10n.downloadLossy320Format,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             Padding(

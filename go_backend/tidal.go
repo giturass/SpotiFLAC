@@ -874,6 +874,121 @@ func (t *TidalDownloader) SearchTracks(query string, limit int) ([]ExtTrackMetad
 	return results, nil
 }
 
+// SearchAll searches Tidal for tracks, artists, and albums matching the query.
+// Returns results in the same SearchAllResult format as Deezer's SearchAll.
+func (t *TidalDownloader) SearchAll(query string, trackLimit, artistLimit int, filter string) (*SearchAllResult, error) {
+	GoLog("[Tidal] SearchAll: query=%q, trackLimit=%d, artistLimit=%d, filter=%q\n", query, trackLimit, artistLimit, filter)
+
+	cleanQuery := strings.TrimSpace(query)
+	if cleanQuery == "" {
+		return nil, fmt.Errorf("empty tidal search query")
+	}
+
+	albumLimit := 5
+
+	if filter != "" {
+		switch filter {
+		case "track":
+			trackLimit = 50
+			artistLimit = 0
+			albumLimit = 0
+		case "artist":
+			trackLimit = 0
+			artistLimit = 20
+			albumLimit = 0
+		case "album":
+			trackLimit = 0
+			artistLimit = 0
+			albumLimit = 20
+		}
+	}
+
+	result := &SearchAllResult{
+		Tracks:    make([]TrackMetadata, 0, trackLimit),
+		Artists:   make([]SearchArtistResult, 0, artistLimit),
+		Albums:    make([]SearchAlbumResult, 0, albumLimit),
+		Playlists: make([]SearchPlaylistResult, 0),
+	}
+
+	if trackLimit > 0 {
+		page, err := t.getTrackSearchPage(cleanQuery, trackLimit)
+		if err != nil {
+			GoLog("[Tidal] Track search failed: %v\n", err)
+			return nil, fmt.Errorf("tidal track search failed: %w", err)
+		}
+		GoLog("[Tidal] Got %d tracks from API\n", len(page.Items))
+		for i := range page.Items {
+			result.Tracks = append(result.Tracks, tidalTrackToTrackMetadata(&page.Items[i]))
+		}
+	}
+
+	if artistLimit > 0 {
+		requestURL := tidalBuildMetadataURL("search/artists", url.Values{
+			"query":  {cleanQuery},
+			"limit":  {strconv.Itoa(artistLimit)},
+			"offset": {"0"},
+		})
+		var artistResp struct {
+			Items []struct {
+				ID         int64  `json:"id"`
+				Name       string `json:"name"`
+				Picture    string `json:"picture"`
+				Popularity int    `json:"popularity"`
+				URL        string `json:"url"`
+			} `json:"items"`
+		}
+		if err := t.getTidalMetadataJSON(requestURL, &artistResp); err == nil {
+			GoLog("[Tidal] Got %d artists from API\n", len(artistResp.Items))
+			for _, artist := range artistResp.Items {
+				result.Artists = append(result.Artists, SearchArtistResult{
+					ID:         tidalPrefixedNumericID(artist.ID),
+					Name:       strings.TrimSpace(artist.Name),
+					Images:     tidalImageURL(artist.Picture, "750x750"),
+					Followers:  0,
+					Popularity: artist.Popularity,
+				})
+			}
+		} else {
+			GoLog("[Tidal] Artist search failed: %v\n", err)
+		}
+	}
+
+	if albumLimit > 0 {
+		requestURL := tidalBuildMetadataURL("search/albums", url.Values{
+			"query":  {cleanQuery},
+			"limit":  {strconv.Itoa(albumLimit)},
+			"offset": {"0"},
+		})
+		var albumResp struct {
+			Items []tidalPublicAlbum `json:"items"`
+		}
+		if err := t.getTidalMetadataJSON(requestURL, &albumResp); err == nil {
+			GoLog("[Tidal] Got %d albums from API\n", len(albumResp.Items))
+			for i := range albumResp.Items {
+				album := &albumResp.Items[i]
+				albumType := strings.ToLower(strings.TrimSpace(album.Type))
+				if albumType == "" {
+					albumType = "album"
+				}
+				result.Albums = append(result.Albums, SearchAlbumResult{
+					ID:          tidalPrefixedNumericID(album.ID),
+					Name:        strings.TrimSpace(album.Title),
+					Artists:     tidalAlbumArtistsDisplay(album),
+					Images:      tidalImageURL(album.Cover, "1280x1280"),
+					ReleaseDate: strings.TrimSpace(album.ReleaseDate),
+					TotalTracks: album.NumberOfTracks,
+					AlbumType:   albumType,
+				})
+			}
+		} else {
+			GoLog("[Tidal] Album search failed: %v\n", err)
+		}
+	}
+
+	GoLog("[Tidal] SearchAll complete: %d tracks, %d artists, %d albums\n", len(result.Tracks), len(result.Artists), len(result.Albums))
+	return result, nil
+}
+
 func (t *TidalDownloader) GetTrackMetadata(resourceID string) (*TrackResponse, error) {
 	track, err := t.getPublicTrack(resourceID)
 	if err != nil {

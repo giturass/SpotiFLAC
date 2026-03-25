@@ -30,6 +30,8 @@ class TrackState {
   searchExtensionId; // Extension ID used for current search results
   final String?
   selectedSearchFilter; // Currently selected search filter (e.g., "track", "album", "artist", "playlist")
+  final String?
+  searchSource; // Built-in search provider used for current results (e.g., "deezer", "tidal", "qobuz")
 
   const TrackState({
     this.tracks = const [],
@@ -52,6 +54,7 @@ class TrackState {
     this.isShowingRecentAccess = false,
     this.searchExtensionId,
     this.selectedSearchFilter,
+    this.searchSource,
   });
 
   bool get hasContent =>
@@ -83,6 +86,8 @@ class TrackState {
     String? searchExtensionId,
     String? selectedSearchFilter,
     bool clearSelectedSearchFilter = false,
+    String? searchSource,
+    bool clearSearchSource = false,
   }) {
     return TrackState(
       tracks: tracks ?? this.tracks,
@@ -108,6 +113,9 @@ class TrackState {
       selectedSearchFilter: clearSelectedSearchFilter
           ? null
           : (selectedSearchFilter ?? this.selectedSearchFilter),
+      searchSource: clearSearchSource
+          ? null
+          : (searchSource ?? this.searchSource),
     );
   }
 }
@@ -618,7 +626,11 @@ class TrackNotifier extends Notifier<TrackState> {
     }
   }
 
-  Future<void> search(String query, {String? filterOverride}) async {
+  Future<void> search(
+    String query, {
+    String? filterOverride,
+    String? builtInSearchProvider,
+  }) async {
     final requestId = ++_currentRequestId;
 
     // Preserve selected filter during loading
@@ -640,39 +652,68 @@ class TrackNotifier extends Notifier<TrackState> {
       final includeExtensions =
           settings.useExtensionProviders && hasActiveMetadataExtensions;
 
+      // Determine the effective search provider
+      final effectiveProvider = builtInSearchProvider ?? 'deezer';
+
       _log.i(
-        'Search started: metadataProviders, query="$query", includeExtensions=$includeExtensions, filter=$currentFilter',
+        'Search started: provider=$effectiveProvider, query="$query", includeExtensions=$includeExtensions, filter=$currentFilter',
       );
 
       Map<String, dynamic> results;
       List<Map<String, dynamic>> metadataTrackResults = [];
 
-      try {
-        _log.d('Calling metadata provider search API...');
-        metadataTrackResults =
-            await PlatformBridge.searchTracksWithMetadataProviders(
-              query,
-              limit: 20,
-              includeExtensions: includeExtensions,
-            );
-        _log.i(
-          'Metadata providers returned ${metadataTrackResults.length} tracks',
-        );
-      } catch (e) {
-        _log.w(
-          'Metadata provider search failed, falling back to Deezer tracks: $e',
-        );
+      // Only use metadata providers for Deezer search (default behavior)
+      if (effectiveProvider == 'deezer') {
+        try {
+          _log.d('Calling metadata provider search API...');
+          metadataTrackResults =
+              await PlatformBridge.searchTracksWithMetadataProviders(
+                query,
+                limit: 20,
+                includeExtensions: includeExtensions,
+              );
+          _log.i(
+            'Metadata providers returned ${metadataTrackResults.length} tracks',
+          );
+        } catch (e) {
+          _log.w(
+            'Metadata provider search failed, falling back to Deezer tracks: $e',
+          );
+        }
       }
 
-      _log.d('Calling Deezer search API...');
-      results = await PlatformBridge.searchDeezerAll(
-        query,
-        trackLimit: 20,
-        artistLimit: 2,
-        filter: currentFilter,
-      );
+      // Call the appropriate search API
+      switch (effectiveProvider) {
+        case 'tidal':
+          _log.d('Calling Tidal search API...');
+          results = await PlatformBridge.searchTidalAll(
+            query,
+            trackLimit: 20,
+            artistLimit: 2,
+            filter: currentFilter,
+          );
+          break;
+        case 'qobuz':
+          _log.d('Calling Qobuz search API...');
+          results = await PlatformBridge.searchQobuzAll(
+            query,
+            trackLimit: 20,
+            artistLimit: 2,
+            filter: currentFilter,
+          );
+          break;
+        default:
+          _log.d('Calling Deezer search API...');
+          results = await PlatformBridge.searchDeezerAll(
+            query,
+            trackLimit: 20,
+            artistLimit: 2,
+            filter: currentFilter,
+          );
+          break;
+      }
       _log.i(
-        'Deezer returned ${(results['tracks'] as List?)?.length ?? 0} tracks, ${(results['artists'] as List?)?.length ?? 0} artists, ${(results['albums'] as List?)?.length ?? 0} albums',
+        '$effectiveProvider returned ${(results['tracks'] as List?)?.length ?? 0} tracks, ${(results['artists'] as List?)?.length ?? 0} artists, ${(results['albums'] as List?)?.length ?? 0} albums',
       );
 
       if (!_isRequestValid(requestId)) {
@@ -758,6 +799,8 @@ class TrackNotifier extends Notifier<TrackState> {
         hasSearchText: state.hasSearchText,
         isShowingRecentAccess: state.isShowingRecentAccess,
         selectedSearchFilter: currentFilter, // Preserve filter in results
+        searchSource:
+            effectiveProvider, // Track which service was used for search
       );
     } catch (e, stackTrace) {
       if (!_isRequestValid(requestId)) return;

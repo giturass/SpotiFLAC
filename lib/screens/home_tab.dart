@@ -489,6 +489,9 @@ class _HomeTabState extends ConsumerState<HomeTab>
 
     if (searchProvider == null || searchProvider.isEmpty) return false;
 
+    // Built-in providers (tidal, qobuz) also support live search
+    if (_builtInSearchProviders.contains(searchProvider)) return true;
+
     final extension = extState.extensions
         .where((e) => e.id == searchProvider && e.enabled)
         .firstOrNull;
@@ -546,6 +549,9 @@ class _HomeTabState extends ConsumerState<HomeTab>
     }
   }
 
+  /// Built-in search providers that are not extensions
+  static const _builtInSearchProviders = {'tidal', 'qobuz'};
+
   Future<void> _performSearch(String query, {String? filterOverride}) async {
     final settings = ref.read(settingsProvider);
     final extState = ref.read(extensionProvider);
@@ -558,9 +564,14 @@ class _HomeTabState extends ConsumerState<HomeTab>
     if (_lastSearchQuery == searchKey) return;
     _lastSearchQuery = searchKey;
 
+    final isBuiltInProvider =
+        searchProvider != null &&
+        _builtInSearchProviders.contains(searchProvider);
+
     final isExtensionEnabled =
         searchProvider != null &&
         searchProvider.isNotEmpty &&
+        !isBuiltInProvider &&
         extState.extensions.any((e) => e.id == searchProvider && e.enabled);
 
     if (isExtensionEnabled) {
@@ -571,10 +582,20 @@ class _HomeTabState extends ConsumerState<HomeTab>
       await ref
           .read(trackProvider.notifier)
           .customSearch(searchProvider, query, options: options);
+    } else if (isBuiltInProvider) {
+      // Use built-in Tidal or Qobuz search
+      await ref
+          .read(trackProvider.notifier)
+          .search(
+            query,
+            filterOverride: selectedFilter,
+            builtInSearchProvider: searchProvider,
+          );
     } else {
       if (searchProvider != null &&
           searchProvider.isNotEmpty &&
-          !isExtensionEnabled) {
+          !isExtensionEnabled &&
+          !isBuiltInProvider) {
         ref.read(settingsProvider.notifier).setSearchProvider(null);
       }
       await ref
@@ -718,6 +739,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
           trackName: track.name,
           artistName: track.artistName,
           coverUrl: track.coverUrl,
+          recommendedService: trackState.searchSource,
           onSelect: (quality, service) {
             ref
                 .read(downloadQueueProvider.notifier)
@@ -2770,6 +2792,14 @@ class _HomeTabState extends ConsumerState<HomeTab>
     }
 
     if (searchProvider != null && searchProvider.isNotEmpty) {
+      // Check built-in providers first
+      if (searchProvider == 'tidal') {
+        return 'Search with Tidal...';
+      }
+      if (searchProvider == 'qobuz') {
+        return 'Search with Qobuz...';
+      }
+
       final ext = extState.extensions
           .where((e) => e.id == searchProvider)
           .firstOrNull;
@@ -3004,6 +3034,11 @@ class _SearchProviderDropdown extends ConsumerWidget {
           .firstOrNull;
     }
 
+    // Check if current provider is a built-in provider (tidal/qobuz)
+    const builtInProviders = {'tidal', 'qobuz'};
+    final isBuiltInProvider =
+        currentProvider != null && builtInProviders.contains(currentProvider);
+
     IconData displayIcon = Icons.search;
     String? iconPath;
     if (currentExt != null) {
@@ -3011,10 +3046,8 @@ class _SearchProviderDropdown extends ConsumerWidget {
       if (currentExt.searchBehavior?.icon != null) {
         displayIcon = _getIconFromName(currentExt.searchBehavior!.icon!);
       }
-    }
-
-    if (searchProviders.isEmpty) {
-      return const Icon(Icons.search);
+    } else if (isBuiltInProvider) {
+      displayIcon = Icons.music_note;
     }
 
     return Padding(
@@ -3077,6 +3110,62 @@ class _SearchProviderDropdown extends ConsumerWidget {
                   ),
                 ),
                 if (currentProvider == null || currentProvider.isEmpty)
+                  Icon(Icons.check, size: 18, color: colorScheme.primary),
+              ],
+            ),
+          ),
+          // Built-in Tidal search option
+          PopupMenuItem<String>(
+            value: 'tidal',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.music_note,
+                  size: 20,
+                  color: currentProvider == 'tidal'
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Tidal',
+                    style: TextStyle(
+                      fontWeight: currentProvider == 'tidal'
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                if (currentProvider == 'tidal')
+                  Icon(Icons.check, size: 18, color: colorScheme.primary),
+              ],
+            ),
+          ),
+          // Built-in Qobuz search option
+          PopupMenuItem<String>(
+            value: 'qobuz',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.music_note,
+                  size: 20,
+                  color: currentProvider == 'qobuz'
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Qobuz',
+                    style: TextStyle(
+                      fontWeight: currentProvider == 'qobuz'
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ),
+                if (currentProvider == 'qobuz')
                   Icon(Icons.check, size: 18, color: colorScheme.primary),
               ],
             ),

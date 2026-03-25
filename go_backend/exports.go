@@ -1147,6 +1147,36 @@ func SearchDeezerAll(query string, trackLimit, artistLimit int, filter string) (
 	return string(jsonBytes), nil
 }
 
+func SearchTidalAll(query string, trackLimit, artistLimit int, filter string) (string, error) {
+	downloader := NewTidalDownloader()
+	results, err := downloader.SearchAll(query, trackLimit, artistLimit, filter)
+	if err != nil {
+		return "", err
+	}
+
+	jsonBytes, err := json.Marshal(results)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
+func SearchQobuzAll(query string, trackLimit, artistLimit int, filter string) (string, error) {
+	downloader := NewQobuzDownloader()
+	results, err := downloader.SearchAll(query, trackLimit, artistLimit, filter)
+	if err != nil {
+		return "", err
+	}
+
+	jsonBytes, err := json.Marshal(results)
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonBytes), nil
+}
+
 func GetDeezerRelatedArtists(artistID string, limit int) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()

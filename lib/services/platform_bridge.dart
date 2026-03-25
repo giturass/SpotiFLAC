@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:spotiflac_android/services/download_request_payload.dart';
 import 'package:spotiflac_android/utils/logger.dart';
@@ -13,6 +14,11 @@ class PlatformBridge {
   static const _libraryScanProgressEvents = EventChannel(
     'com.zarz.spotiflac/library_scan_progress_stream',
   );
+
+  static bool get supportsCoreBackend => Platform.isAndroid || Platform.isIOS;
+
+  static bool get supportsExtensionSystem =>
+      Platform.isAndroid || Platform.isIOS;
 
   static Future<Map<String, dynamic>> parseSpotifyUrl(String url) async {
     _log.d('parseSpotifyUrl: $url');
@@ -495,6 +501,36 @@ class PlatformBridge {
     String? filter,
   }) async {
     final result = await _channel.invokeMethod('searchDeezerAll', {
+      'query': query,
+      'track_limit': trackLimit,
+      'artist_limit': artistLimit,
+      'filter': filter ?? '',
+    });
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> searchTidalAll(
+    String query, {
+    int trackLimit = 15,
+    int artistLimit = 2,
+    String? filter,
+  }) async {
+    final result = await _channel.invokeMethod('searchTidalAll', {
+      'query': query,
+      'track_limit': trackLimit,
+      'artist_limit': artistLimit,
+      'filter': filter ?? '',
+    });
+    return jsonDecode(result as String) as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> searchQobuzAll(
+    String query, {
+    int trackLimit = 15,
+    int artistLimit = 2,
+    String? filter,
+  }) async {
+    final result = await _channel.invokeMethod('searchQobuzAll', {
       'query': query,
       'track_limit': trackLimit,
       'artist_limit': artistLimit,

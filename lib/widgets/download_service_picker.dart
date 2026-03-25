@@ -102,6 +102,7 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
   final String? artistName;
   final String? coverUrl;
   final void Function(String quality, String service) onSelect;
+  final String? recommendedService; // Service to show as "(Recommended)"
 
   const DownloadServicePicker({
     super.key,
@@ -109,6 +110,7 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
     this.artistName,
     this.coverUrl,
     required this.onSelect,
+    this.recommendedService,
   });
 
   @override
@@ -121,6 +123,7 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
     String? trackName,
     String? artistName,
     String? coverUrl,
+    String? recommendedService,
     required void Function(String quality, String service) onSelect,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -138,6 +141,7 @@ class DownloadServicePicker extends ConsumerStatefulWidget {
         artistName: artistName,
         coverUrl: coverUrl,
         onSelect: onSelect,
+        recommendedService: recommendedService,
       ),
     );
   }
@@ -152,7 +156,13 @@ class _DownloadServicePickerState extends ConsumerState<DownloadServicePicker> {
   @override
   void initState() {
     super.initState();
-    _selectedService = ref.read(settingsProvider).defaultService;
+    // Default to recommended service if available, otherwise use default
+    final recommended = widget.recommendedService;
+    if (recommended != null && recommended.isNotEmpty) {
+      _selectedService = recommended;
+    } else {
+      _selectedService = ref.read(settingsProvider).defaultService;
+    }
   }
 
   /// Get quality options for the selected service
@@ -282,6 +292,8 @@ class _DownloadServicePickerState extends ConsumerState<DownloadServicePicker> {
                     _ServiceChip(
                       label: service.isDisabled
                           ? '${service.label} (${service.disabledReason})'
+                          : widget.recommendedService == service.id
+                          ? '${service.label} (Recommended)'
                           : service.label,
                       isSelected: _selectedService == service.id,
                       isDisabled: service.isDisabled,

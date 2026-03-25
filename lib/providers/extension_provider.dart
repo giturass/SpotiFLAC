@@ -504,6 +504,11 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
   }
 
   Future<void> _cleanupExtensions({required String reason}) async {
+    if (!PlatformBridge.supportsExtensionSystem) {
+      _cleanupInFlight = false;
+      return;
+    }
+
     try {
       await PlatformBridge.cleanupExtensions();
       _log.d('Extensions cleaned up ($reason)');
@@ -518,6 +523,17 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
     if (state.isInitialized) return;
 
     state = state.copyWith(isLoading: true, error: null);
+
+    if (!PlatformBridge.supportsExtensionSystem) {
+      state = state.copyWith(
+        isInitialized: true,
+        isLoading: false,
+        extensions: const [],
+        error: null,
+      );
+      _log.i('Extension system disabled on this platform');
+      return;
+    }
 
     try {
       await PlatformBridge.initExtensionSystem(extensionsDir, dataDir);
