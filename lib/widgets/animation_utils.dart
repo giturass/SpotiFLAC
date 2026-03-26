@@ -443,11 +443,13 @@ class GridSkeleton extends StatelessWidget {
 class ArtistScreenSkeleton extends StatelessWidget {
   final int popularCount;
   final int albumCount;
+  final bool showCoverHeader;
 
   const ArtistScreenSkeleton({
     super.key,
     this.popularCount = 5,
     this.albumCount = 5,
+    this.showCoverHeader = true,
   });
 
   @override
@@ -459,11 +461,13 @@ class ArtistScreenSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SkeletonBox(
-              width: screenWidth,
-              height: screenWidth * 0.75,
-              borderRadius: 0,
-            ),
+            if (showCoverHeader) ...[
+              SkeletonBox(
+                width: screenWidth,
+                height: screenWidth * 0.75,
+                borderRadius: 0,
+              ),
+            ],
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
               child: SkeletonBox(width: 180, height: 24, borderRadius: 4),

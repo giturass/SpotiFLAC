@@ -492,7 +492,15 @@ class _ArtistScreenState extends ConsumerState<ArtistScreen> {
                   hasDiscography: hasDiscography,
                 ),
                 if (_isLoadingDiscography)
-                  const SliverToBoxAdapter(child: ArtistScreenSkeleton()),
+                  SliverToBoxAdapter(
+                    child: ArtistScreenSkeleton(
+                      showCoverHeader:
+                          (_headerImageUrl ??
+                              widget.headerImageUrl ??
+                              widget.coverUrl) ==
+                          null,
+                    ),
+                  ),
                 if (_error != null)
                   SliverToBoxAdapter(
                     child: Padding(
