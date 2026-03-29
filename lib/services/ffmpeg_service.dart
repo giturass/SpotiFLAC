@@ -1446,10 +1446,10 @@ class FFmpegService {
     }
 
     cmdBuffer.write('-map 0:a ');
-    // M4A/MP4 containers store cover art in the 'covr' atom automatically.
-    // '-disposition attached_pic' is only for Matroska/WebM and must NOT be used here.
     if (hasCover) {
-      cmdBuffer.write('-map 1:v -c:v copy ');
+      cmdBuffer.write('-map 1:v -c:v copy -disposition:v:0 attached_pic ');
+      cmdBuffer.write('-metadata:s:v title="Album cover" ');
+      cmdBuffer.write('-metadata:s:v comment="Cover (front)" ');
     }
     cmdBuffer.write('-c:a alac ');
     cmdBuffer.write('-map_metadata -1 ');
@@ -1836,8 +1836,7 @@ class FFmpegService {
         continue;
       }
 
-      if (coverPath != null && coverPath.isNotEmpty && outputExt == 'flac') {
-      }
+      if (coverPath != null && coverPath.isNotEmpty && outputExt == 'flac') {}
 
       outputPaths.add(outputPath);
       _log.i('CUE split: track ${track.number} -> $outputFileName');
